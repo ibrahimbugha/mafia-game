@@ -72,9 +72,11 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
 <canvas id="bg"></canvas><div id="vg"></div><div id="app"></div><div id="fl"></div><div id="fx"></div>
 <button id="mute" aria-label="الصوت" onclick="muted=!muted;this.textContent=muted?'🔇':'🔊'">🔊</button>
 <script>
-/* ---------- DATA: add or remove a role by editing these two tables ---------- */
+window.MP = true; // Enable Multiplayer by default
+
+/* ---------- DATA ---------- */
 const CFG = { discuss: 120, showRole: true };
-const REQ = ["killer", "silencer", "doctor"]; /* mandatory roles */
+const REQ = ["killer", "silencer", "doctor"];
 const ROLES = {
   silencer:  { n:"مافيا التسكيت", side:"mafia", order:1, act:{ type:"silence", self:true, q:"من تريد إسكاته؟" } },
   killer:    { n:"مافيا القتل",   side:"mafia", order:2, act:{ type:"kill", q:"من تريد قتله؟" } },
@@ -94,28 +96,23 @@ const COUNTS = {
   8:["killer","silencer","detective","doctor","mayor","citizen","citizen","citizen"]
 };
 
-/* Guide text per role (add one line when you add a role) */
 const DESC = {
   silencer:  "يختار كل ليلة لاعبًا فيُمنع من الكلام في النقاش التالي، لكنه يصوّت. يستطيع إسكات نفسه ليبعد الشبهات عنه.",
   killer:    "يختار كل ليلة لاعبًا ليُقتل، إلا إذا أنقذه الطبيب.",
   doctor:    "ينقذ كل ليلة لاعبًا من القتل، ويمكنه إنقاذ نفسه. لا يجوز أن ينقذ الشخص نفسه ليلتين متتاليتين.",
   detective: "يحقق كل ليلة مع لاعب ويعرف فقط: من المافيا، أو ليس من المافيا.",
   mayor:     "في التصويت يستطيع مرة واحدة فقط أن يحسب صوته بثلاثة أصوات. الخيار يظهر له في أعلى شاشة التصويت.",
-  citizen:   "بلا قدرة خاصة. سلاحه النقاش والتصويت. يأخذ الهاتف ليلًا كالجميع حتى لا يعرف أحد من هو."
-};
-Object.assign(DESC, {
+  citizen:   "بلا قدرة خاصة. سلاحه النقاش والتصويت. يأخذ الهاتف ليلًا كالجميع حتى لا يعرف أحد من هو.",
   bodyguard:  "يحمي كل ليلة لاعبًا، وإذا هوجم يموت الحارس بدلًا منه. لا يحمي الشخص نفسه ليلتين متتاليتين.",
   spoiledson: "عندما يموت، قتلًا أو إعدامًا، يختار لاعبًا يشك فيه ليموت معه.",
   jester:     "محايد. إذا صوّتت المدينة لإعدامه فاز وحده وانتهت اللعبة.",
-  sniper:     "معه رصاصة واحدة في اللعبة كلها، ويقرر في أي ليلة يطلقها. إذا أصاب لاعبًا من المافيا مات الهدف فقط. وإذا أخطأ (الهدف ليس من المافيا) مات الهدف والقناص معًا."
-});
-/* Roles with no night ability get this fake action, so everyone takes the phone */
+  sniper:     "معه رصاصة واحدة في اللعبة كلها، ويقرر في أي ليلة يطلقها. إذا أصاب لاعبًا من المافيا مات الهدف فقط. وإذا أخطأ مات الهدف والقناص معًا."
+};
 const DECOY = { type: "none", q: "لا قدرة لك الليلة. اختر أي لاعب حتى لا يعرف أحد أنك بلا قدرة." };
 
-/* ---------- helpers ---------- */
+/* ---------- HELPERS ---------- */
 let G, N = 6, NAMES = [], T, cb, AC, muted = false;
 
-/* Role scaling: COUNTS above overrides a size; otherwise this builds it (5 to 20) */
 function rolesFor(n) {
   const m = Math.max(2, Math.floor((n + 2) / 4));
   const r = ["killer"]; if (m > 1) r.push("silencer"); while (r.length < m) r.push("killer");
@@ -125,7 +122,6 @@ function rolesFor(n) {
   return r;
 }
 
-/* Sound: tiny synth, no audio files. Night sounds are identical for every role so nothing leaks. */
 const A = () => AC || (AC = new (window.AudioContext || window.webkitAudioContext)());
 function tone(f, d = .15, type = "sine", v = .15, t0 = 0, f2) {
   const a = A(), t = a.currentTime + t0, o = a.createOscillator(), g = a.createGain();
@@ -156,7 +152,6 @@ const SFX = {
 const sfx = n => { if (muted) return; try { SFX[n](); } catch (e) {} };
 document.addEventListener("click", e => { if (e.target.closest(".btn")) { try { A().resume(); } catch (_) {} sfx("click"); } });
 
-/* Visual effects */
 const setPh = p => document.body.dataset.ph = p;
 const flash = () => { const f = $("fl"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); };
 function burst(col) {
@@ -169,7 +164,7 @@ function burst(col) {
   setTimeout(() => x.innerHTML = "", 6000);
 }
 const $ = id => document.getElementById(id);
-const esc = s => s.replace(/[&<>"']/g, c => "&#" + c.charCodeAt(0) + ";");
+const esc = s => (s || "").replace(/[&<>"']/g, c => "&#" + c.charCodeAt(0) + ";");
 const rv = p => CFG.showRole ? ` كان ${ROLES[p.role].n}.` : "";
 const show = (h, still) => {
   $("app").className = still ? "still" : "";
@@ -183,11 +178,11 @@ const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.r
 const pass = (p, next) => { cb = next; sfx("turn"); show(`<div class="c"><p class="dim">مرّر الهاتف إلى</p><h1>${p.name}</h1></div><button class="btn go" onclick="cb()">أنا ${p.name}</button>`); };
 const btn = (label, fn, cls = "") => `<button class="btn ${cls}" onclick="${fn}">${label}</button>`;
 
-/* ---------- setup ---------- */
+/* ---------- OFFLINE SETUP ---------- */
 function setup() {
   show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">لعبة تمرير الهاتف. المدينة نائمة، وليس الجميع بريئًا.</p>
   <div class="row">${btn("−", "N=Math.max(5,N-1);setup()", "step")}<div class="big" style="flex:1">${N}</div>${btn("+", "N=Math.min(20,N+1);setup()", "step")}</div>
-  <div>${Array.from({length:N}, (_, i) => `<input type="text" maxlength="14" placeholder="لاعب ${i+1}" value="${NAMES[i] || ""}" oninput="NAMES[${i}]=this.value">`).join("")}</div>
+  <div>${Array.from({length:N}, (_, i) => `<input type="text" maxlength="14" placeholder="لاعب ${i+1}" value="${NAMES[i] \vert{}\vert{} ""}" oninput="NAMES[${i}]=this.value">`).join("")}</div>
   ${btn("التالي: اختيار الشخصيات", "chooseRoles(true)", "go")}${btn("رجوع", "mode()")}`);
 }
 function guide() {
@@ -197,21 +192,13 @@ function guide() {
     <h3>الهدف</h3>
     <p>تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يتساوى عددها مع عدد أهل المدينة أو يزيد عليه.</p>
     <h3>كيف تسير الجولة</h3>
-    <p><b>الليل:</b> يمرَّر الهاتف على كل لاعب حي بترتيب عشوائي. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.</p>
+    <p><b>الليل:</b> يمرَّر الهاتف على كل لاعب حي بترتيب عشوائي. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر.</p>
     <p><b>الفجر:</b> تُعلن النتائج: من قُتل ويُكشف دوره للجميع، ومن أُسكت.</p>
-    <p><b>النقاش:</b> وقت محدد للكلام والاتهام والدفاع. من أُسكت لا يتكلم.</p>
-    <p><b>التصويت:</b> كل لاعب يصوّت سرًّا بتمرير الهاتف. صاحب أعلى الأصوات يُعدم ويُكشف دوره. إذا تعادلت الأصوات فلا أحد يُعدم. الامتناع مسموح.</p>
-    <h3>عدد اللاعبين</h3>
-    <p>من 5 إلى 20 لاعبًا. يزيد عدد المافيا مع العدد (حوالي الربع)، وفي الألعاب الكبيرة يُضاف محقق وطبيب ثانٍ. إذا كان في المافيا أكثر من قاتل فالقتل يتم بالأغلبية، وعند التعادل يُختار أحد الأهداف عشوائيًا.</p>
+    <p><b>النقاش:</b> وقت محدد للكلام والاتهام والدفاع.</p>
+    <p><b>التصويت:</b> كل لاعب يصوّت سرًّا بتمرير الهاتف. صاحب أعلى الأصوات يُعدم ويُكشف دوره.</p>
     <h3>أهل المدينة</h3>${roles("good")}
     <h3>المافيا</h3>${roles("mafia")}
     <h3>محايد</h3>${roles("neutral")}
-    <h3>قواعد مهمة</h3>
-    <p>في بداية اللعبة يعرف أفراد المافيا بعضهم عند كشف الأدوار.</p>
-    <p>عند موت أي لاعب، قتلًا أو إعدامًا، يُكشف دوره للجميع.</p>
-    <p>المسكَّت يصوّت كالمعتاد لكنه لا يتكلم حتى نهاية ذلك النهار.</p>
-    <h3>نصائح للعب</h3>
-    <p>ضع الهاتف على الطاولة وسلّمه يدًا بيد. اضغط «أخفِ» قبل أن تمرّره، ولا تنظر إلى شاشة غيرك.</p>
     ${btn("رجوع", "menu()", "go")}`);
 }
 function start() {
@@ -223,7 +210,6 @@ function start() {
   reveal(0);
 }
 
-/* ---------- role reveal ---------- */
 function reveal(i) {
   if (i >= G.p.length) return night();
   const p = G.p[i];
@@ -236,7 +222,6 @@ function reveal(i) {
   });
 }
 
-/* ---------- night ---------- */
 function night() {
   G.night++; G.acts = [];
   G.q = shuffle(alive());
@@ -258,7 +243,6 @@ function pick(i, ti) {
   show(`<h2>${inv ? t.name : "تم"}</h2><p>${inv ? (side(t) == "mafia" ? '<b class="bad">من المافيا</b>' : "ليس من المافيا") : "تم تسجيل اختيارك."}</p>${btn("أخفِ الشاشة ومرّر الهاتف", `nstep(${i+1})`)}`);
 }
 
-/* ---------- dawn ---------- */
 function dawn() {
   const A = G.acts, saved = A.filter(a => a.type == "save").map(a => a.to);
   const c = {}; A.filter(a => a.type == "kill").forEach(a => c[idx(a.to)] = (c[idx(a.to)] || 0) + 1);
@@ -271,7 +255,6 @@ function dawn() {
   dead.splice(0, dead.length, ...new Set(dead));
   const s = A.find(a => a.type == "silence"); G.silenced = s ? s.to : null;
   dead.forEach(t => t.alive = false); DD = dead; NXT = discuss;
-  const w = win();
   setPh(dead.length ? "dead" : "day"); sfx(dead.length ? "death" : "dawn");
   if (dead.length) flash(); else burst("#e2b04a");
   show(`<div class="icon">${dead.length ? "💀" : "🌅"}</div><h1 class="${dead.length ? "shake" : ""}">طلع الفجر</h1>
@@ -280,10 +263,8 @@ function dawn() {
     ${btn("متابعة", "after()", "go")}`);
 }
 
-/* ---------- day: discussion + vote ---------- */
 function discuss() {
-  let t = CFG.discuss;
-  setPh("day");
+  let t = CFG.discuss; setPh("day");
   show(`<div class="icon">☀️</div><h2>النقاش</h2><div class="big" id="t"></div><p class="dim c">${alive().map(x => x.name).join("، ")}</p>${btn("انتقل إلى التصويت", "vote(0)", "go")}`);
   const f = () => $("t").textContent = Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
   f(); T = setInterval(() => { t--; f(); $("t").classList.toggle("hot", t <= 10); if (t <= 10) sfx("tick"); if (t <= 0) vote(0); }, 1000);
@@ -308,12 +289,10 @@ function tally() {
   const e = Object.entries(G.tally), mx = Math.max(0, ...e.map(x => x[1])), top = e.filter(x => x[1] == mx);
   let msg = "<p>تعادلت الأصوات. لا أحد يُعدم اليوم.</p>"; DD = []; NXT = night; JW = null;
   if (mx > 0 && top.length == 1) { const x = G.p[top[0][0]]; x.alive = false; DD = [x]; if (x.role == "jester") JW = x; msg = `<p>أُعدم <b>${x.name}</b>.${rv(x)}</p>`; }
-  const w = win(), hit = mx > 0 && top.length == 1;
-  if (hit) { sfx("gavel"); flash(); }
+  if (mx > 0 && top.length == 1) { sfx("gavel"); flash(); }
   show(`<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${msg}${btn("متابعة", JW ? "over('jester')" : "after()", "go")}`);
 }
 
-/* ---------- spoiled son ---------- */
 let DD = [], SD, NXT, JW, SEL = {};
 function sons(dead, done) {
   const s = dead.find(p => p.role == "spoiledson" && !p.used);
@@ -327,7 +306,6 @@ function sonHit(si, ti) {
 }
 function after() { sons(DD, () => { const w = win(); w ? over(w) : NXT(); }); }
 
-/* ---------- menu, mode, characters, settings ---------- */
 function menu() {
   setPh("night");
   show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">المدينة نائمة، وليس الجميع بريئًا.</p>
@@ -335,7 +313,7 @@ function menu() {
 }
 function mode() {
   show(`<h2>طريقة اللعب</h2>${btn("تمرير الهاتف", "setup()", "go")}
-    ${window.MP ? btn("لعب جماعي", "mpMenu()", "go") : '<button class="btn" disabled style="opacity:.5;cursor:not-allowed">لعب جماعي · قريبًا</button>'}${btn("رجوع", "menu()")}`);
+    ${btn("لعب جماعي", "mpMenu()", "go")}${btn("رجوع", "menu()")}`);
 }
 function chars() {
   const g = s => Object.entries(ROLES).filter(([, r]) => r.side == s).map(([id, r]) => `<div class="role ${s}"><b>${r.n}</b><p class="dim">${DESC[id] || ""}</p></div>`).join("");
@@ -355,13 +333,12 @@ function chooseRoles(init) {
   show(`<h2>اختر الشخصيات</h2><p class="dim">${N} لاعبين · المواطنون يملؤون المقاعد الباقية (${Math.max(free, 0)})</p>
     <div class="row">${btn("كلاسيكي", "SEL=cnt(rolesFor(N).filter(r=>r!='citizen'));chooseRoles()")}${btn("مخصص", "SEL=cnt(REQ);chooseRoles()")}</div>
     <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) =>
-      `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `adj('${id}',-1)`, "step")}<b>${SEL[id] || 0}</b>${btn("+", `adj('${id}',1)`, "step")}</div>`).join("")}</div>
+      `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `adj('${id}',-1)`, "step")}<b>${SEL[id] \vert{}\vert{} 0}</b>${btn("+", `adj('${id}',1)`, "step")}</div>`).join("")}</div>
     ${free < 0 ? '<p class="bad">عدد الشخصيات أكبر من عدد اللاعبين.</p>' : ""}
     ${btn("ابدأ اللعبة", "start()", "go")}${btn("رجوع", "setup()")}`, !init);
 }
 function adj(id, d) { SEL[id] = Math.max(REQ.includes(id) ? 1 : 0, (SEL[id] || 0) + d); chooseRoles(); }
 
-/* ---------- end ---------- */
 function win() {
   const m = alive().filter(x => side(x) == "mafia").length, g = alive().filter(x => side(x) == "good").length;
   return m == 0 ? "good" : m >= g ? "mafia" : null;
@@ -373,17 +350,21 @@ function over(w) {
     <div class="list">${G.p.map(p => `<p class="${p.alive ? "" : "dim"}">${p.name}: ${ROLES[p.role].n}${p.alive ? "" : " (خرج)"}</p>`).join("")}</div>
     ${btn("القائمة الرئيسية", "menu()", "go")}`);
 }
-/* ---------- multiplayer client (active only when served by server.js) ---------- */
+
+/* ---------- MULTIPLAYER CLIENT ---------- */
 let WS, S, MN = "";
 const SEND = o => WS && WS.readyState == 1 && WS.send(JSON.stringify(o));
 const mpSaved = () => { try { return JSON.parse(localStorage.getItem("mf")); } catch (e) { return null; } };
 const mpClear = () => { try { localStorage.removeItem("mf"); } catch (e) {} };
+
 function err(t) {
   let e = $("er"); if (!e) { e = document.createElement("div"); e.id = "er"; document.body.append(e); }
   e.textContent = t; e.className = "on"; setTimeout(() => e.className = "", 3000);
 }
+
 function mpConnect(first) {
-  WS = new WebSocket((location.protocol == "https:" ? "wss://" : "ws://") + location.host);
+  const proto = location.protocol === "https:" ? "wss://" : "ws://";
+  WS = new WebSocket(proto + location.host);
   WS.onopen = () => { if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
   WS.onmessage = e => {
     const m = JSON.parse(e.data);
@@ -394,51 +375,73 @@ function mpConnect(first) {
   WS.onclose = () => { if (S || mpSaved()) setTimeout(() => mpConnect(), 1500); };
 }
 setInterval(() => SEND({ t: "ping" }), 20000);
+
 function mpMenu() {
   show(`<h2>لعب جماعي</h2><input type="text" id="mn" maxlength="14" placeholder="اسمك" value="${esc(MN)}" oninput="MN=this.value">
     ${btn("إنشاء غرفة", "mpGo('create')", "go")}
     <input type="text" id="mc" maxlength="4" placeholder="رمز الغرفة" style="text-transform:uppercase;text-align:center;letter-spacing:6px">
     ${btn("انضمام", "mpGo('join')")}${btn("رجوع", "mode()")}`);
 }
+
 function mpGo(k) {
-  const name = MN.trim(), code = ($("mc").value || "").trim().toUpperCase();
+  const nameInput = $("mn") ? $("mn").value : MN;
+  const name = (nameInput || "").trim();
+  const code = ($("mc") ? $("mc").value : "").trim().toUpperCase();
   if (!name) return err("اكتب اسمك");
+  MN = name;
   const go = () => SEND({ t: k, name, code });
   WS && WS.readyState == 1 ? go() : mpConnect(go);
 }
+
 function mpLeave() { mpClear(); S = null; WS && WS.close(); menu(); }
 const mpSet = o => SEND({ t: "set", ...o });
 const mpAdj = (id, d) => mpSet({ roles: { ...S.set.roles, [id]: Math.max(REQ.includes(id) ? 1 : 0, (S.set.roles[id] || 0) + d) } });
 const mpVote = i => SEND({ t: "vote", target: i, m: !!($("m") && $("m").checked) });
 const mpChat = () => { const i = $("ci"); if (i && i.value.trim()) { SEND({ t: "chat", text: i.value }); i.value = ""; i.focus(); } };
 
-const pn = i => esc(S.players[i].n);
-const rvm = i => S.players[i].r ? ` كان ${ROLES[S.players[i].r].n}.` : "";
+const pn = i => (S && S.players && S.players[i]) ? esc(S.players[i].n) : "";
+const rvm = i => (S && S.players && S.players[i] && S.players[i].r) ? ` كان ${ROLES[S.players[i].r].n}.` : "";
 const sonsH = () => (S.sons || []).map(([a, b]) => `<p>أخذ <b>${pn(a)}</b> معه <b>${pn(b)}</b>.${rvm(b)}</p>`).join("");
-const chatH = () => S.chat.map(m => `<p class="${m.d ? "dim" : ""}"><b>${esc(m.n)}:</b> ${esc(m.x)}</p>`).join("");
+const chatH = () => (S.chat || []).map(m => `<p class="${m.d ? "dim" : ""}"><b>${esc(m.n)}:</b> ${esc(m.x)}</p>`).join("");
 const talk = () => !S.players[S.me].mu && (S.alive ? (S.phase == "day" ? !S.sil : S.phase == "over") : true);
 const chatBox = () => `<div id="chat" class="chat">${chatH()}</div>` + (talk() ? `<input type="text" id="ci" maxlength="200" placeholder="اكتب رسالة..." onkeydown="if(event.key=='Enter')mpChat()">` : '<p class="dim">لا يمكنك الكتابة الآن.</p>');
 const muteRow = () => S.host ? `<div class="row" style="flex-wrap:wrap">${S.players.map((p, i) => i == S.me ? "" : `<button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"} ${esc(p.n)}</button>`).join("")}</div>` : "";
 const watch = (ic, t, m) => `<div class="icon">${ic}</div><h2>${t}</h2><p class="dim">${m}</p><div class="big" id="t"></div>${chatBox()}`;
-const clock = () => { if (S.end) T = setInterval(() => { const e = $("t"); if (e) { const v = Math.max(0, Math.ceil((S.end - Date.now()) / 1000)); e.textContent = v; e.classList.toggle("hot", v <= 10); } }, 400); };
+
+const clock = () => {
+  if (S.end) {
+    T = setInterval(() => {
+      const e = $("t");
+      if (e) {
+        const v = Math.max(0, Math.ceil((S.end - Date.now()) / 1000));
+        e.textContent = Math.floor(v / 60) + ":" + String(v % 60).padStart(2, "0");
+        e.classList.toggle("hot", v <= 10);
+      }
+    }, 400);
+  }
+};
+
 function mpLive() {
   const c = $("chat"); if (c) { const b = c.scrollHeight - c.scrollTop - c.clientHeight < 40; c.innerHTML = chatH(); if (b) c.scrollTop = c.scrollHeight; }
   const r = $("rd"); if (r) r.textContent = S.done ? `بانتظار الباقين ${S.cnt.join("/")}` : "جاهز للتصويت";
   const m = $("mr"); if (m) m.innerHTML = muteRow();
 }
+
 function lobbySet(s) {
   const st = s.set, n = s.players.length, tot = Object.values(st.roles).reduce((a, b) => a + b, 0);
   return `<div class="row">${btn("كلاسيكي", "mpSet({roles:cnt(rolesFor(S.players.length).filter(r=>r!='citizen'))})")}${btn("مخصص", "mpSet({roles:cnt(REQ)})")}</div>
-    <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) => `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `mpAdj('${id}',-1)`, "step")}<b>${st.roles[id] || 0}</b>${btn("+", `mpAdj('${id}',1)`, "step")}</div>`).join("")}</div>
+    <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) => `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `mpAdj('${id}',-1)`, "step")}<b>${st.roles[id] \vert{}\vert{} 0}</b>${btn("+", `mpAdj('${id}',1)`, "step")}</div>`).join("")}</div>
     <div class="row">${btn("−", "mpSet({discuss:Math.max(30,S.set.discuss-15)})", "step")}<div class="c" style="flex:1">مدة النقاش: ${st.discuss} ث</div>${btn("+", "mpSet({discuss:Math.min(300,S.set.discuss+15)})", "step")}</div>
     ${btn("إظهار الدور بعد الموت: " + (st.showRole ? "نعم" : "لا"), "mpSet({showRole:!S.set.showRole})")}
     ${tot > n ? '<p class="bad">عدد الشخصيات أكبر من عدد اللاعبين.</p>' : ""}${btn("ابدأ اللعبة", "SEND({t:'start'})", "go")}`;
 }
+
 function mpRender(s) {
   const pv = S; S = s;
   const ch = !pv || pv.phase != s.phase || pv.night != s.night;
   if (!ch && $("chat")) return mpLive();
   const ph = s.phase, rl = s.role && ROLES[s.role]; let h = "";
+
   if (ph == "lobby") {
     setPh("night");
     h = `<h2>الغرفة <span class="flick">${s.code}</span></h2><p class="dim">شارك الرمز مع أصدقائك (${s.players.length} لاعبين)</p>
@@ -446,85 +449,89 @@ function mpRender(s) {
       ${s.host ? lobbySet(s) : '<p class="dim">بانتظار المضيف ليبدأ اللعبة...</p>'}${btn("خروج", "mpLeave()")}`;
   } else if (ph == "reveal") {
     setPh("night");
-    h = `<p class="dim">دورك في اللعبة</p><div class="role ${rl.side}"><h2>${rl.n}</h2><p class="dim">${DESC[s.role] || ""}</p></div>
+    h = `<p class="dim">دورك في اللعبة</p><div class="role ${rl ? rl.side : 'good'}"><h2>${rl ? rl.n : ''}</h2><p class="dim">${DESC[s.role] || ""}</p></div>
       ${s.mates && s.mates.length ? `<p>رفيقك: <b>${s.mates.map(i => pn(i)).join("، ")}</b></p>` : ""}
-      ${btn(s.done ? `بانتظار الباقين ${s.cnt.join("/")}` : "جاهز", "SEND({t:'ready'})", "go")}<div class="big" id="t"></div>`;
+      ${btn(s.done ? `بانتظار الباقين ${s.cnt ? s.cnt.join("/") : ""}` : "جاهز", "SEND({t:'ready'})", "go")}<div class="big" id="t"></div>`;
   } else if (ph == "night") {
     setPh("night"); if (ch) sfx("night");
-    if (!s.alive) h = watch("🌙", "الليل", "أنت خارج اللعبة وتشاهد.");
-    else if (s.done) {
-      const iv = s.inv.length && rl.act && rl.act.type == "investigate" ? s.inv[s.inv.length - 1] : null;
-      h = `<div class="icon">🌙</div><h2>تم</h2><p>${iv ? `<b>${pn(iv.n)}</b>: ${iv.m ? '<b class="bad">من المافيا</b>' : "ليس من المافيا"}` : "تم تسجيل اختيارك."}</p><p class="dim">بانتظار الباقين ${s.cnt.join("/")}</p><div class="big" id="t"></div>`;
+    if (!s.alive) {
+      h = watch("🌙", "الليل", "أنت خارج اللعبة وتشاهد.");
+    } else if (s.done) {
+      const iv = (s.inv && s.inv.length && rl && rl.act && rl.act.type == "investigate") ? s.inv[s.inv.length - 1] : null;
+      h = `<div class="icon">🌙</div><h2>الليل</h2>
+        ${iv ? `<p>نتيجة التحقيق مع <b>${pn(iv.target)}</b>: <b class="${iv.res ? 'bad' : ''}">${iv.res ? 'من المافيا' : 'ليس من المافيا'}</b></p>` : '<p>تم تسجيل اختيارك. بانتظار باقي اللاعبين...</p>'}
+        <div class="big" id="t"></div>${chatBox()}`;
     } else {
-      const a = rl.act && !(rl.act.once && s.used) ? rl.act : DECOY;
-      h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>${a.q}</p><div class="list">${s.opts.map(i => btn(pn(i), `SEND({t:'act',target:${i}})`)).join("")}${s.skip ? btn("لن أطلق الليلة", "SEND({t:'act',target:-1})") : ""}</div><div class="big" id="t"></div>`;
+      const a = (rl && rl.act) ? rl.act : DECOY;
+      const ts = (s.targets || []).map(i => ({ i, name: pn(i) }));
+      h = `<h2>${rl ? rl.n : ''}</h2><p>${a.q || 'اختر لاعباً'}</p>
+        <div class="list">${ts.map(t => btn(t.name, `SEND({t:'act',target:${t.i}})`)).join("")}${a.skip ? btn("تخطي الليلة", "SEND({t:'act',target:-1})") : ""}</div>${chatBox()}`;
     }
-  } else if (ph == "son") {
-    setPh("dead");
-    h = s.opts ? `<h2>${rl.n}</h2><p>متّ! اختر لاعبًا تشك فيه ليموت معك.</p><div class="list">${s.opts.map(i => btn(pn(i), `SEND({t:'son',target:${i}})`)).join("")}</div><div class="big" id="t"></div>`
-      : `<div class="icon">👦</div><h2>الابن المدلل يختار من يأخذه معه...</h2><div class="big" id="t"></div>`;
   } else if (ph == "dawn") {
-    const R = s.rep, d = R.dead.length; setPh(d ? "dead" : "day");
-    if (ch) { sfx(d ? "death" : "dawn"); d ? flash() : burst("#e2b04a"); }
-    h = `<div class="icon">${d ? "💀" : "🌅"}</div><h1 class="${d ? "shake" : ""}">طلع الفجر</h1>
-      ${d ? R.dead.map(i => `<p>قُتل <b>${pn(i)}</b>.${rvm(i)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}${sonsH()}
-      ${R.sil >= 0 ? `<p><b>${pn(R.sil)}</b> صامت اليوم.</p>` : ""}`;
+    setPh(s.dead && s.dead.length ? "dead" : "day"); if (ch) sfx(s.dead && s.dead.length ? "death" : "dawn");
+    h = `<div class="icon">${s.dead && s.dead.length ? "💀" : "🌅"}</div><h2>طلع الفجر</h2>
+      ${s.dead && s.dead.length ? s.dead.map(i => `<p>قُتل <b>${pn(i)}</b>.${rvm(i)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}
+      ${s.silenced !== null && s.silenced !== undefined ? `<p><b>${pn(s.silenced)}</b> صامت اليوم.</p>` : ""}
+      ${sonsH()}
+      ${btn(s.done ? "بانتظار الباقين" : "متابعة", "SEND({t:'ready'})", "go")}<div class="big" id="t"></div>${chatBox()}`;
   } else if (ph == "day") {
     setPh("day");
-    h = `<div class="icon">☀️</div><h2>النقاش</h2><div class="big" id="t"></div>${s.sil ? '<p class="bad">أنت مُسكَت اليوم.</p>' : ""}${chatBox()}<div id="mr">${muteRow()}</div>
-      ${s.alive ? btn(s.done ? `بانتظار الباقين ${s.cnt.join("/")}` : "جاهز للتصويت", "SEND({t:'ready'})", "go").replace("<button", '<button id="rd"') : ""}`;
+    h = `<div class="icon">☀️</div><h2>النقاش</h2><div class="big" id="t"></div>
+      <p class="dim c">${(s.alivePlayers || []).map(i => pn(i)).join("، ")}</p>
+      ${s.host ? btn("انتقل إلى التصويت", "SEND({t:'voteStart'})", "go") : '<p class="dim">بانتظار المضيف للانتقال إلى التصويت...</p>'}
+      ${chatBox()}`;
   } else if (ph == "vote") {
     setPh("day");
-    if (!s.alive) h = watch("🗳️", "التصويت", "أنت خارج اللعبة وتشاهد.");
-    else if (s.done) h = `<div class="icon">🗳️</div><h2>تم التصويت</h2><p class="dim">بانتظار الباقين ${s.cnt.join("/")}</p><div class="big" id="t"></div>`;
-    else h = `<h2>صوّت لإعدام من؟</h2>${s.mayor ? '<label class="opt"><input type="checkbox" id="m"> فعّل صوت العمدة: ثلاثة أصوات، مرة واحدة فقط</label>' : ""}
-      <div class="list">${s.opts.map(i => btn(pn(i), `mpVote(${i})`)).join("")}${btn("امتنع عن التصويت", "mpVote(-1)")}</div><div class="big" id="t"></div>`;
-  } else if (ph == "result") {
-    const x = s.res.ex; setPh("day"); if (ch && x >= 0) { sfx("gavel"); flash(); }
-    h = `<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${x >= 0 ? `<p>أُعدم <b>${pn(x)}</b>.${rvm(x)}</p>` : "<p>لا أحد يُعدم اليوم.</p>"}${sonsH()}`;
+    if (!s.alive) {
+      h = watch("⚖️", "التصويت", "أنت خارج اللعبة وتشاهد.");
+    } else if (s.done) {
+      h = watch("⚖️", "التصويت", "تم تسجيل صوتك. بانتظار الباقين...");
+    } else {
+      const m = s.role == "mayor" && !s.mayorUsed;
+      const ts = (s.targets || []).map(i => ({ i, name: pn(i) }));
+      h = `<h2>صوّت لإعدام من؟</h2>
+        ${m ? `<label class="opt"><input type="checkbox" id="m"> فعّل صوت العمدة (3 أصوات)</label>` : ""}
+        <div class="list">${ts.map(t => btn(t.name, `mpVote(${t.i})`)).join("")}${btn("امتنع عن التصويت", "mpVote(-1)")}</div>${chatBox()}`;
+    }
+  } else if (ph == "tally") {
+    setPh("day"); if (ch) sfx("gavel");
+    h = `<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>
+      ${s.executed !== null && s.executed !== undefined ? `<p>أُعدم <b>${pn(s.executed)}</b>.${rvm(s.executed)}</p>` : "<p>تعادلت الأصوات. لا أحد يُعدم اليوم.</p>"}
+      ${btn(s.done ? "بانتظار الباقين" : "متابعة", "SEND({t:'ready'})", "go")}<div class="big" id="t"></div>${chatBox()}`;
   } else if (ph == "over") {
-    const w = s.win, g = w != "mafia", E = { good: ["🏆", "فازت المدينة"], mafia: ["🕶️", "فازت المافيا"], jester: ["🤡", "فاز المهرّج"] }[w];
-    setPh(g ? "day" : "dead"); if (ch) { sfx(g ? "win" : "lose"); burst(g ? "#e2b04a" : "#b5443f"); }
-    h = `<div class="icon">${E[0]}</div><h1>${E[1]}</h1><div class="list">${s.players.map(p => `<p class="${p.a ? "" : "dim"}">${esc(p.n)}: ${ROLES[p.r].n}${p.a ? "" : " (خرج)"}</p>`).join("")}</div>
-      ${chatBox()}${s.host ? btn("لعبة جديدة بنفس اللاعبين", "SEND({t:'again'})", "go") : ""}${btn("خروج", "mpLeave()")}`;
+    const g = s.winner != "mafia";
+    setPh(g ? "day" : "dead"); if (ch) sfx(g ? "win" : "lose");
+    const title = { good: "فازت المدينة", mafia: "فازت المافيا", jester: "فاز المهرّج" }[s.winner] || "انتهت اللعبة";
+    h = `<div class="icon">${g ? "🏆" : "🕶️"}</div><h1>${title}</h1>
+      <div class="list">${s.players.map((p, i) => `<p class="${p.a ? "" : "dim"}">${esc(p.n)}: ${p.r ? ROLES[p.r].n : ""}${p.a ? "" : " (خرج)"}</p>`).join("")}</div>
+      ${btn("العودة للغرفة", "SEND({t:'lobby'})", "go")}${btn("القائمة الرئيسية", "mpLeave()")}${chatBox()}`;
   }
-  show(h, !ch); clock();
+
+  show(h);
+  clock();
 }
 
-/* ---------- role icons (shown everywhere the role name appears) ---------- */
-const IC = { killer:"🔪", silencer:"🤐", doctor:"💉", detective:"🔍", mayor:"🎩", citizen:"🧑", bodyguard:"🛡️", spoiledson:"👦", jester:"🃏", sniper:"🎯" };
-Object.entries(IC).forEach(([id, ic]) => ROLES[id].n = ic + " " + ROLES[id].n);
-
-/* ---------- atmosphere: rain + lightning at night, dust by day, ash after a death ---------- */
-SFX.thunder = () => noise(1.6, 220, .25);
-const cv = $("bg"), cx = cv.getContext("2d"); let W, H, lit = 0;
-const rs = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; }; addEventListener("resize", rs); rs();
-const mk = () => ({ x: Math.random() * W, y: Math.random() * H, v: 6 + Math.random() * 10, l: 10 + Math.random() * 18, s: Math.random() });
-const P = Array.from({ length: 110 }, mk);
-function loop() {
-  cx.clearRect(0, 0, W, H);
-  const ph = document.body.dataset.ph || "night";
-  if (ph == "night") {
-    cx.strokeStyle = "rgba(170,190,230,.28)"; cx.beginPath();
-    P.forEach(p => { cx.moveTo(p.x, p.y); cx.lineTo(p.x - 3, p.y + p.l); p.y += p.v; p.x -= 1.2; if (p.y > H) Object.assign(p, mk(), { y: -20 }); });
-    cx.stroke();
-    if (Math.random() < .003) { lit = 1; sfx("thunder"); }
-  } else {
-    cx.fillStyle = ph == "day" ? "#e2b04a" : "#b5443f";
-    P.forEach(p => {
-      cx.globalAlpha = .2 + p.s * .5; cx.beginPath(); cx.arc(p.x, p.y, 1 + p.s * 2, 0, 7); cx.fill();
-      p.y += ph == "day" ? -.3 - p.s * .4 : .6 + p.s; p.x += Math.sin(p.y / 40 + p.s * 9) * .4;
-      if (p.y < -10 || p.y > H + 10) Object.assign(p, mk(), { y: ph == "day" ? H + 5 : -5 });
+/* Background Canvas Rain FX */
+const cvs = $("bg"), ctx = cvs ? cvs.getContext("2d") : null;
+let drops = [];
+function resize C() { if (!cvs) return; cvs.width = window.innerWidth; cvs.height = window.innerHeight; drops = Array.from({length: 40}, () => ({x: Math.random() * cvs.width, y: Math.random() * cvs.height, l: 10 + Math.random() * 20, s: 2 + Math.random() * 3})); }
+window.addEventListener("resize", resizeC); resizeC();
+function renderBg() {
+  if (ctx && cvs) {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    ctx.strokeStyle = "rgba(226, 176, 74, 0.12)";
+    ctx.lineWidth = 1;
+    drops.forEach(d => {
+      ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - 2, d.y + d.l); ctx.stroke();
+      d.y += d.s; if (d.y > cvs.height) { d.y = -d.l; d.x = Math.random() * cvs.width; }
     });
-    cx.globalAlpha = 1;
   }
-  if (lit > 0) { cx.fillStyle = `rgba(200,215,255,${lit * .22})`; cx.fillRect(0, 0, W, H); lit -= .05; }
-  requestAnimationFrame(loop);
+  requestAnimationFrame(renderBg);
 }
-if (!matchMedia("(prefers-reduced-motion: reduce)").matches) loop();
+requestAnimationFrame(renderBg);
 
+/* Start at Menu */
 menu();
-if (window.MP && mpSaved()) mpConnect();
 </script>
 </body>
 </html>
