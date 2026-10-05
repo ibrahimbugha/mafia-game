@@ -1,0 +1,9 @@
+{
+  "short_name": "المافيا",
+  "name": "المافيا · ليل المدينة",
+  "start_url": ".",
+  "background_color": "#0f1317",
+  "theme_color": "#0f1317",
+  "display": "standalone",
+  "orientation": "portrait"
+}
