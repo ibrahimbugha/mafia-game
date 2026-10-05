@@ -12,18 +12,19 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 *{box-sizing:inherit}
 body{margin:0;min-height:100%;background:var(--night);color:var(--paper);font:400 17px/1.7 Cairo,"Segoe UI",Tahoma,sans-serif;
 background-image:repeating-linear-gradient(115deg,transparent 0 46px,rgba(226,176,74,.045) 46px 74px)}
-.wrap{max-width:440px;margin:0 auto;padding:28px 20px 40px;min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.wrap{max-width:440px;margin:0 auto;padding:28px 20px 40px;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;gap:14px;position:relative;z-index:1}
 h1,h2{font-family:"Aref Ruqaa",Cairo,serif;font-weight:700;margin:0;line-height:1.3}
 h1{font-size:46px;color:var(--lamp)}h2{font-size:30px}
 p{margin:0}.dim{color:var(--ash)}.c{text-align:center}
-.btn{font:700 17px Cairo,sans-serif;color:var(--paper);background:var(--smoke);border:1px solid #2c353f;border-radius:4px;padding:13px 16px;cursor:pointer;width:100%}
-.btn:hover,.btn:focus-visible{border-color:var(--lamp);outline:none}
-.go{background:var(--lamp);color:#1a1405;border-color:var(--lamp)}
+.btn{font:700 17px Cairo,sans-serif;color:var(--paper);background:var(--smoke);border:1px solid #2c353f;border-radius:4px;padding:13px 16px;cursor:pointer;width:100%;transition:transform .15s,border-color .2s,box-shadow .2s}
+.btn:hover,.btn:focus-visible{border-color:var(--lamp);outline:none;transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.45)}
+.btn:active{transform:scale(.97)}
+.go{background:var(--lamp);color:#1a1405;border-color:var(--lamp);box-shadow:0 0 22px rgba(226,176,74,.25)}
 .list{display:grid;gap:8px}
 .row{display:flex;gap:8px}.row .btn{padding:10px}.on{border-color:var(--lamp);color:var(--lamp)}
 input[type=text]{width:100%;font:400 16px Cairo,sans-serif;color:var(--paper);background:transparent;border:0;border-bottom:1px solid #2c353f;padding:6px 2px;margin-bottom:6px}
 input:focus-visible{outline:none;border-color:var(--lamp)}
-.role{border-inline-start:3px solid var(--lamp);padding:6px 14px}.role.mafia{border-color:var(--blood)}
+.role{border-inline-start:3px solid var(--lamp);padding:6px 14px;animation:pop .8s cubic-bezier(.2,1.3,.4,1) both}.role.mafia{border-color:var(--blood)}.role.neutral{border-color:var(--ash)}
 .big{font-family:"Aref Ruqaa",serif;font-size:54px;text-align:center;color:var(--lamp);font-variant-numeric:tabular-nums}
 .bad{color:var(--blood)}
 .opt{display:flex;gap:10px;align-items:center;border:1px solid var(--lamp);border-radius:4px;padding:12px;color:var(--lamp);cursor:pointer}
@@ -34,15 +35,10 @@ body[data-ph=dead]{--glow:rgba(181,68,63,.3);--tint:#170c0c}
 body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 80% 8%,var(--glow),transparent 46%);pointer-events:none}
 body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradient(180deg,transparent 0 36px,rgba(226,176,74,.05) 36px 56px);animation:slats 14s linear infinite;pointer-events:none}
 @keyframes slats{to{background-position:0 56px}}
-.wrap{position:relative;z-index:1}
 @keyframes rise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 .wrap>*,.list>*{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
-.btn{transition:transform .15s,border-color .2s,box-shadow .2s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.45)}.btn:active{transform:scale(.97)}
-.go{box-shadow:0 0 22px rgba(226,176,74,.25)}
 .row .step{width:64px;flex:none;font-size:24px}
 .rr{display:flex;align-items:center;gap:8px}.rr .role{flex:1;margin:0}.rr .step{width:44px;flex:none;padding:6px;font-size:20px}.rr>b{min-width:20px;text-align:center}
-.role.neutral{border-color:var(--ash)}
 .chat{height:170px;overflow:auto;border:1px solid #2c353f;border-radius:4px;padding:8px;font-size:15px;line-height:1.5}.chat p{margin:2px 0}
 .mini{font:inherit;font-size:14px;background:var(--smoke);color:var(--paper);border:1px solid #2c353f;border-radius:4px;padding:2px 8px;cursor:pointer}
 #er{position:fixed;bottom:20px;inset-inline:20px;z-index:9;background:var(--blood);color:#fff;padding:12px;border-radius:4px;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center}#er.on{opacity:1}
@@ -53,7 +49,6 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
 @keyframes bob{50%{transform:translateY(-8px)}}
 .flick{display:inline-block;animation:flick 5s infinite}
 @keyframes flick{0%,90%,94%,100%{opacity:1}92%,96%{opacity:.45}}
-.role{animation:pop .8s cubic-bezier(.2,1.3,.4,1) both}
 @keyframes pop{from{opacity:0;transform:perspective(600px) rotateY(90deg) scale(.7)}to{opacity:1;transform:none}}
 .shake{animation:shake .6s}
 @keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
@@ -66,13 +61,12 @@ body::after{content:"";position:fixed;inset:0;background:repeating-linear-gradie
 #mute{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);inset-inline-start:10px;z-index:5;width:40px;height:40px;border-radius:50%;border:1px solid #2c353f;background:var(--smoke);color:var(--paper);font-size:18px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
 </style>
-<script src="mp-config.js"></script>
 </head>
 <body>
 <canvas id="bg"></canvas><div id="vg"></div><div id="app"></div><div id="fl"></div><div id="fx"></div>
 <button id="mute" aria-label="الصوت" onclick="muted=!muted;this.textContent=muted?'🔇':'🔊'">🔊</button>
 <script>
-window.MP = true; // Enable Multiplayer by default
+window.MP = true;
 
 /* ---------- DATA ---------- */
 const CFG = { discuss: 120, showRole: true };
@@ -88,12 +82,6 @@ const ROLES = {
   spoiledson:{ n:"الابن المدلل",  side:"good" },
   jester:    { n:"المهرّج",       side:"neutral" },
   sniper:    { n:"القناص",        side:"good", act:{ type:"snipe", once:true, skip:true, q:"لديك رصاصة واحدة فقط في اللعبة. هل تطلق الليلة؟" } }
-};
-const COUNTS = {
-  5:["killer","detective","doctor","mayor","citizen"],
-  6:["killer","silencer","detective","doctor","mayor","citizen"],
-  7:["killer","silencer","detective","doctor","mayor","citizen","citizen"],
-  8:["killer","silencer","detective","doctor","mayor","citizen","citizen","citizen"]
 };
 
 const DESC = {
@@ -122,7 +110,12 @@ function rolesFor(n) {
   return r;
 }
 
-const A = () => AC || (AC = new (window.AudioContext || window.webkitAudioContext)());
+const A = () => {
+  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+};
+
 function tone(f, d = .15, type = "sine", v = .15, t0 = 0, f2) {
   const a = A(), t = a.currentTime + t0, o = a.createOscillator(), g = a.createGain();
   o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
@@ -150,7 +143,14 @@ const SFX = {
   lose:  () => [392, 349, 311, 233].forEach((f, i) => tone(f, .7, "sawtooth", .1, i * .25))
 };
 const sfx = n => { if (muted) return; try { SFX[n](); } catch (e) {} };
-document.addEventListener("click", e => { if (e.target.closest(".btn")) { try { A().resume(); } catch (_) {} sfx("click"); } });
+
+document.addEventListener("click", e => { 
+  try { 
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume(); 
+  } catch (_) {} 
+  if (e.target.closest(".btn")) { sfx("click"); } 
+});
 
 const setPh = p => document.body.dataset.ph = p;
 const flash = () => { const f = $("fl"); f.classList.remove("on"); void f.offsetWidth; f.classList.add("on"); };
@@ -180,9 +180,9 @@ const btn = (label, fn, cls = "") => `<button class="btn ${cls}" onclick="${fn}"
 
 /* ---------- OFFLINE SETUP ---------- */
 function setup() {
-  show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">لعبة تمرير الهاتف. المدينة نائمة، وليس الجميع بريئًا.</p>
+  show(`<div class="icon">🕵</div><h1><span class="flick">المافيا</span></h1><p class="dim">لعبة تمرير الهاتف. المدينة نائمة، وليس الجميع بريئًا.</p>
   <div class="row">${btn("−", "N=Math.max(5,N-1);setup()", "step")}<div class="big" style="flex:1">${N}</div>${btn("+", "N=Math.min(20,N+1);setup()", "step")}</div>
-  <div>${Array.from({length:N}, (_, i) => `<input type="text" maxlength="14" placeholder="لاعب ${i+1}" value="${NAMES[i] \vert{}\vert{} ""}" oninput="NAMES[${i}]=this.value">`).join("")}</div>
+  <div>${Array.from({length:N}, (_, i) => `<input type="text" maxlength="14" placeholder="لاعب ${i+1}" value="${NAMES[i] || ""}" oninput="NAMES[${i}]=this.value">`).join("")}</div>
   ${btn("التالي: اختيار الشخصيات", "chooseRoles(true)", "go")}${btn("رجوع", "mode()")}`);
 }
 function guide() {
@@ -244,16 +244,16 @@ function pick(i, ti) {
 }
 
 function dawn() {
-  const A = G.acts, saved = A.filter(a => a.type == "save").map(a => a.to);
-  const c = {}; A.filter(a => a.type == "kill").forEach(a => c[idx(a.to)] = (c[idx(a.to)] || 0) + 1);
+  const acts = G.acts, saved = acts.filter(a => a.type == "save").map(a => a.to);
+  const c = {}; acts.filter(a => a.type == "kill").forEach(a => c[idx(a.to)] = (c[idx(a.to)] || 0) + 1);
   const mx = Math.max(0, ...Object.values(c)), top = Object.keys(c).filter(k => c[k] == mx);
   const tgt = top.length ? G.p[shuffle(top)[0]] : null;
-  const gd = tgt && A.find(a => a.type == "guard" && a.to === tgt);
+  const gd = tgt && acts.find(a => a.type == "guard" && a.to === tgt);
   const dead = tgt && !saved.includes(tgt) ? [gd ? gd.from : tgt] : [];
-  G.last = {}; ["save", "guard"].forEach(k => G.last[k] = (A.find(a => a.type == k) || {}).to || null);
-  A.filter(a => a.type == "snipe").forEach(a => { dead.push(a.to); if (side(a.to) != "mafia") dead.push(a.from); });
+  G.last = {}; ["save", "guard"].forEach(k => G.last[k] = (acts.find(a => a.type == k) || {}).to || null);
+  acts.filter(a => a.type == "snipe").forEach(a => { dead.push(a.to); if (side(a.to) != "mafia") dead.push(a.from); });
   dead.splice(0, dead.length, ...new Set(dead));
-  const s = A.find(a => a.type == "silence"); G.silenced = s ? s.to : null;
+  const s = acts.find(a => a.type == "silence"); G.silenced = s ? s.to : null;
   dead.forEach(t => t.alive = false); DD = dead; NXT = discuss;
   setPh(dead.length ? "dead" : "day"); sfx(dead.length ? "death" : "dawn");
   if (dead.length) flash(); else burst("#e2b04a");
@@ -308,7 +308,7 @@ function after() { sons(DD, () => { const w = win(); w ? over(w) : NXT(); }); }
 
 function menu() {
   setPh("night");
-  show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">المدينة نائمة، وليس الجميع بريئًا.</p>
+  show(`<div class="icon">🕵️️</div><h1><span class="flick">المافيا</span></h1><p class="dim">المدينة نائمة، وليس الجميع بريئًا.</p>
     ${btn("لعب", "mode()", "go")}${btn("دليل اللعبة", "guide()")}${btn("الشخصيات", "chars()")}${btn("الإعدادات", "settings()")}`);
 }
 function mode() {
@@ -333,7 +333,7 @@ function chooseRoles(init) {
   show(`<h2>اختر الشخصيات</h2><p class="dim">${N} لاعبين · المواطنون يملؤون المقاعد الباقية (${Math.max(free, 0)})</p>
     <div class="row">${btn("كلاسيكي", "SEL=cnt(rolesFor(N).filter(r=>r!='citizen'));chooseRoles()")}${btn("مخصص", "SEL=cnt(REQ);chooseRoles()")}</div>
     <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) =>
-      `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `adj('${id}',-1)`, "step")}<b>${SEL[id] \vert{}\vert{} 0}</b>${btn("+", `adj('${id}',1)`, "step")}</div>`).join("")}</div>
+      `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `adj('${id}',-1)`, "step")}<b>${SEL[id] || 0}</b>${btn("+", `adj('${id}',1)`, "step")}</div>`).join("")}</div>
     ${free < 0 ? '<p class="bad">عدد الشخصيات أكبر من عدد اللاعبين.</p>' : ""}
     ${btn("ابدأ اللعبة", "start()", "go")}${btn("رجوع", "setup()")}`, !init);
 }
@@ -351,9 +351,9 @@ function over(w) {
     ${btn("القائمة الرئيسية", "menu()", "go")}`);
 }
 
-/* ---------- MULTIPLAYER CLIENT ---------- */
+/* ---------- MULTIPLAYER CLIENT (FIXED) ---------- */
 let WS, S, MN = "";
-const SEND = o => WS && WS.readyState == 1 && WS.send(JSON.stringify(o));
+const SEND = o => WS && WS.readyState === 1 && WS.send(JSON.stringify(o));
 const mpSaved = () => { try { return JSON.parse(localStorage.getItem("mf")); } catch (e) { return null; } };
 const mpClear = () => { try { localStorage.removeItem("mf"); } catch (e) {} };
 
@@ -363,18 +363,45 @@ function err(t) {
 }
 
 function mpConnect(first) {
+  if (WS && (WS.readyState === WebSocket.CONNECTING || WS.readyState === WebSocket.OPEN)) {
+    if (first && WS.readyState === WebSocket.OPEN) first();
+    return;
+  }
+  
   const proto = location.protocol === "https:" ? "wss://" : "ws://";
   WS = new WebSocket(proto + location.host);
-  WS.onopen = () => { if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
+  
+  const btnGo = document.querySelector(".btn.go");
+  if (btnGo) {
+    btnGo.dataset.old = btnGo.textContent;
+    btnGo.textContent = "جاري الاتصال...";
+  }
+
+  WS.onopen = () => {
+    if (btnGo && btnGo.dataset.old) btnGo.textContent = btnGo.dataset.old;
+    if (first) first();
+    else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); }
+  };
+  
   WS.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.t == "tok") { try { localStorage.setItem("mf", JSON.stringify(m)); } catch (x) {} }
     else if (m.t == "err") { err(m.m); if (m.k == "room") { mpClear(); S = null; menu(); } }
     else if (m.t == "state") mpRender(m);
   };
-  WS.onclose = () => { if (S || mpSaved()) setTimeout(() => mpConnect(), 1500); };
+  
+  WS.onerror = () => {
+    err("تعذر الاتصال بالسيرفر. تأكد أن سيرفر Node.js يعمل.");
+    if (btnGo && btnGo.dataset.old) btnGo.textContent = btnGo.dataset.old;
+  };
+
+  WS.onclose = () => {
+    if (S || mpSaved()) {
+      err("انقطع الاتصال. جاري إعادة المحاولة...");
+      setTimeout(() => mpConnect(), 3000);
+    }
+  };
 }
-setInterval(() => SEND({ t: "ping" }), 20000);
 
 function mpMenu() {
   show(`<h2>لعب جماعي</h2><input type="text" id="mn" maxlength="14" placeholder="اسمك" value="${esc(MN)}" oninput="MN=this.value">
@@ -387,10 +414,10 @@ function mpGo(k) {
   const nameInput = $("mn") ? $("mn").value : MN;
   const name = (nameInput || "").trim();
   const code = ($("mc") ? $("mc").value : "").trim().toUpperCase();
-  if (!name) return err("اكتب اسمك");
+  if (!name) return err("اكتب اسمك أولاً");
   MN = name;
   const go = () => SEND({ t: k, name, code });
-  WS && WS.readyState == 1 ? go() : mpConnect(go);
+  WS && WS.readyState === 1 ? go() : mpConnect(go);
 }
 
 function mpLeave() { mpClear(); S = null; WS && WS.close(); menu(); }
@@ -514,8 +541,23 @@ function mpRender(s) {
 /* Background Canvas Rain FX */
 const cvs = $("bg"), ctx = cvs ? cvs.getContext("2d") : null;
 let drops = [];
-function resize C() { if (!cvs) return; cvs.width = window.innerWidth; cvs.height = window.innerHeight; drops = Array.from({length: 40}, () => ({x: Math.random() * cvs.width, y: Math.random() * cvs.height, l: 10 + Math.random() * 20, s: 2 + Math.random() * 3})); }
-window.addEventListener("resize", resizeC); resizeC();
+let lastWidth = window.innerWidth;
+
+function resizeC() { 
+  if (!cvs) return; 
+  cvs.width = window.innerWidth; 
+  cvs.height = window.innerHeight; 
+  drops = Array.from({length: 40}, () => ({x: Math.random() * cvs.width, y: Math.random() * cvs.height, l: 10 + Math.random() * 20, s: 2 + Math.random() * 3})); 
+}
+
+window.addEventListener("resize", () => {
+  if (window.innerWidth !== lastWidth) {
+    lastWidth = window.innerWidth;
+    resizeC();
+  }
+}); 
+resizeC();
+
 function renderBg() {
   if (ctx && cvs) {
     ctx.clearRect(0, 0, cvs.width, cvs.height);
