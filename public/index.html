@@ -74,12 +74,12 @@ html{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 @media (prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
 </style>
 <meta name="theme-color" content="#0f1317">
-<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="المافيا"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <script src="mp-config.js"></script>
 </head>
 <body>
-<canvas id="bg"></canvas><div id="vg"></div><div id="app"></div><div id="fl"></div><div id="fx"></div>
+<canvas id="bg"></canvas><div id="vg"></div><div id="sbar" hidden></div><div id="app"></div><div id="fl"></div><div id="fx"></div>
 <button id="mute" aria-label="الصوت" onclick="muted=!muted;this.textContent=muted?'🔇':'🔊'">🔊</button>
 <button id="fs" aria-label="ملء الشاشة" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⛶</button>
 <script>
@@ -107,7 +107,7 @@ const COUNTS = {
 
 /* Guide text per role (add one line when you add a role) */
 const DESC = {
-  silencer:  "يختار كل ليلة لاعبًا فيُمنع من الكلام في النقاش التالي، لكنه يصوّت. يستطيع إسكات نفسه ليبعد الشبهات عنه.",
+  silencer:  "يختار كل ليلة لاعبًا فيُمنع من الكلام في النقاش التالي، لكنه يصوّت. يستطيع إسكات نفسه ليبعد الشبهات عنه. وإذا مات القاتل يتولى القتل أيضًا: يسكت لاعبًا ويقتل لاعبًا في الليلة نفسها.",
   killer:    "يختار كل ليلة لاعبًا ليُقتل، إلا إذا أنقذه الطبيب.",
   doctor:    "ينقذ كل ليلة لاعبًا من القتل، ويمكنه إنقاذ نفسه. لا يجوز أن ينقذ الشخص نفسه ليلتين متتاليتين.",
   detective: "يحقق كل ليلة مع لاعب ويعرف فقط: من المافيا، أو ليس من المافيا.",
@@ -186,8 +186,9 @@ function burst(col) {
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/[&<>"']/g, c => "&#" + c.charCodeAt(0) + ";");
 const rv = p => CFG.showRole ? ` كان ${ROLES[p.role].n}.` : "";
-const show = (h, still) => {
-  $("app").className = still ? "still" : "";
+const show = (h, still, key) => {
+  $("app").className = (still ? "still" : "") + (key ? " key" : "");
+  $("sbar").hidden = true;
   clearInterval(T); $("app").innerHTML = `<div class="wrap">${h}</div>`;
   $("app").querySelectorAll(".wrap>*,.list>*").forEach((e, i) => e.style.animationDelay = Math.min(i, 24) * 40 + "ms");
 };
@@ -196,6 +197,20 @@ const side = p => ROLES[p.role].side;
 const idx = p => G.p.indexOf(p);
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pass = (p, next) => { cb = next; sfx("turn"); show(`<div class="c"><p class="dim">مرّر الهاتف إلى</p><h1>${p.name}</h1></div><button class="btn go" onclick="cb()">أنا ${p.name}</button>`); };
+const badge = () => '<div class="cbadge"><small>صُنع بواسطة</small><b>IBRAHIM BUGHA</b></div>';
+const setBar = h => { const b = $("sbar"); b.innerHTML = h; b.hidden = !h; };
+const barOff = () => alive().map(p => `<span class="chip${G.silenced === p ? " sil" : ""}">${G.silenced === p ? "🤐 " : ""}${p.name}</span>`).join("");
+const isDual = p => p.role == "silencer" && !alive().some(x => x.role == "killer"); /* no killer left: the Silencer also kills */
+const VERB = { kill: "استهدف", save: "أنقذ", silence: "أسكت", investigate: "حقق مع", guard: "حمى", snipe: "أطلق النار على" };
+const sonLn = (s, nm) => (s || []).map(([a, b]) => `<br>👦 ${nm(a)} أخذ معه ${nm(b)}`).join("");
+const vlHtml = (v, nm) => (v && v.length) ? `<h3>تفصيل التصويت</h3><div class="vl">${v.map(x => `<p>${nm(x.f)} ← ${x.t >= 0 ? "<b>" + nm(x.t) + "</b>" : "امتنع"}${x.w > 1 ? " ×" + x.w : ""}</p>`).join("")}</div>` : "";
+function tlHtml(log, nm) { /* scrollable end-of-game timeline of every hidden action */
+  if (!log || !log.length) return "";
+  const body = log.map(e => e.k == "n"
+    ? `<p><span class="h">الليلة ${e.n}</span><br>${e.acts.length ? e.acts.map(a => `${ROLES[a.r].n} (${nm(a.f)}) ${VERB[a.t] || ""} <b>${nm(a.to)}</b>${a.t == "investigate" ? (a.m ? " ← من المافيا" : " ← ليس من المافيا") : ""}`).join("<br>") : "لم يتحرك أحد"}<br>${e.dead.length ? "💀 " + e.dead.map(nm).join("، ") : "لم يمت أحد"}${e.sil >= 0 ? ` · 🤐 ${nm(e.sil)}` : ""}${sonLn(e.sons, nm)}</p>`
+    : `<p><span class="h">تصويت اليوم ${e.n}</span><br>${(e.votes || []).map(v => nm(v.f) + " ← " + (v.t >= 0 ? nm(v.t) : "امتنع") + (v.w > 1 ? " ×" + v.w : "")).join("<br>")}<br>${e.ex >= 0 ? "⚖️ أُعدم " + nm(e.ex) : "لا إعدام"}${sonLn(e.sons, nm)}</p>`).join("");
+  return `<h3>ملخص اللعبة</h3><div class="tl">${body}</div>`;
+}
 const btn = (label, fn, cls = "") => `<button class="btn ${cls}" onclick="${fn}">${label}</button>`;
 
 /* ---------- setup ---------- */
@@ -210,7 +225,7 @@ function guide() {
     .map(([id, r]) => `<div class="role ${s}"><b>${r.n}</b><p class="dim">${DESC[id] || ""}</p></div>`).join("");
   show(`<h1>دليل اللعبة</h1>
     <h3>الهدف</h3>
-    <p>تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يموت كل أهل المدينة.</p>
+    <p>تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يتساوى عددها مع عدد أهل المدينة أو يزيد عليه. وإذا فني الطرفان معًا (كالابن المدلل يأخذ آخر مافيا معه) تكون النتيجة تعادلًا.</p>
     <h3>كيف تسير الجولة</h3>
     <p><b>الليل:</b> يمرَّر الهاتف على كل لاعب حي بترتيب عشوائي. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.</p>
     <p><b>الفجر:</b> تُعلن النتائج: من قُتل ويُكشف دوره للجميع، ومن أُسكت.</p>
@@ -234,7 +249,7 @@ function start() {
   if (tot > N) return chooseRoles();
   const roles = shuffle([...Object.entries(SEL).flatMap(([id, c]) => Array(c).fill(id)), ...Array(N - tot).fill("citizen")]);
   G = { p: roles.map((r, i) => ({ name: esc((NAMES[i] || "").trim() || "لاعب " + (i+1)), role: r, alive: true })),
-        night: 0, last: {}, silenced: null, mayorUsed: false };
+        night: 0, last: {}, silenced: null, mayorUsed: false, log: [], cs: [], vlog: [] };
   reveal(0);
 }
 
@@ -263,16 +278,21 @@ function nstep(i) {
   pass(G.q[i], () => {
     const p = G.q[i]; let a = ROLES[p.role].act || DECOY; if (a.once && p.used) a = DECOY;
     const ts = alive().filter(x => (a.self || x !== p) && !(a.noRepeat && x === G.last[a.type]));
-    show(`<h2>${ROLES[p.role].n}</h2><p>${a.q}</p><div class="list">${ts.map(t => btn(t.name, `pick(${i},${idx(t)})`)).join("")}${a.skip ? btn("لن أطلق الليلة", `pick(${i},-1)`) : ""}</div>`);
+    show(`<h2>${ROLES[p.role].n}</h2><p>${isDual(p) ? "مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا. " : ""}${a.q}</p><div class="list">${ts.map(t => btn(t.name, `pick(${i},${idx(t)})`)).join("")}${a.skip ? btn("لن أطلق الليلة", `pick(${i},-1)`) : ""}</div>`);
   });
 }
 function pick(i, ti) {
   const p = G.q[i], t = G.p[ti]; let a = ROLES[p.role].act || DECOY; if (a.once && p.used) a = DECOY;
   if (t) { if (a.once) p.used = true; G.acts.push({ type: a.type, from: p, to: t }); }
+  if (t && isDual(p) && a.type == "silence") { show(`<h2>${ROLES[p.role].n}</h2><p>ثانيًا: من تريد قتله؟</p><div class="list">${alive().filter(x => x !== p).map(x => btn(x.name, `pick2(${i},${idx(x)})`)).join("")}</div>`); return; }
   const inv = a.type == "investigate"; sfx("knock");
   show(`<h2>${inv ? t.name : "تم"}</h2><p>${inv ? (side(t) == "mafia" ? '<b class="bad">من المافيا</b>' : "ليس من المافيا") : "تم تسجيل اختيارك."}</p>${btn("أخفِ الشاشة ومرّر الهاتف", `nstep(${i+1})`)}`);
 }
 
+function pick2(i, ti) {
+  G.acts.push({ type: "kill", from: G.q[i], to: G.p[ti] }); sfx("knock");
+  show(`<h2>تم</h2><p>تم تسجيل اختيارك.</p>${btn("أخفِ الشاشة ومرّر الهاتف", `nstep(${i+1})`)}`);
+}
 /* ---------- dawn ---------- */
 function dawn() {
   const A = G.acts, saved = A.filter(a => a.type == "save").map(a => a.to);
@@ -286,6 +306,7 @@ function dawn() {
   dead.splice(0, dead.length, ...new Set(dead));
   const s = A.find(a => a.type == "silence"); G.silenced = s ? s.to : null;
   dead.forEach(t => t.alive = false); DD = dead; NXT = discuss;
+  G.cs = []; G.log.push({ k: "n", n: G.night, acts: A.map(a => ({ t: a.type, f: idx(a.from), r: a.from.role, to: idx(a.to), m: a.type == "investigate" ? side(a.to) == "mafia" : undefined })), dead: dead.map(p => idx(p)), sil: G.silenced ? idx(G.silenced) : -1, sons: G.cs });
   const w = win();
   setPh(dead.length ? "dead" : "day"); sfx(dead.length ? "death" : "dawn");
   if (dead.length) flash(); else burst("#e2b04a");
@@ -299,12 +320,13 @@ function dawn() {
 function discuss() {
   let t = CFG.discuss;
   setPh("day");
-  show(`<div class="icon">☀️</div><h2>النقاش</h2><div class="big" id="t"></div><p class="dim c">${alive().map(x => x.name).join("، ")}</p>${btn("انتقل إلى التصويت", "vote(0)", "go")}`);
+  show(`<div class="icon">☀️</div><h2>النقاش</h2><div class="big" id="t"></div><p class="dim c">${G.silenced && G.silenced.alive ? "🤐 " + G.silenced.name + " صامت اليوم" : ""}</p>${btn("انتقل إلى التصويت", "vote(0)", "go")}`);
+  setBar(barOff());
   const f = () => $("t").textContent = Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0");
   f(); T = setInterval(() => { t--; f(); $("t").classList.toggle("hot", t <= 10); if (t <= 10) sfx("tick"); if (t <= 0) vote(0); }, 1000);
 }
 function vote(i) {
-  if (i == 0) { G.vq = alive(); G.tally = {}; }
+  if (i == 0) { G.vq = alive(); G.tally = {}; G.vlog = []; }
   if (i >= G.vq.length) return tally();
   const v = G.vq[i];
   pass(v, () => {
@@ -316,16 +338,17 @@ function vote(i) {
 }
 function cast(i, ti) {
   sfx("knock");
-  if (ti >= 0) { const m = $("m") && $("m").checked; if (m) G.mayorUsed = true; G.tally[ti] = (G.tally[ti] || 0) + (m ? 3 : 1); }
+  let w = 1; if (ti >= 0) { const m = $("m") && $("m").checked; if (m) G.mayorUsed = true; w = m ? 3 : 1; G.tally[ti] = (G.tally[ti] || 0) + w; }
+  G.vlog.push({ f: idx(G.vq[i]), t: ti, w });
   vote(i + 1);
 }
 function tally() {
   const e = Object.entries(G.tally), mx = Math.max(0, ...e.map(x => x[1])), top = e.filter(x => x[1] == mx);
   let msg = "<p>تعادلت الأصوات. لا أحد يُعدم اليوم.</p>"; DD = []; NXT = night; JW = null;
   if (mx > 0 && top.length == 1) { const x = G.p[top[0][0]]; x.alive = false; DD = [x]; if (x.role == "jester") JW = x; msg = `<p>أُعدم <b>${x.name}</b>.${rv(x)}</p>`; }
-  const w = win(), hit = mx > 0 && top.length == 1;
+  const w = win(), hit = mx > 0 && top.length == 1; G.cs = []; G.log.push({ k: "v", n: G.night, votes: G.vlog, ex: hit ? idx(DD[0]) : -1, sons: G.cs });
   if (hit) { sfx("gavel"); flash(); }
-  show(`<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${msg}${btn("متابعة", JW ? "over('jester')" : "after()", "go")}`);
+  show(`<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${msg}${vlHtml(G.vlog, i => G.p[i].name)}${btn("متابعة", JW ? "over('jester')" : "after()", "go")}`);
 }
 
 /* ---------- spoiled son ---------- */
@@ -337,7 +360,7 @@ function sons(dead, done) {
   pass(s, () => show(`<h2>${s.name}</h2><p>أنت الابن المدلل وقد متّ. اختر لاعبًا تشك فيه ليموت معك.</p><div class="list">${alive().map(t => btn(t.name, `sonHit(${idx(s)},${idx(t)})`)).join("")}</div>`));
 }
 function sonHit(si, ti) {
-  const s = G.p[si], t = G.p[ti]; t.alive = false; SD.dead.push(t); sfx("death"); flash();
+  const s = G.p[si], t = G.p[ti]; t.alive = false; SD.dead.push(t); G.cs.push([si, ti]); sfx("death"); flash();
   show(`<div class="icon">💀</div><p>أخذ <b>${s.name}</b> معه <b>${t.name}</b>.${rv(t)}</p>${btn("متابعة", "sons(SD.dead,SD.done)", "go")}`);
 }
 function after() { sons(DD, () => { const w = win(); w ? over(w) : NXT(); }); }
@@ -345,8 +368,9 @@ function after() { sons(DD, () => { const w = win(); w ? over(w) : NXT(); }); }
 /* ---------- menu, mode, characters, settings ---------- */
 function menu() {
   setPh("night");
+  const sv = window.MP && mpSaved();
   show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">المدينة نائمة، وليس الجميع بريئًا.</p>
-    ${btn("لعب", "mode()", "go")}${btn("دليل اللعبة", "guide()")}${btn("الشخصيات", "chars()")}${btn("الإعدادات", "settings()")}`);
+    ${sv ? btn("العودة إلى غرفتك (" + esc(sv.code) + ")", "mpResume()", "go") : ""}${btn("لعب", "mode()", sv ? "" : "go")}${btn("دليل اللعبة", "guide()")}${btn("الشخصيات", "chars()")}${btn("الإعدادات", "settings()")}${badge()}`, false, true);
 }
 function mode() {
   show(`<h2>طريقة اللعب</h2>${btn("تمرير الهاتف", "setup()", "go")}
@@ -379,20 +403,22 @@ function adj(id, d) { SEL[id] = Math.max(REQ.includes(id) ? 1 : 0, (SEL[id] || 0
 /* ---------- end ---------- */
 function win() {
   const m = alive().filter(x => side(x) == "mafia").length, g = alive().filter(x => side(x) == "good").length;
-  return m == 0 ? "good" : g == 0 ? "mafia" : null;
+  return m == 0 && g == 0 ? "draw" : m == 0 ? "good" : m >= g ? "mafia" : null;
 }
 function over(w) {
-  const T = { good: ["🏆", "فازت المدينة"], mafia: ["🕶️", "فازت المافيا"], jester: ["🤡", "فاز المهرّج"] }[w], g = w != "mafia";
-  setPh(g ? "day" : "dead"); sfx(g ? "win" : "lose"); burst(g ? "#e2b04a" : "#b5443f");
+  const T = { good: ["🏆", "فازت المدينة"], mafia: ["🕶️", "فازت المافيا"], jester: ["🤡", "فاز المهرّج"], draw: ["🤝", "تعادل: فناء الطرفين معًا"] }[w], g = w != "mafia";
+  setPh(w == "draw" ? "night" : g ? "day" : "dead"); sfx(w == "draw" ? "gavel" : g ? "win" : "lose"); burst(w == "draw" ? "#7c8590" : g ? "#e2b04a" : "#b5443f");
   show(`<div class="icon">${T[0]}</div><h1>${T[1]}</h1>
     <div class="list">${G.p.map(p => `<p class="${p.alive ? "" : "dim"}">${p.name}: ${ROLES[p.role].n}${p.alive ? "" : " (خرج)"}</p>`).join("")}</div>
-    ${btn("القائمة الرئيسية", "menu()", "go")}`);
+    ${tlHtml(G.log, i => G.p[i].name)}${btn("القائمة الرئيسية", "menu()", "go")}${badge()}`, false, true);
 }
 /* ---------- multiplayer client (active only when served by server.js) ---------- */
-let WS, S, MN = "";
+let WS, S, MN = "", MPOFF = false, D1 = null;
 const SEND = o => WS && WS.readyState == 1 && WS.send(JSON.stringify(o));
-const mpSaved = () => { try { return JSON.parse(sessionStorage.getItem("mf")); } catch (e) { return null; } };
-const mpClear = () => { try { sessionStorage.removeItem("mf"); } catch (e) {} };
+const mpSaved = () => { try { return JSON.parse(localStorage.getItem("mf")); } catch (e) { return null; } };
+const mpClear = () => { try { localStorage.removeItem("mf"); } catch (e) {} };
+const hbAge = () => { try { return Date.now() - (+localStorage.getItem("mf_hb") || 0); } catch (e) { return 1e9; } };
+const mpResume = () => { const v = mpSaved(); if (!v) return menu(); MPOFF = false; WS && WS.readyState == 1 ? SEND({ t: "rejoin", code: v.code, tok: v.tok }) : mpConnect(); };
 function err(t) {
   let e = $("er"); if (!e) { e = document.createElement("div"); e.id = "er"; document.body.append(e); }
   e.textContent = t; e.className = "on"; setTimeout(() => e.className = "", 3000);
@@ -402,13 +428,20 @@ function mpConnect(first) {
   WS.onopen = () => { if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
   WS.onmessage = e => {
     const m = JSON.parse(e.data);
-    if (m.t == "tok") { try { sessionStorage.setItem("mf", JSON.stringify(m)); } catch (x) {} }
+    if (m.t == "tok") { MPOFF = false; try { localStorage.setItem("mf", JSON.stringify(m)); } catch (x) {} }
     else if (m.t == "err") { err(m.m); if (m.k == "room") { mpClear(); S = null; menu(); } }
+    else if (m.t == "closed" || m.t == "kicked") { err(m.m); mpClear(); S = null; menu(); }
+    else if (m.t == "notice") err("📢 " + m.m);
+    else if (m.t == "replaced") { MPOFF = true; S = null; err("فُتحت اللعبة في نافذة أخرى. اضغط «العودة إلى غرفتك» هنا لاستعادتها."); menu(); }
     else if (m.t == "state") mpRender(m);
   };
-  WS.onclose = () => { if (S || mpSaved()) setTimeout(() => mpConnect(), 1500); };
+  WS.onclose = () => { if ((S || mpSaved()) && !MPOFF) setTimeout(() => mpConnect(), 1500); };
 }
 setInterval(() => SEND({ t: "ping" }), 20000);
+setInterval(() => { if (S && !MPOFF) try { localStorage.setItem("mf_hb", Date.now()); } catch (e) {} }, 2000); /* tells other tabs this one is alive */
+/* coming back to the app, or the network returning: re-open a dropped connection straight away */
+const mpWake = () => { if (S && !MPOFF && (!WS || WS.readyState > 1)) mpConnect(); };
+addEventListener("online", mpWake); document.addEventListener("visibilitychange", () => { if (document.visibilityState == "visible") mpWake(); });
 function mpMenu() {
   show(`<h2>لعب جماعي</h2><input type="text" id="mn" maxlength="14" placeholder="اسمك" value="${esc(MN)}" oninput="MN=this.value">
     ${btn("إنشاء غرفة", "mpGo('create')", "go")}
@@ -427,17 +460,28 @@ const mpAdj = (id, d) => mpSet({ roles: { ...S.set.roles, [id]: Math.max(REQ.inc
 const mpVote = i => SEND({ t: "vote", target: i, m: !!($("m") && $("m").checked) });
 const mpChat = () => { const i = $("ci"); if (i && i.value.trim()) { SEND({ t: "chat", text: i.value }); i.value = ""; i.focus(); } };
 
+const mpKick = i => { if (!window.confirm || confirm("طرد " + S.players[i].n + " من الغرفة؟")) SEND({ t: "kick", id: i }); };
+const barMp = () => S.players.map((p, i) => p.a ? `<span class="chip${i == S.sl ? " sil" : ""}${i == S.me ? " me" : ""}">${i == S.sl ? "🤐 " : ""}${esc(p.n)}</span>` : "").join("");
+const mpD1 = i => { D1 = i; mpRender(S); };
+const mpD2 = i => { SEND({ t: "act", target: D1, target2: i }); D1 = null; };
 const pn = i => esc(S.players[i].n);
 const rvm = i => S.players[i].r ? ` كان ${ROLES[S.players[i].r].n}.` : "";
 const sonsH = () => (S.sons || []).map(([a, b]) => `<p>أخذ <b>${pn(a)}</b> معه <b>${pn(b)}</b>.${rvm(b)}</p>`).join("");
-const chatH = () => S.chat.map(m => `<p class="${m.d ? "dim" : ""}"><b>${esc(m.n)}:</b> ${esc(m.x)}</p>`).join("");
+const split = () => !S.alive && S.phase != "over";
+const row = m => `<p class="${m.d || m.sys ? "dim" : ""}"><b>${esc(m.n)}:</b> ${esc(m.x)}</p>`;
+const chatH = () => S.chat.filter(m => !split() || !m.d).map(row).join("");
+const deadH = () => S.chat.filter(m => m.d).map(row).join("");
 const talk = () => !S.players[S.me].mu && (S.alive ? (S.phase == "day" ? !S.sil : S.phase == "over") : true);
-const chatBox = () => `<div id="chat" class="chat">${chatH()}</div>` + (talk() ? `<input type="text" id="ci" maxlength="200" placeholder="اكتب رسالة..." onkeydown="if(event.key=='Enter')mpChat()">` : '<p class="dim">لا يمكنك الكتابة الآن.</p>');
-const muteRow = () => S.host ? `<div class="row" style="flex-wrap:wrap">${S.players.map((p, i) => i == S.me ? "" : `<button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"} ${esc(p.n)}</button>`).join("")}</div>` : "";
+const chatBox = () => (split() ? '<p class="dim">الدردشة العامة (قراءة فقط)</p>' : "") + `<div id="chat" class="chat">${chatH()}</div>` +
+  (split() ? `<p class="dim">دردشة الموتى 👻 (لا يراها الأحياء)</p><div id="chatd" class="chat">${deadH()}</div>` : "") +
+  (talk() ? `<input type="text" id="ci" maxlength="200" placeholder="${split() ? "اكتب لبقية الموتى..." : "اكتب رسالة..."}" onkeydown="if(event.key=='Enter')mpChat()">` : '<p class="dim">لا يمكنك الكتابة الآن.</p>');
+const muteRow = () => S.host ? `<div class="row" style="flex-wrap:wrap">${S.players.map((p, i) => i == S.me ? "" : `<button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"} ${esc(p.n)}</button><button class="mini" onclick="mpKick(${i})">🚪</button>`).join("")}</div>` : "";
 const watch = (ic, t, m) => `<div class="icon">${ic}</div><h2>${t}</h2><p class="dim">${m}</p><div class="big" id="t"></div>${chatBox()}`;
 const clock = () => { if (S.end) T = setInterval(() => { const e = $("t"); if (e) { const v = Math.max(0, Math.ceil((S.end - Date.now()) / 1000)); e.textContent = v; e.classList.toggle("hot", v <= 10); } }, 400); };
 function mpLive() {
   const c = $("chat"); if (c) { const b = c.scrollHeight - c.scrollTop - c.clientHeight < 40; c.innerHTML = chatH(); if (b) c.scrollTop = c.scrollHeight; }
+  const cd = $("chatd"); if (cd) { const b = cd.scrollHeight - cd.scrollTop - cd.clientHeight < 40; cd.innerHTML = deadH(); if (b) cd.scrollTop = cd.scrollHeight; }
+  if (S.phase == "day") setBar(barMp());
   const r = $("rd"); if (r) r.textContent = S.done ? `بانتظار الباقين ${S.cnt.join("/")}` : "جاهز للتصويت";
   const m = $("mr"); if (m) m.innerHTML = muteRow();
 }
@@ -452,12 +496,15 @@ function lobbySet(s) {
 function mpRender(s) {
   const pv = S; S = s;
   const ch = !pv || pv.phase != s.phase || pv.night != s.night;
-  if (!ch && $("chat")) return mpLive();
+  if (ch) D1 = null; /* a half-finished Silencer pick must not leak into the next night */
+  if (ch) D1 = null;
+  if (pv && !pv.host && s.host) err("👑 أصبحت المضيف الآن");
+  if (!ch && $("chat") && !!$("chatd") == split()) return mpLive(); /* same screen: only refresh chat/bar (but redraw if the chat layout must change) */
   const ph = s.phase, rl = s.role && ROLES[s.role]; let h = "";
   if (ph == "lobby") {
     setPh("night");
     h = `<h2>الغرفة <span class="flick">${s.code}</span></h2><p class="dim">شارك الرمز مع أصدقائك (${s.players.length} لاعبين)</p>
-      <div class="list">${s.players.map((p, i) => `<div class="role">${esc(p.n)}${p.h ? " 👑" : ""}${i == s.me ? " (أنت)" : ""}${p.c ? "" : " · غير متصل"}${s.host && i != s.me ? ` <button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"}</button>` : ""}</div>`).join("")}</div>
+      <div class="list">${s.players.map((p, i) => `<div class="role">${esc(p.n)}${p.h ? " 👑" : ""}${i == s.me ? " (أنت)" : ""}${p.c ? "" : " · غير متصل"}${s.host && i != s.me ? ` <button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"}</button> <button class="mini" onclick="mpKick(${i})">🚪</button>` : ""}</div>`).join("")}</div>
       ${s.host ? lobbySet(s) : '<p class="dim">بانتظار المضيف ليبدأ اللعبة...</p>'}${btn("خروج", "mpLeave()")}`;
   } else if (ph == "reveal") {
     setPh("night");
@@ -472,6 +519,9 @@ function mpRender(s) {
       h = `<div class="icon">🌙</div><h2>تم</h2><p>${iv ? `<b>${pn(iv.n)}</b>: ${iv.m ? '<b class="bad">من المافيا</b>' : "ليس من المافيا"}` : "تم تسجيل اختيارك."}</p><p class="dim">بانتظار الباقين ${s.cnt.join("/")}</p><div class="big" id="t"></div>`;
     } else {
       const a = rl.act && !(rl.act.once && s.used) ? rl.act : DECOY;
+      if (s.dual && D1 === null) h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا.<br>1) ${a.q}</p><div class="list">${s.opts.map(i => btn(pn(i), `mpD1(${i})`)).join("")}</div><div class="big" id="t"></div>`;
+      else if (s.dual) h = `<div class="icon">🔪</div><h2>${rl.n}</h2><p>2) من تريد قتله؟</p><div class="list">${s.opts2.map(i => btn(pn(i), `mpD2(${i})`)).join("")}</div><div class="big" id="t"></div>`;
+      else
       h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>${a.q}</p><div class="list">${s.opts.map(i => btn(pn(i), `SEND({t:'act',target:${i}})`)).join("")}${s.skip ? btn("لن أطلق الليلة", "SEND({t:'act',target:-1})") : ""}</div><div class="big" id="t"></div>`;
     }
   } else if (ph == "son") {
@@ -496,14 +546,15 @@ function mpRender(s) {
       <div class="list">${s.opts.map(i => btn(pn(i), `mpVote(${i})`)).join("")}${btn("امتنع عن التصويت", "mpVote(-1)")}</div><div class="big" id="t"></div>`;
   } else if (ph == "result") {
     const x = s.res.ex; setPh("day"); if (ch && x >= 0) { sfx("gavel"); flash(); }
-    h = `<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${x >= 0 ? `<p>أُعدم <b>${pn(x)}</b>.${rvm(x)}</p>` : "<p>لا أحد يُعدم اليوم.</p>"}${sonsH()}`;
+    h = `<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${x >= 0 ? `<p>أُعدم <b>${pn(x)}</b>.${rvm(x)}</p>` : "<p>لا أحد يُعدم اليوم.</p>"}${vlHtml(s.res.votes, pn)}${sonsH()}`;
   } else if (ph == "over") {
-    const w = s.win, g = w != "mafia", E = { good: ["🏆", "فازت المدينة"], mafia: ["🕶️", "فازت المافيا"], jester: ["🤡", "فاز المهرّج"] }[w];
-    setPh(g ? "day" : "dead"); if (ch) { sfx(g ? "win" : "lose"); burst(g ? "#e2b04a" : "#b5443f"); }
-    h = `<div class="icon">${E[0]}</div><h1>${E[1]}</h1><div class="list">${s.players.map(p => `<p class="${p.a ? "" : "dim"}">${esc(p.n)}: ${ROLES[p.r].n}${p.a ? "" : " (خرج)"}</p>`).join("")}</div>
-      ${chatBox()}${s.host ? btn("لعبة جديدة بنفس اللاعبين", "SEND({t:'again'})", "go") : ""}${btn("خروج", "mpLeave()")}`;
+    const w = s.win, g = w != "mafia", E = { good: ["🏆", "فازت المدينة"], mafia: ["🕶️", "فازت المافيا"], jester: ["🤡", "فاز المهرّج"], draw: ["🤝", "تعادل: فناء الطرفين معًا"] }[w];
+    setPh(w == "draw" ? "night" : g ? "day" : "dead"); if (ch) { sfx(w == "draw" ? "gavel" : g ? "win" : "lose"); burst(w == "draw" ? "#7c8590" : g ? "#e2b04a" : "#b5443f"); }
+    h = `<div class="icon">${E[0]}</div><h1>${E[1]}</h1><div class="list">${s.players.map(p => `<p class="${p.a ? "" : "dim"}">${esc(p.n)}: ${ROLES[p.r].n}${p.k ? " (طُرد)" : p.a ? "" : " (خرج)"}</p>`).join("")}</div>
+      ${tlHtml(s.log, i => pn(i))}${chatBox()}${s.host ? btn("لعبة جديدة بنفس اللاعبين", "SEND({t:'again'})", "go") : ""}${btn("خروج", "mpLeave()")}`;
   }
-  show(h, !ch); clock();
+  const key = ph == "over" || ph == "lobby"; if (key) h += badge();
+  show(h, !ch, key); clock(); if (ph == "day") setBar(barMp());
 }
 
 /* ---------- role icons (shown everywhere the role name appears) ---------- */
@@ -547,7 +598,23 @@ document.addEventListener("keydown", e => {
 });
 
 menu();
-if (window.MP && mpSaved()) mpConnect();
+if (window.MP && mpSaved() && hbAge() > 6000) mpConnect(); /* auto-rejoin unless another tab of this browser is already in the game */
 </script>
+<div id="credit">MADE BY IBRAHIM BUGHA</div>
+<style>
+#credit{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:6;font:700 10px/1 Cairo,system-ui,sans-serif;letter-spacing:.14em;color:#e2b04a;opacity:.55;pointer-events:none;direction:ltr}
+#app.key~#credit{display:none}
+.cbadge{align-self:center;margin-top:10px;padding:8px 20px;border:1px solid rgba(226,176,74,.45);border-radius:999px;background:rgba(226,176,74,.07);backdrop-filter:blur(4px);text-align:center;direction:ltr;line-height:1.35;box-shadow:0 0 18px rgba(226,176,74,.12);animation:glowb 4s ease-in-out infinite}
+.cbadge small{display:block;font:700 11px Cairo,system-ui,sans-serif;color:#7c8590;letter-spacing:.22em}
+.cbadge b{font:700 20px "Aref Ruqaa",serif;letter-spacing:.2em;color:#e2b04a}
+@keyframes glowb{50%{box-shadow:0 0 30px rgba(226,176,74,.32)}}
+#sbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;gap:6px;overflow-x:auto;padding:calc(env(safe-area-inset-top,0px) + 8px) 112px 8px 12px;background:linear-gradient(#0f1317ee,#0f131700);direction:rtl}
+#sbar[hidden]{display:none}
+.chip{flex:none;font-size:13px;padding:2px 10px;border-radius:999px;border:1px solid #2c353f;background:#1a2027;white-space:nowrap}
+.chip.sil{border-color:#b5443f;color:#ff9b94;background:rgba(181,68,63,.18)}.chip.me{border-color:#e2b04a}
+.tl{max-height:300px;overflow:auto;border:1px solid #2c353f;border-radius:6px;padding:10px;font-size:14px;line-height:1.7}
+.tl p{margin:0 0 10px}.tl .h{color:#e2b04a;font-weight:700}.vl{font-size:14px}.vl p{margin:0}
+</style>
+<script>if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){addEventListener("load",()=>{try{navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}})}</script>
 </body>
 </html>
