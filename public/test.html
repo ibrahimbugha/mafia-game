@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mafia connection test</title>
+<style>
+body{font:16px/1.6 system-ui,sans-serif;background:#0f1317;color:#e8e1d0;margin:0;padding:20px;max-width:720px;margin-inline:auto}
+input,button{font:inherit;padding:10px;border-radius:6px;border:1px solid #2c353f;background:#1a2027;color:#e8e1d0;width:100%;box-sizing:border-box;margin:6px 0}
+button{background:#e2b04a;color:#1a1405;font-weight:700;cursor:pointer}
+pre{background:#000;padding:12px;border-radius:6px;white-space:pre-wrap;word-break:break-word;min-height:120px}
+.ok{color:#6fcf97}.bad{color:#ff7b72}.dim{color:#7c8590}
+</style></head><body>
+<h2>Mafia connection test</h2>
+<p class="dim">Open this page from the same link you use to play (your onrender.com address, ending in /test.html). Then press the button and wait. A sleeping free server can take up to a minute.</p>
+<label>Server address (leave as is to test this link)</label>
+<input id="u">
+<button id="go">Run test</button>
+<pre id="log"></pre>
+<script>
+const $ = id => document.getElementById(id), log = (t, c) => { const s = document.createElement("span"); s.className = c || ""; s.textContent = t + "\n"; $("log").append(s); };
+$("u").value = (location.protocol == "https:" ? "wss://" : "ws://") + location.host;
+$("go").onclick = async () => {
+  $("log").textContent = ""; const url = $("u").value.trim(), t0 = Date.now(), sec = () => ((Date.now() - t0) / 1000).toFixed(1) + "s";
+  log("Page address: " + location.href);
+  log("Testing server: " + url);
+  if (location.hostname.endsWith("github.io")) log("WARNING: this page is on GitHub Pages. GitHub Pages cannot run the game server.", "bad");
+  try { const r = await fetch(location.origin + "/", { cache: "no-store" }); log("1) Web page reachable (HTTP " + r.status + ") after " + sec(), r.ok ? "ok" : "bad"); }
+  catch (e) { log("1) Could not reach this web address: " + e.message, "bad"); }
+  try { const r = await fetch(location.origin + "/health", { cache: "no-store" }); log("2) /health: HTTP " + r.status + (r.ok ? " (new server)" : " (404 is normal on the old server)"), r.ok ? "ok" : "dim"); } catch (e) { log("2) /health failed: " + e.message, "dim"); }
+  log("3) Opening WebSocket... (waiting up to 70 seconds)");
+  let ws, done = false, opened = false;
+  const finish = (msg, c) => { if (done) return; done = true; log("\nRESULT: " + msg, c); try { ws.close(); } catch (e) {} };
+  try { ws = new WebSocket(url); } catch (e) { return finish("Bad server address: " + e.message, "bad"); }
+  const timer = setTimeout(() => finish("No answer after 70 seconds. The server is asleep, still starting, crashed, or this address is not a Node web service.", "bad"), 70000);
+  ws.onopen = () => { opened = true; log("   WebSocket connected after " + sec(), "ok"); log("4) Asking the server to create a test room..."); ws.send(JSON.stringify({ t: "create", name: "tester" })); };
+  ws.onmessage = e => {
+    let m; try { m = JSON.parse(e.data); } catch (x) { return log("   Odd reply: " + String(e.data).slice(0, 120), "bad"); }
+    log("   Server replied: " + m.t + (m.code ? " (room " + m.code + ")" : "") + (m.m ? " " + m.m : ""), m.t == "err" ? "bad" : "ok");
+    if (m.t == "state") { clearTimeout(timer); finish("PASS. The server works and creates rooms. If the game still fails, the problem is in the game page, not the server.", "ok"); }
+  };
+  ws.onerror = () => log("   WebSocket error after " + sec(), "bad");
+  ws.onclose = ev => {
+    if (done) return; clearTimeout(timer);
+    finish(opened ? "Connection closed early (code " + ev.code + "). The server dropped us." : "Could not connect (code " + ev.code + "). Wrong address, a Static Site instead of a Web Service, or the server is not running.", "bad");
+  };
+};
+</script></body></html>
