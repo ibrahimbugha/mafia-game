@@ -165,3 +165,7 @@ The host sees a 🚪 button next to each player (in the lobby and during the day
 The game is already an installable web app (manifest, icons, service worker, HTTPS on Render), so players can use **Add to Home Screen** today.
 To make a real Android app, a Trusted Web Activity (made with PWABuilder or Bubblewrap) can wrap the Render link. Android verifies the link through a file you place at `public/.well-known/assetlinks.json` (the server already serves it as JSON).
 Publishing on Google Play needs a Play developer account. Check Google's current list of supported registration locations first, and note that new personal accounts must run a closed test with 12 testers for 14 days before they can publish.
+
+
+## Offline (pass-the-phone)
+The game page, icons and fonts are cached by the service worker (cache `mafia-v6`), so pass-the-phone works in airplane mode after the first online visit. Multiplayer needs internet; the menu button shows "اتصل بالإنترنت" when offline.

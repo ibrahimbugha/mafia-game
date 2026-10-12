@@ -4,8 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>المافيا · ليل المدينة</title>
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:"Cairo";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/cairo-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:"Cairo";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/cairo-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:"Cairo";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/cairo-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Cairo";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/cairo-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Aref Ruqaa";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/aref-ruqaa-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:"Aref Ruqaa";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/aref-ruqaa-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:"Aref Ruqaa";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/aref-ruqaa-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Aref Ruqaa";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/aref-ruqaa-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+.btn:disabled{opacity:.55;cursor:not-allowed}.btn:disabled:hover{transform:none;box-shadow:none;border-color:#2c353f}
+.btn.off{background:#000;color:#8a8a8a;border-color:#222;cursor:not-allowed;opacity:1}
+.btn.foe{background:#3a1212;color:#ff8a84;border-color:#7a2323;cursor:not-allowed;opacity:1}
+.btn.off:hover,.btn.foe:hover{border-color:inherit}
+.passcard{border:1px solid var(--lamp);border-radius:10px;padding:24px 12px;margin-bottom:14px;background:#0b0e12;box-shadow:0 0 30px rgba(226,176,74,.2)}
+.pname{font-size:46px;color:#fff;text-shadow:0 0 18px rgba(226,176,74,.9),0 0 3px #fff;word-break:break-word}.seat{color:var(--lamp);margin:4px 0 0;font-weight:700}
+.hold{position:relative;overflow:hidden;border-color:var(--lamp);touch-action:none;-webkit-touch-callout:none}.hold i{position:absolute;inset:0;background:rgba(226,176,74,.45);transform:scaleX(0);transform-origin:right}.hold span{position:relative}
+.hold.holding i{transform:scaleX(1);transition:transform linear var(--hm,700ms)}.hold.shake{animation:shake .6s}
+#app.passing::before{content:"";position:fixed;inset:0;z-index:5;background:#05070a;pointer-events:none;animation:curtain .55s ease-in forwards}
+@keyframes curtain{to{transform:translateY(-101%)}}
 :root{color-scheme:dark;--night:#0f1317;--smoke:#1a2027;--paper:#e8e1d0;--lamp:#e2b04a;--blood:#b5443f;--ash:#7c8590;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
@@ -73,6 +90,43 @@ html{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
   .wrap{max-width:800px}h1{font-size:62px}h2{font-size:36px}body{font-size:19px}
   .list{grid-template-columns:1fr 1fr}.chat{height:260px}
 }
+/* ===== visual polish v2 ===== */
+:root{--r:14px;--edge:#2f3a46;--lamp2:#ffd978}
+.btn{border-radius:var(--r);background:linear-gradient(180deg,#252e38,#171d24);border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 3px 10px rgba(0,0,0,.35);letter-spacing:.01em;position:relative;overflow:hidden}
+.btn:hover,.btn:focus-visible{border-color:var(--lamp);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 8px 22px rgba(0,0,0,.5),0 0 0 3px rgba(226,176,74,.14)}
+.btn:active{transform:scale(.975);box-shadow:inset 0 2px 6px rgba(0,0,0,.5)}
+.go{background:linear-gradient(180deg,var(--lamp2),var(--lamp) 55%,#c48c2c);color:#1a1405;border-color:#f3c764;text-shadow:0 1px 0 rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 6px 20px rgba(226,176,74,.28)}
+.go:hover,.go:focus-visible{border-color:#fff1c2;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 26px rgba(226,176,74,.45),0 0 0 3px rgba(226,176,74,.22)}
+.go::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:shine 4.5s ease-in-out 1.2s infinite;pointer-events:none}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.btn:disabled:not(.off):not(.foe){filter:saturate(.4)}.go:disabled::after{display:none}
+.btn.step,.row .step{border-radius:50%;min-height:0;width:46px;height:46px;padding:0;display:grid;place-items:center;font-size:22px}
+.row .step{width:64px;border-radius:var(--r)}.rr .step{width:42px;height:42px;padding:0}
+.on{border-color:var(--lamp);color:var(--lamp);background:linear-gradient(180deg,#2e2a1b,#1d1a10)}
+.mi{display:flex;align-items:center;justify-content:center;min-height:58px;font-size:18px}
+.mi::before{position:absolute;inset-inline-start:16px;font-size:22px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+.i-play::before{content:"🎮"}.i-guide::before{content:"📖"}.i-roles::before{content:"🎭"}.i-set::before{content:"⚙️"}
+.i-phone::before{content:"📱"}.i-globe::before{content:"🌐"}.i-back::before{content:"↩️"}
+.role{background:linear-gradient(135deg,rgba(26,32,39,.9),rgba(15,19,23,.9));border:1px solid var(--edge);border-inline-start:4px solid var(--lamp);border-radius:12px;padding:10px 16px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.role.mafia{border-inline-start-color:var(--blood)}.role.neutral{border-inline-start-color:var(--ash)}
+.rr .role{padding:6px 14px}
+input[type=text]{background:rgba(255,255,255,.04);border:1px solid var(--edge);border-radius:12px;padding:11px 14px;margin-bottom:6px;transition:border-color .2s,box-shadow .2s}
+input[type=text]:focus-visible{border-color:var(--lamp);box-shadow:0 0 0 3px rgba(226,176,74,.16)}
+.opt{border-radius:12px;background:rgba(226,176,74,.07)}
+.chat{border-radius:12px;background:rgba(0,0,0,.28);border-color:var(--edge)}
+h2{text-shadow:0 2px 14px rgba(0,0,0,.6)}h3{border-bottom:1px solid rgba(226,176,74,.25);padding-bottom:4px}
+h1 .flick{font-size:1.25em;letter-spacing:.04em;background:linear-gradient(180deg,#fff0c0,#e2b04a 55%,#a8742a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px rgba(226,176,74,.5))}
+.sky{width:100%;max-height:120px;margin:-6px 0 4px;opacity:.95}.sky .w{fill:#ffd978;animation:win 5s ease-in-out infinite}.sky .w:nth-child(3n){animation-delay:1.3s}.sky .w:nth-child(4n){animation-delay:2.7s}
+@keyframes win{0%,100%{opacity:.9}45%{opacity:.15}60%{opacity:.8}}
+#modal .card{border-radius:18px;background:linear-gradient(180deg,#1f2832,#151a20);box-shadow:0 18px 60px rgba(0,0,0,.7),0 0 0 1px rgba(226,176,74,.25)}
+#modal{backdrop-filter:blur(3px)}
+.mini{border-radius:999px;padding:4px 12px;background:linear-gradient(180deg,#252e38,#171d24);border-color:var(--edge)}
+#er{border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#mute,#fs{background:linear-gradient(180deg,#252e38,#171d24);box-shadow:0 3px 10px rgba(0,0,0,.4);transition:transform .15s,border-color .2s}#mute:hover,#fs:hover{border-color:var(--lamp);transform:scale(1.08)}
+.passcard{border-radius:18px}.hold{border-radius:16px;min-height:60px}
+.chip{border-radius:999px}
+.wrap{padding:66px 20px 58px}h1,h1+p.dim{text-align:center}
+.big{text-shadow:0 0 24px rgba(226,176,74,.45)}
 @media (prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
 </style>
 <meta name="theme-color" content="#0f1317">
@@ -88,6 +142,7 @@ html{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 /* ---------- DATA: add or remove a role by editing these two tables ---------- */
 const CFG = { discuss: 120, showRole: true };
 const REQ = ["killer", "silencer", "doctor"]; /* mandatory roles */
+const reqFor = n => (n <= 5 ? ["killer", "doctor"] : REQ); /* 5-player games: Silencer optional */
 const ROLES = {
   silencer:  { n:"مافيا التسكيت", side:"mafia", order:1, act:{ type:"silence", self:true, q:"من تريد إسكاته؟" } },
   killer:    { n:"مافيا القتل",   side:"mafia", order:2, act:{ type:"kill", q:"من تريد قتله؟" } },
@@ -130,7 +185,7 @@ let G, N = 6, NAMES = [], T, cb, AC, muted = false;
 
 /* Role scaling: COUNTS above overrides a size; otherwise this builds it (5 to 20) */
 function rolesFor(n) {
-  const m = Math.max(2, Math.floor((n + 2) / 4));
+  const m = n <= 5 ? 1 : Math.max(2, Math.floor((n + 2) / 4));
   const r = ["killer"]; if (m > 1) r.push("silencer"); while (r.length < m) r.push("killer");
   r.push("detective", "doctor", "mayor");
   if (n >= 12) r.push("detective"); if (n >= 16) r.push("doctor");
@@ -198,7 +253,25 @@ const alive = () => G.p.filter(x => x.alive);
 const side = p => ROLES[p.role].side;
 const idx = p => G.p.indexOf(p);
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const pass = (p, next) => { cb = next; sfx("turn"); show(`<div class="c"><p class="dim">مرّر الهاتف إلى</p><h1>${p.name}</h1></div><button class="btn go" onclick="cb()">أنا ${p.name}</button>`); };
+let HOLD_MS = 700, HT = null;
+const holdDone = () => { const f = cb; cb = null; f && f(); };
+function holdBind() {
+  const b = $("hold"); if (!b) return;
+  const on = () => { if (HT || !cb) return; b.classList.add("holding"); HT = setTimeout(() => { HT = null; holdDone(); }, HOLD_MS); };
+  const off = () => { if (HT) { clearTimeout(HT); HT = null; } b.classList.remove("holding"); };
+  ["pointerdown", "touchstart"].forEach(e => b.addEventListener(e, on, { passive: true }));
+  ["pointerup", "pointerleave", "pointercancel", "touchend", "touchcancel", "blur"].forEach(e => b.addEventListener(e, off));
+  b.addEventListener("keydown", e => { if (e.key == " " || e.key == "Enter") { e.preventDefault(); if (!e.repeat) on(); } });
+  b.addEventListener("keyup", e => { if (e.key == " " || e.key == "Enter") off(); });
+  b.addEventListener("click", () => { b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); }); /* a plain tap only shakes */
+  b.addEventListener("contextmenu", e => e.preventDefault());
+}
+const pass = (p, next) => {
+  cb = next; clearTimeout(HT); HT = null; sfx("turn");
+  show(`<div class="passcard c"><p class="dim">مرّر الهاتف إلى</p><h1 class="pname">${p.name}</h1><p class="seat">المقعد ${idx(p) + 1} من ${G.p.length}</p></div><button class="btn hold" id="hold" type="button" style="--hm:${HOLD_MS}ms"><i></i><span>🔒 اضغط مطوّلًا لتأكيد هويتك</span></button><p class="dim c">استمر بالضغط حتى يمتلئ الشريط</p>`);
+  const a = $("app"); a.classList.add("passing"); setTimeout(() => a.classList.remove("passing"), 600); holdBind();
+};
+const SKY = '<svg class="sky" viewBox="0 0 210 80" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><rect x="0" y="42" width="30" height="38" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="34" y="24" width="24" height="56" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="54" y="52" width="28" height="28" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="80" y="18" width="22" height="62" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="100" y="36" width="30" height="44" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="128" y="26" width="24" height="54" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="150" y="46" width="28" height="34" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="176" y="30" width="26" height="50" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect class="w" x="5" y="48" width="3" height="4"/><rect class="w" x="13" y="48" width="3" height="4"/><rect class="w" x="5" y="57" width="3" height="4"/><rect class="w" x="13" y="57" width="3" height="4"/><rect class="w" x="5" y="66" width="3" height="4"/><rect class="w" x="13" y="66" width="3" height="4"/><rect class="w" x="5" y="75" width="3" height="4"/><rect class="w" x="13" y="75" width="3" height="4"/><rect class="w" x="39" y="30" width="3" height="4"/><rect class="w" x="39" y="39" width="3" height="4"/><rect class="w" x="47" y="39" width="3" height="4"/><rect class="w" x="47" y="48" width="3" height="4"/><rect class="w" x="39" y="57" width="3" height="4"/><rect class="w" x="39" y="66" width="3" height="4"/><rect class="w" x="47" y="66" width="3" height="4"/><rect class="w" x="47" y="75" width="3" height="4"/><rect class="w" x="59" y="58" width="3" height="4"/><rect class="w" x="67" y="58" width="3" height="4"/><rect class="w" x="59" y="67" width="3" height="4"/><rect class="w" x="67" y="67" width="3" height="4"/><rect class="w" x="93" y="24" width="3" height="4"/><rect class="w" x="85" y="33" width="3" height="4"/><rect class="w" x="85" y="42" width="3" height="4"/><rect class="w" x="93" y="42" width="3" height="4"/><rect class="w" x="93" y="51" width="3" height="4"/><rect class="w" x="85" y="60" width="3" height="4"/><rect class="w" x="85" y="69" width="3" height="4"/><rect class="w" x="93" y="69" width="3" height="4"/><rect class="w" x="105" y="42" width="3" height="4"/><rect class="w" x="121" y="42" width="3" height="4"/><rect class="w" x="105" y="51" width="3" height="4"/><rect class="w" x="121" y="51" width="3" height="4"/><rect class="w" x="105" y="60" width="3" height="4"/><rect class="w" x="121" y="60" width="3" height="4"/><rect class="w" x="105" y="69" width="3" height="4"/><rect class="w" x="121" y="69" width="3" height="4"/><rect class="w" x="141" y="32" width="3" height="4"/><rect class="w" x="133" y="41" width="3" height="4"/><rect class="w" x="133" y="50" width="3" height="4"/><rect class="w" x="141" y="50" width="3" height="4"/><rect class="w" x="141" y="59" width="3" height="4"/><rect class="w" x="133" y="68" width="3" height="4"/><rect class="w" x="155" y="52" width="3" height="4"/><rect class="w" x="163" y="52" width="3" height="4"/><rect class="w" x="155" y="61" width="3" height="4"/><rect class="w" x="163" y="61" width="3" height="4"/><rect class="w" x="155" y="70" width="3" height="4"/><rect class="w" x="163" y="70" width="3" height="4"/><rect class="w" x="189" y="36" width="3" height="4"/><rect class="w" x="197" y="36" width="3" height="4"/><rect class="w" x="189" y="45" width="3" height="4"/><rect class="w" x="197" y="45" width="3" height="4"/><rect class="w" x="189" y="54" width="3" height="4"/><rect class="w" x="197" y="54" width="3" height="4"/><rect class="w" x="189" y="63" width="3" height="4"/><rect class="w" x="197" y="63" width="3" height="4"/><rect class="w" x="189" y="72" width="3" height="4"/><rect class="w" x="197" y="72" width="3" height="4"/></svg>';
 const badge = () => '<div class="cbadge"><small>صُنع بواسطة</small><b>IBRAHIM BUGHA</b></div>';
 const setBar = h => { const b = $("sbar"); b.innerHTML = h; b.hidden = !h; };
 const barOff = () => alive().map(p => `<span class="chip${G.silenced === p ? " sil" : ""}">${G.silenced === p ? "🤐 " : ""}${p.name}</span>`).join("");
@@ -213,6 +286,13 @@ function tlHtml(log, nm) { /* scrollable end-of-game timeline of every hidden ac
     : `<p><span class="h">تصويت اليوم ${e.n}</span><br>${(e.votes || []).map(v => nm(v.f) + " ← " + (v.t >= 0 ? nm(v.t) : "امتنع") + (v.w > 1 ? " ×" + v.w : "")).join("<br>")}<br>${e.ex >= 0 ? "⚖️ أُعدم " + nm(e.ex) : "لا إعدام"}${sonLn(e.sons, nm)}</p>`).join("");
   return `<h3>ملخص اللعبة</h3><div class="tl">${body}</div>`;
 }
+const tgtBtn = (x, a, fn) => a.noRepeat && x === G.last[a.type] ? `<button class="btn off" disabled>${x.name} (${a.type == "guard" ? "حُمي" : "أُنقذ"} الليلة الماضية)</button>`
+  : a.type == "kill" && side(x) == "mafia" ? `<button class="btn foe" disabled>${x.name} — ${ROLES[x.role].n} (زميلك)</button>` : btn(x.name, fn);
+const deathLine = (n, cs, nm) => { /* cause of death sentence */
+  if (!cs || !cs.length) return `قُتل <b>${n}</b>.`;
+  const f = c => c.c == "kill" ? `على يد ${ROLES[c.by].n}` : c.c == "snipe" ? "برصاصة القناص" : c.c == "guard" ? `وهو يحمي <b>${nm(c.f)}</b> من ${ROLES[c.by].n}` : `بعد أن أخطأ هدفه <b>${nm(c.f)}</b>`;
+  return `${cs.some(c => c.c != "miss") ? "قُتل" : "مات القناص"} <b>${n}</b> ${cs.map(f).join(" و")}.`;
+};
 const btn = (label, fn, cls = "") => `<button class="btn ${cls}" onclick="${fn}">${label}</button>`;
 
 /* ---------- setup ---------- */
@@ -271,7 +351,7 @@ function reveal(i) {
 /* ---------- night ---------- */
 function night() {
   G.night++; G.acts = [];
-  G.q = shuffle(alive());
+  G.q = alive(); /* seating order */
   setPh("night"); sfx("night");
   show(`<div class="icon">🌙</div><h1>الليل ${G.night}</h1><p>تغلق المدينة عينيها. المافيا وحدها تعرف من يمشي في الظلام.</p>${btn("ابدأ الليل", "nstep(0)", "go")}`);
 }
@@ -279,19 +359,20 @@ function nstep(i) {
   if (i >= G.q.length) return dawn();
   pass(G.q[i], () => {
     const p = G.q[i]; let a = ROLES[p.role].act || DECOY; if (a.once && p.used) a = DECOY;
-    const ts = alive().filter(x => (a.self || x !== p) && !(a.noRepeat && x === G.last[a.type]));
-    show(`<h2>${ROLES[p.role].n}</h2><p>${isDual(p) ? "مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا. " : ""}${a.q}</p><div class="list">${ts.map(t => btn(t.name, `pick(${i},${idx(t)})`)).join("")}${a.skip ? btn("لن أطلق الليلة", `pick(${i},-1)`) : ""}</div>`);
+    const ts = alive().filter(x => a.self || x !== p);
+    show(`<h2>${ROLES[p.role].n}</h2><p>${isDual(p) ? "مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا. " : ""}${a.q}</p><div class="list">${ts.map(t => tgtBtn(t, a, `pick(${i},${idx(t)})`)).join("")}${a.skip ? btn("لن أطلق الليلة", `pick(${i},-1)`) : ""}</div>`);
   });
 }
 function pick(i, ti) {
   const p = G.q[i], t = G.p[ti]; let a = ROLES[p.role].act || DECOY; if (a.once && p.used) a = DECOY;
   if (t) { if (a.once) p.used = true; G.acts.push({ type: a.type, from: p, to: t }); }
-  if (t && isDual(p) && a.type == "silence") { show(`<h2>${ROLES[p.role].n}</h2><p>ثانيًا: من تريد قتله؟</p><div class="list">${alive().filter(x => x !== p).map(x => btn(x.name, `pick2(${i},${idx(x)})`)).join("")}</div>`); return; }
+  if (t && isDual(p) && a.type == "silence") { show(`<h2>${ROLES[p.role].n}</h2><p>ثانيًا: من تريد قتله؟</p><div class="list">${alive().filter(x => x !== p).map(x => tgtBtn(x, { type: "kill" }, `pick2(${i},${idx(x)})`)).join("")}</div>`); return; }
   const inv = a.type == "investigate"; sfx("knock");
   show(`<h2>${inv ? t.name : "تم"}</h2><p>${inv ? (side(t) == "mafia" ? '<b class="bad">من المافيا</b>' : "ليس من المافيا") : "تم تسجيل اختيارك."}</p>${btn("أخفِ الشاشة ومرّر الهاتف", `nstep(${i+1})`)}`);
 }
 
 function pick2(i, ti) {
+  if (side(G.p[ti]) == "mafia") return; /* no friendly fire */
   G.acts.push({ type: "kill", from: G.q[i], to: G.p[ti] }); sfx("knock");
   show(`<h2>تم</h2><p>تم تسجيل اختيارك.</p>${btn("أخفِ الشاشة ومرّر الهاتف", `nstep(${i+1})`)}`);
 }
@@ -302,9 +383,10 @@ function dawn() {
   const mx = Math.max(0, ...Object.values(c)), top = Object.keys(c).filter(k => c[k] == mx);
   const tgt = top.length ? G.p[shuffle(top)[0]] : null;
   const gd = tgt && A.find(a => a.type == "guard" && a.to === tgt);
-  const dead = tgt && !saved.includes(tgt) ? [gd ? gd.from : tgt] : [];
+  const dead = tgt && !saved.includes(tgt) ? [gd ? gd.from : tgt] : [], why = {}, W = (p, o) => (why[idx(p)] = why[idx(p)] || []).push(o);
+  if (dead.length) { const ka = A.find(a => a.type == "kill" && a.to === tgt), by = ka ? ka.from.role : "killer"; if (gd) W(gd.from, { c: "guard", f: idx(tgt), by }); else W(tgt, { c: "kill", by }); }
   G.last = {}; ["save", "guard"].forEach(k => G.last[k] = (A.find(a => a.type == k) || {}).to || null);
-  A.filter(a => a.type == "snipe").forEach(a => { dead.push(a.to); if (side(a.to) != "mafia") dead.push(a.from); });
+  A.filter(a => a.type == "snipe").forEach(a => { dead.push(a.to); W(a.to, { c: "snipe" }); if (side(a.to) != "mafia") { dead.push(a.from); W(a.from, { c: "miss", f: idx(a.to) }); } });
   dead.splice(0, dead.length, ...new Set(dead));
   const s = A.find(a => a.type == "silence"); G.silenced = s ? s.to : null;
   dead.forEach(t => t.alive = false); DD = dead; NXT = discuss;
@@ -313,7 +395,7 @@ function dawn() {
   setPh(dead.length ? "dead" : "day"); sfx(dead.length ? "death" : "dawn");
   if (dead.length) flash(); else burst("#e2b04a");
   show(`<div class="icon">${dead.length ? "💀" : "🌅"}</div><h1 class="${dead.length ? "shake" : ""}">طلع الفجر</h1>
-    ${dead.length ? dead.map(t => `<p>قُتل <b>${t.name}</b>.${rv(t)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}
+    ${dead.length ? dead.map(t => `<p>${deathLine(t.name, why[idx(t)], i => G.p[i].name)}${rv(t)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}
     ${G.silenced && G.silenced.alive ? `<p><b>${G.silenced.name}</b> صامت اليوم. يستطيع التصويت لكن لا يتكلم.</p>` : ""}
     ${btn("متابعة", "after()", "go")}`);
 }
@@ -372,11 +454,11 @@ function menu() {
   setPh("night");
   const sv = window.MP && mpSaved();
   show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">المدينة نائمة، وليس الجميع بريئًا.</p>
-    ${sv ? btn("العودة إلى غرفتك (" + esc(sv.code) + ")", "mpResume()", "go") : ""}${btn("لعب", "mode()", sv ? "" : "go")}${btn("دليل اللعبة", "guide()")}${btn("الشخصيات", "chars()")}${btn("الإعدادات", "settings()")}${badge()}`, false, true);
+    ${SKY}${sv ? btn("العودة إلى غرفتك (" + esc(sv.code) + ")", "mpResume()", "mi i-back go") : ""}${btn("لعب", "mode()", "mi i-play" + (sv ? "" : " go"))}${btn("دليل اللعبة", "guide()", "mi i-guide")}${btn("الشخصيات", "chars()", "mi i-roles")}${btn("الإعدادات", "settings()", "mi i-set")}${badge()}`, false, true);
 }
 function mode() {
-  show(`<h2>طريقة اللعب</h2>${btn("تمرير الهاتف", "setup()", "go")}
-    ${window.MP ? btn("لعب جماعي", "mpMenu()", "go") : '<button class="btn" disabled style="opacity:.5;cursor:not-allowed">لعب جماعي · قريبًا</button>'}${btn("رجوع", "menu()")}`);
+  show(`<h2>طريقة اللعب</h2>${btn("تمرير الهاتف", "setup()", "mi i-phone go")}
+    <button class="btn mi i-globe" id="mpbtn" onclick="mpMenu()"></button>${btn("رجوع", "menu()")}`); netUi();
 }
 function chars() {
   const g = s => Object.entries(ROLES).filter(([, r]) => r.side == s).map(([id, r]) => `<div class="role ${s}"><b>${r.n}</b><p class="dim">${DESC[id] || ""}</p></div>`).join("");
@@ -394,13 +476,13 @@ function chooseRoles(init) {
   if (init) SEL = cnt(rolesFor(N).filter(r => r != "citizen"));
   const tot = Object.values(SEL).reduce((a, b) => a + b, 0), free = N - tot;
   show(`<h2>اختر الشخصيات</h2><p class="dim">${N} لاعبين · المواطنون يملؤون المقاعد الباقية (${Math.max(free, 0)})</p>
-    <div class="row">${btn("كلاسيكي", "SEL=cnt(rolesFor(N).filter(r=>r!='citizen'));chooseRoles()")}${btn("مخصص", "SEL=cnt(REQ);chooseRoles()")}</div>
+    <div class="row">${btn("كلاسيكي", "SEL=cnt(rolesFor(N).filter(r=>r!='citizen'));chooseRoles()")}${btn("مخصص", "SEL=cnt(reqFor(N));chooseRoles()")}</div>
     <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) =>
-      `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `adj('${id}',-1)`, "step")}<b>${SEL[id] || 0}</b>${btn("+", `adj('${id}',1)`, "step")}</div>`).join("")}</div>
+      `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${reqFor(N).includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `adj('${id}',-1)`, "step")}<b>${SEL[id] || 0}</b>${btn("+", `adj('${id}',1)`, "step")}</div>`).join("")}</div>
     ${free < 0 ? '<p class="bad">عدد الشخصيات أكبر من عدد اللاعبين.</p>' : ""}
     ${btn("ابدأ اللعبة", "start()", "go")}${btn("رجوع", "setup()")}`, !init);
 }
-function adj(id, d) { SEL[id] = Math.max(REQ.includes(id) ? 1 : 0, (SEL[id] || 0) + d); chooseRoles(); }
+function adj(id, d) { SEL[id] = Math.max(reqFor(N).includes(id) ? 1 : 0, (SEL[id] || 0) + d); chooseRoles(); }
 
 /* ---------- end ---------- */
 function win() {
@@ -491,12 +573,20 @@ function mpGo(k) {
 }
 function mpLeave() { mpClear(); S = null; mpModal(null); WS && WS.close(); menu(); }
 const mpSet = o => SEND({ t: "set", ...o });
-const mpAdj = (id, d) => mpSet({ roles: { ...S.set.roles, [id]: Math.max(REQ.includes(id) ? 1 : 0, (S.set.roles[id] || 0) + d) } });
+const mpAdj = (id, d) => mpSet({ roles: { ...S.set.roles, [id]: Math.max(reqFor(S.players.length).includes(id) ? 1 : 0, (S.set.roles[id] || 0) + d) } });
 const mpVote = i => SEND({ t: "vote", target: i, m: !!($("m") && $("m").checked) });
 const mpChat = () => { const i = $("ci"); if (i && i.value.trim()) { SEND({ t: "chat", text: i.value }); i.value = ""; i.focus(); } };
 
 const mpKick = i => { if (!window.confirm || confirm("طرد " + S.players[i].n + " من الغرفة؟")) SEND({ t: "kick", id: i }); };
 const barMp = () => S.players.map((p, i) => p.a ? `<span class="chip${i == S.sl ? " sil" : ""}${i == S.me ? " me" : ""}">${i == S.sl ? "🤐 " : ""}${esc(p.n)}</span>` : "").join("");
+function mpTl(s, opts, fn, kill, a) { /* target list + disabled "saved last night" / teammate buttons */
+  const set = new Set(opts), mt = s.mates || [], pl = s.players;
+  if (a && a.noRepeat && s.noRep >= 0 && pl[s.noRep].a) set.add(s.noRep);
+  if (kill) mt.forEach(j => pl[j].a && set.add(j));
+  return [...set].sort((x, y) => x - y).map(i => opts.includes(i) ? btn(pn(i), fn(i))
+    : kill && mt.includes(i) ? `<button class="btn foe" disabled>${pn(i)} — ${ROLES[s.mateRoles[i]].n} (زميلك)</button>`
+    : `<button class="btn off" disabled>${pn(i)} (${a.type == "guard" ? "حُمي" : "أُنقذ"} الليلة الماضية)</button>`).join("");
+}
 const mpD1 = i => { D1 = i; mpRender(S); };
 const mpD2 = i => { SEND({ t: "act", target: D1, target2: i }); D1 = null; };
 const pn = i => esc(S.players[i].n);
@@ -522,8 +612,8 @@ function mpLive() {
 }
 function lobbySet(s) {
   const st = s.set, n = s.players.length, tot = Object.values(st.roles).reduce((a, b) => a + b, 0);
-  return `<div class="row">${btn("كلاسيكي", "mpSet({roles:cnt(rolesFor(S.players.length).filter(r=>r!='citizen'))})")}${btn("مخصص", "mpSet({roles:cnt(REQ)})")}</div>
-    <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) => `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${REQ.includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `mpAdj('${id}',-1)`, "step")}<b>${st.roles[id] || 0}</b>${btn("+", `mpAdj('${id}',1)`, "step")}</div>`).join("")}</div>
+  return `<div class="row">${btn("كلاسيكي", "mpSet({roles:cnt(rolesFor(S.players.length).filter(r=>r!='citizen'))})")}${btn("مخصص", "mpSet({roles:cnt(reqFor(S.players.length))})")}</div>
+    <div class="list">${Object.entries(ROLES).filter(([id]) => id != "citizen").map(([id, r]) => `<div class="rr"><span class="role ${r.side}"><b>${r.n}</b>${reqFor(S.players.length).includes(id) ? ' <small class="dim">إلزامي</small>' : ""}</span>${btn("−", `mpAdj('${id}',-1)`, "step")}<b>${st.roles[id] || 0}</b>${btn("+", `mpAdj('${id}',1)`, "step")}</div>`).join("")}</div>
     <div class="row">${btn("−", "mpSet({discuss:Math.max(30,S.set.discuss-15)})", "step")}<div class="c" style="flex:1">مدة النقاش: ${st.discuss} ث</div>${btn("+", "mpSet({discuss:Math.min(300,S.set.discuss+15)})", "step")}</div>
     ${btn("إظهار الدور بعد الموت: " + (st.showRole ? "نعم" : "لا"), "mpSet({showRole:!S.set.showRole})")}
     ${btn(st.visibility == "open" ? "🌐 الغرفة عامة (تظهر في القائمة)" : "🔒 الغرفة خاصة (بالرمز فقط)", "mpSet({visibility:S.set.visibility=='open'?'private':'open'})")}
@@ -556,10 +646,10 @@ function mpRender(s) {
       h = `<div class="icon">🌙</div><h2>تم</h2><p>${iv ? `<b>${pn(iv.n)}</b>: ${iv.m ? '<b class="bad">من المافيا</b>' : "ليس من المافيا"}` : "تم تسجيل اختيارك."}</p><p class="dim">بانتظار الباقين ${s.cnt.join("/")}</p><div class="big" id="t"></div>`;
     } else {
       const a = rl.act && !(rl.act.once && s.used) ? rl.act : DECOY;
-      if (s.dual && D1 === null) h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا.<br>1) ${a.q}</p><div class="list">${s.opts.map(i => btn(pn(i), `mpD1(${i})`)).join("")}</div><div class="big" id="t"></div>`;
-      else if (s.dual) h = `<div class="icon">🔪</div><h2>${rl.n}</h2><p>2) من تريد قتله؟</p><div class="list">${s.opts2.map(i => btn(pn(i), `mpD2(${i})`)).join("")}</div><div class="big" id="t"></div>`;
+      if (s.dual && D1 === null) h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا.<br>1) ${a.q}</p><div class="list">${mpTl(s, s.opts, i => `mpD1(${i})`, false, a)}</div><div class="big" id="t"></div>`;
+      else if (s.dual) h = `<div class="icon">🔪</div><h2>${rl.n}</h2><p>2) من تريد قتله؟</p><div class="list">${mpTl(s, s.opts2, i => `mpD2(${i})`, true, null)}</div><div class="big" id="t"></div>`;
       else
-      h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>${a.q}</p><div class="list">${s.opts.map(i => btn(pn(i), `SEND({t:'act',target:${i}})`)).join("")}${s.skip ? btn("لن أطلق الليلة", "SEND({t:'act',target:-1})") : ""}</div><div class="big" id="t"></div>`;
+      h = `<div class="icon">🌙</div><h2>${rl.n}</h2><p>${a.q}</p><div class="list">${mpTl(s, s.opts, i => `SEND({t:'act',target:${i}})`, a.type == "kill", a)}${s.skip ? btn("لن أطلق الليلة", "SEND({t:'act',target:-1})") : ""}</div><div class="big" id="t"></div>`;
     }
   } else if (ph == "son") {
     setPh("dead");
@@ -569,7 +659,7 @@ function mpRender(s) {
     const R = s.rep, d = R.dead.length; setPh(d ? "dead" : "day");
     if (ch) { sfx(d ? "death" : "dawn"); d ? flash() : burst("#e2b04a"); }
     h = `<div class="icon">${d ? "💀" : "🌅"}</div><h1 class="${d ? "shake" : ""}">طلع الفجر</h1>
-      ${d ? R.dead.map(i => `<p>قُتل <b>${pn(i)}</b>.${rvm(i)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}${sonsH()}
+      ${d ? R.dead.map(i => `<p>${deathLine(pn(i), (R.why || {})[i], pn)}${rvm(i)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}${sonsH()}
       ${R.sil >= 0 ? `<p><b>${pn(R.sil)}</b> صامت اليوم.</p>` : ""}`;
   } else if (ph == "day") {
     setPh("day");
@@ -630,6 +720,17 @@ if (!matchMedia("(prefers-reduced-motion: reduce)").matches) loop();
 let WL; const wake = () => { try { navigator.wakeLock.request("screen").then(l => WL = l).catch(() => {}); } catch (e) {} };
 document.addEventListener("click", wake, { once: true });
 document.addEventListener("visibilitychange", () => { if (document.visibilityState == "visible" && WL) wake(); });
+function netUi() {
+  const b = $("mpbtn"); if (!b) return;
+  const off = !navigator.onLine, ok = !off && window.MP;
+  b.textContent = off ? "اتصل بالإنترنت" : window.MP ? "لعب جماعي" : "لعب جماعي · قريبًا";
+  b.disabled = !ok; b.classList.toggle("go", !!ok);
+}
+function loadMP() { /* a page opened offline can enable multiplayer once the network is back */
+  if (window.MP) return netUi();
+  const sc = document.createElement("script"); sc.src = "mp-config.js?" + Date.now(); sc.onload = sc.onerror = netUi; document.head.appendChild(sc);
+}
+addEventListener("online", () => { netUi(); loadMP(); }); addEventListener("offline", netUi);
 document.addEventListener("keydown", e => {
   if (e.key == "Enter" && !/INPUT|BUTTON|TEXTAREA/.test(document.activeElement.tagName)) { const b = document.querySelector(".go:not([disabled])"); b && b.click(); }
 });

@@ -2,7 +2,7 @@ const http = require("http"), fs = require("fs"), path = require("path"), crypto
 const { WebSocketServer } = require("ws");
 const PORT = process.env.PORT || 3000, MIN = +process.env.MIN_PLAYERS || 5, F = process.env.FAST ? 0.1 : 1;
 const PUB = path.join(__dirname, "public");
-const TYPES = { ".js": "text/javascript", ".json": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png" };
+const TYPES = { ".js": "text/javascript", ".json": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8" };
 
 /* Rules data. Names and texts live in the client; the server only needs sides and night actions. */
 const R = {
@@ -12,6 +12,7 @@ const R = {
   spoiledson: { side: "good" }, jester: { side: "neutral" }, sniper: { side: "good", act: "snipe", once: 1, skip: 1 }
 };
 const REQ = ["killer", "silencer", "doctor"];
+const reqFor = n => (n <= 5 ? ["killer", "doctor"] : REQ); /* 5-player games: the Silencer is optional */
 const TM = { reveal: 25, night: 45, vote: 45, son: 40, pause: 9 }; /* seconds */
 
 const ADMIN = process.env.ADMIN_KEY || ""; /* secret admin key: set it in Render, never in GitHub */
@@ -26,7 +27,7 @@ const mkcode = () => { let c; do c = Array.from({ length: 4 }, () => "ABCDEFGHJK
 /* ---------- views: each player only gets what they are allowed to see ---------- */
 function targets(r, p) {
   const d = R[p.role], live = d.act && !(d.once && p.used);
-  return { list: alive(r).filter(q => ((live && d.self) || q !== p) && !(live && d.norep && q === r.last[d.act])).map(q => idx(r, q)), skip: !!(live && d.skip) };
+  return { list: alive(r).filter(q => ((live && d.self) || q !== p) && !(live && d.norep && q === r.last[d.act]) && !(live && d.act == "kill" && side(q) == "mafia")).map(q => idx(r, q)), skip: !!(live && d.skip) };
 }
 function view(r, p) {
   const g = r.phase != "lobby", over = r.phase == "over", a = alive(r);
@@ -35,10 +36,10 @@ function view(r, p) {
   if (g) {
     Object.assign(o, { role: p.role, alive: p.alive, inv: p.inv, used: !!p.used, sil: r.silenced === p, mayor: p.role == "mayor" && !r.mayorUsed && p.alive,
       chat: r.chat.filter(m => !m.d || !p.alive || over).slice(-60) });
-    if (side(p) == "mafia") o.mates = r.players.map((q, j) => (q !== p && side(q) == "mafia" ? j : -1)).filter(j => j >= 0);
+    if (side(p) == "mafia") { o.mates = r.players.map((q, j) => (q !== p && side(q) == "mafia" ? j : -1)).filter(j => j >= 0); o.mateRoles = {}; o.mates.forEach(j => { o.mateRoles[j] = r.players[j].role; }); }
     const k = { night: "act", vote: "vote", day: "ready", reveal: "ready" }[r.phase];
     if (k) { o.done = !!p[k]; o.cnt = [a.filter(q => q[k]).length, a.length]; }
-    if (p.alive && r.phase == "night") { const t = targets(r, p); o.opts = t.list; o.skip = t.skip; if (dual(r, p)) { o.dual = true; o.opts2 = a.filter(q => q !== p).map(q => idx(r, q)); } }
+    if (p.alive && r.phase == "night") { const t = targets(r, p); o.opts = t.list; o.skip = t.skip; const dd = R[p.role]; if (dd.norep && dd.act) o.noRep = r.last[dd.act] ? idx(r, r.last[dd.act]) : -1; if (dual(r, p)) { o.dual = true; o.opts2 = a.filter(q => q !== p && side(q) != "mafia").map(q => idx(r, q)); } }
     if (p.alive && r.phase == "vote") o.opts = a.filter(q => q !== p).map(q => idx(r, q));
     if (r.phase == "son" && r.son === p) o.opts = a.map(q => idx(r, q));
   }
@@ -75,12 +76,13 @@ function dawn(r) {
   const mx = Math.max(0, ...Object.values(c)), top = Object.keys(c).filter(k => c[k] == mx);
   const tgt = top.length ? r.players[top[rnd(top.length)]] : null;
   const gd = tgt && A.find(a => a.type == "guard" && a.to === tgt);
-  const dead = tgt && !saved.includes(tgt) ? [gd ? gd.from : tgt] : [];
+  const dead = tgt && !saved.includes(tgt) ? [gd ? gd.from : tgt] : [], why = {}, W = (p, o) => { const i = idx(r, p); (why[i] = why[i] || []).push(o); };
+  if (dead.length) { const ka = A.find(a => a.type == "kill" && a.to === tgt), by = ka ? ka.from.role : "killer"; if (gd) W(gd.from, { c: "guard", f: idx(r, tgt), by }); else W(tgt, { c: "kill", by }); }
   r.last = {}; ["save", "guard"].forEach(k => { const a = A.find(x => x.type == k); r.last[k] = a ? a.to : null; });
-  A.filter(a => a.type == "snipe").forEach(a => { dead.push(a.to); if (side(a.to) != "mafia") dead.push(a.from); });
+  A.filter(a => a.type == "snipe").forEach(a => { dead.push(a.to); W(a.to, { c: "snipe" }); if (side(a.to) != "mafia") { dead.push(a.from); W(a.from, { c: "miss", f: idx(r, a.to) }); } });
   const D = [...new Set(dead)]; D.forEach(p => { p.alive = false; });
   const s = A.find(a => a.type == "silence"); r.silenced = s && s.to.alive ? s.to : null;
-  r.sons = []; r.rep = { dead: D.map(p => idx(r, p)), sil: r.silenced ? idx(r, r.silenced) : -1 };
+  r.sons = []; r.rep = { dead: D.map(p => idx(r, p)), sil: r.silenced ? idx(r, r.silenced) : -1, why };
   r.log.push({ k: "n", n: r.night, acts: A.map(a => ({ t: a.type, f: idx(r, a.from), r: a.from.role, to: idx(r, a.to), m: a.type == "investigate" ? side(a.to) == "mafia" : undefined })), dead: r.rep.dead, sil: r.rep.sil, sons: r.sons });
   afterDeaths(r, D, () => phase(r, "dawn", TM.pause, () => { const w = win(r); w ? over(r, w) : day(r); }));
 }
@@ -199,7 +201,7 @@ const H = {
   },
   set(ws, d, r, p) {
     if (r.phase != "lobby" || p !== r.host) return; const s = r.set;
-    if (d.roles) { const o = {}; for (const k in R) if (k != "citizen") { const v = Math.max(0, Math.min(20, +d.roles[k] | 0)); o[k] = REQ.includes(k) ? Math.max(1, v) : v; } s.roles = o; }
+    if (d.roles) { const o = {}; for (const k in R) if (k != "citizen") { const v = Math.max(0, Math.min(20, +d.roles[k] | 0)); o[k] = reqFor(r.players.length).includes(k) ? Math.max(1, v) : v; } s.roles = o; }
     if (d.discuss) s.discuss = Math.max(30, Math.min(300, +d.discuss | 0));
     if (typeof d.showRole == "boolean") s.showRole = d.showRole;
     if (["open", "private"].includes(d.visibility)) s.visibility = d.visibility;
@@ -211,6 +213,7 @@ const H = {
     const n = r.players.length, tot = Object.values(r.set.roles).reduce((a, b) => a + b, 0);
     if (n < MIN) return err(ws, "الحد الأدنى " + MIN + " لاعبين");
     if (tot > n) return err(ws, "عدد الشخصيات أكبر من عدد اللاعبين");
+    if (reqFor(n).some(k => !(r.set.roles[k] >= 1))) return err(ws, "الشخصيات الإلزامية ناقصة");
     const roles = shuffle([...Object.entries(r.set.roles).flatMap(([k, c]) => Array(c).fill(k)), ...Array(n - tot).fill("citizen")]);
     r.players.forEach((q, i) => { q.role = roles[i]; q.alive = true; q.inv = []; q.used = false; q.ready = false; q.act = null; q.vote = null; });
     Object.assign(r, { night: 0, last: {}, silenced: null, mayorUsed: false, win: null, chat: [], rep: null, res: null, sons: [], log: [] });
@@ -226,7 +229,7 @@ const H = {
     const t = targets(r, p), def = R[p.role], live = def.act && !(def.once && p.used), tg = r.players[d.target];
     if (d.target == -1 && t.skip) p.act = "skip";
     else if (tg && t.list.includes(d.target)) {
-      if (dual(r, p)) { const t2 = r.players[d.target2]; if (!t2 || !t2.alive || t2 === p) return; r.acts.push({ type: "kill", from: p, to: t2 }); }
+      if (dual(r, p)) { const t2 = r.players[d.target2]; if (!t2 || !t2.alive || t2 === p || side(t2) == "mafia") return; r.acts.push({ type: "kill", from: p, to: t2 }); }
       p.act = "x";
       if (live) {
         r.acts.push({ type: def.act, from: p, to: tg }); if (def.once) p.used = true;

@@ -1,6 +1,8 @@
 /* Basic service worker: lets players install the game and open it even without internet
    (pass-and-play works offline; multiplayer needs the server). Bump V to force an update. */
-const V = "mafia-v5", SHELL = ["/", "/index.html", "/manifest.json", "/icon-192.png", "/icon-512.png"];
+const V = "mafia-v6", SHELL = ["/", "/index.html", "/manifest.json", "/icon-192.png", "/icon-512.png",
+  "/fonts/cairo-arabic-400-normal.woff2", "/fonts/cairo-arabic-700-normal.woff2", "/fonts/cairo-latin-400-normal.woff2", "/fonts/cairo-latin-700-normal.woff2", "/fonts/aref-ruqaa-arabic-400-normal.woff2", "/fonts/aref-ruqaa-arabic-700-normal.woff2", "/fonts/aref-ruqaa-latin-400-normal.woff2", "/fonts/aref-ruqaa-latin-700-normal.woff2"];
+/* everything the page needs (HTML, icons, fonts) is precached so pass-the-phone works in airplane mode. Sounds are synthesized (no audio files). */
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
