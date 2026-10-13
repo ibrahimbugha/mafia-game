@@ -861,6 +861,14 @@ function loadMP() { /* a page opened offline can enable multiplayer once the net
   const sc = document.createElement("script"); sc.src = "mp-config.js?" + Date.now(); sc.onload = sc.onerror = netUi; document.head.appendChild(sc);
 }
 addEventListener("online", () => { netUi(); loadMP(); }); addEventListener("offline", netUi);
+/* hold the credit pill for 3 s to open the admin panel (password still required) */
+(function () {
+  let T = null;
+  document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest(".cbadge"); if (!b || T) return; b.classList.add("holding"); T = setTimeout(() => { T = null; b.classList.remove("holding"); try { navigator.vibrate && navigator.vibrate(60); } catch (x) {} location.href = "/panel-595c93.html"; }, 3000); });
+  const off = () => { if (T) { clearTimeout(T); T = null; } document.querySelectorAll(".cbadge.holding").forEach(b => b.classList.remove("holding")); };
+  ["pointerup", "pointercancel", "pointerleave", "dragstart"].forEach(t => document.addEventListener(t, off, true));
+  document.addEventListener("contextmenu", e => { if (e.target.closest && e.target.closest(".cbadge")) e.preventDefault(); });
+})();
 applyPref();
 document.addEventListener("keydown", e => {
   if (e.key == "Enter" && !/INPUT|BUTTON|TEXTAREA/.test(document.activeElement.tagName)) { const b = document.querySelector(".go:not([disabled])"); b && b.click(); }
@@ -874,6 +882,7 @@ if (window.MP && mpSaved() && hbAge() > 6000) mpConnect(); /* auto-rejoin unless
 #credit{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:6;font:700 10px/1 Cairo,system-ui,sans-serif;letter-spacing:.14em;color:#e2b04a;opacity:.55;pointer-events:none;direction:ltr}
 #app.key~#credit{display:none}
 .cbadge{align-self:center;margin-top:10px;padding:8px 20px;border:1px solid rgba(226,176,74,.45);border-radius:999px;background:rgba(226,176,74,.07);backdrop-filter:blur(4px);text-align:center;direction:ltr;line-height:1.35;box-shadow:0 0 18px rgba(226,176,74,.12);animation:glowb 4s ease-in-out infinite}
+.cbadge{position:relative;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}.cbadge::after{content:"";position:absolute;inset:0;background:rgba(226,176,74,.35);transform:scaleX(0);transform-origin:right;pointer-events:none}.cbadge.holding::after{transform:scaleX(1);transition:transform 3s linear}
 .cbadge small{display:block;font:700 11px Cairo,system-ui,sans-serif;color:#7c8590;letter-spacing:.22em}
 .cbadge b{font:700 20px "Aref Ruqaa",serif;letter-spacing:.2em;color:#e2b04a}
 @keyframes glowb{50%{box-shadow:0 0 30px rgba(226,176,74,.32)}}

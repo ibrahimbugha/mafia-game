@@ -298,7 +298,7 @@ const H = {
 /* ---------- admin API: needs the ADMIN_KEY secret ---------- */
 const fails = new Map(); let gFails = 0, gReset = Date.now();
 const hash = x => crypto.createHash("sha256").update(String(x)).digest();
-const ADMIN_HASH = "scrypt$dd175b692d3c590194280e475a2dbd67$a20acfa3491c394226584e97160c2f96ed6749541d783a9f5132bff5cff7d94c"; /* hash of the admin password: safe in a public repo. To change it: node make-admin-hash.js "new password" */
+const ADMIN_HASH = "scrypt$ce9d994665adc9d8cc9eafe6dd284751$45004b6f99dc3d7c3211848d5e7f686a4563d57c76c94853721d3004a573eb3c"; /* hash of the admin password: safe in a public repo. To change it: node make-admin-hash.js "new password" */
 const ADMIN_ON = ADMIN.length >= 8 || !!ADMIN_HASH; /* the ADMIN_KEY environment variable, when set, replaces the built-in password */
 function adminOk(key) {
   key = String(key || "").slice(0, 200);
