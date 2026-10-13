@@ -16,6 +16,7 @@ const reqFor = n => (n <= 5 ? ["killer", "doctor"] : REQ); /* 5-player games: th
 const TM = { reveal: 25, night: 45, vote: 45, son: 40, pause: 9 }; /* seconds */
 
 const ADMIN = process.env.ADMIN_KEY || ""; /* secret admin key: set it in Render, never in GitHub */
+const STATS = { t0: Date.now(), games: 0 };
 const rooms = new Map(), rnd = n => Math.random() * n | 0;
 const clean = s => String(s || "").replace(/[<>&"'`]/g, "").trim();
 const send = (p, o) => p.ws && p.ws.readyState == 1 && p.ws.send(JSON.stringify(o));
@@ -32,7 +33,7 @@ function targets(r, p) {
 function view(r, p) {
   const g = r.phase != "lobby", over = r.phase == "over", a = alive(r);
   const o = { t: "state", code: r.code, me: idx(r, p), host: p === r.host, phase: r.phase, end: r.end, set: r.set, night: r.night, win: r.win, rep: r.rep, res: r.res, sons: r.sons, sl: r.silenced ? idx(r, r.silenced) : -1, log: over ? r.log : undefined,
-    players: r.players.map(q => ({ n: q.name, a: q.alive, c: q.on, mu: !!q.mute, k: !!q.kicked, h: q === r.host, r: g && (over || (!q.alive && r.set.showRole)) ? q.role : undefined })) };
+    players: r.players.map(q => ({ n: q.name, a: q.alive, c: q.on, mu: !!q.mute, k: !!q.kicked, h: q === r.host, r: g && !q.spec && (over || (!q.alive && r.set.showRole)) ? q.role : undefined, sp: !!q.spec })) };
   if (g) {
     Object.assign(o, { role: p.role, alive: p.alive, inv: p.inv, used: !!p.used, sil: r.silenced === p, mayor: p.role == "mayor" && !r.mayorUsed && p.alive,
       chat: r.chat.filter(m => !m.d || !p.alive || over).slice(-60) });
@@ -58,7 +59,7 @@ function win(r) {
   const m = alive(r).filter(p => side(p) == "mafia").length, g = alive(r).filter(p => side(p) == "good").length;
   return m == 0 && g == 0 ? "draw" : m == 0 ? "good" : m >= g ? "mafia" : null;
 }
-function over(r, w) { r.win = w; phase(r, "over", 0); }
+function over(r, w) { STATS.games++; r.win = w; phase(r, "over", 0); }
 function night(r) {
   r.night++; r.acts = []; r.players.forEach(p => { p.act = null; });
   phase(r, "night", TM.night, () => dawn(r));
@@ -98,13 +99,17 @@ function tally(r) {
 }
 
 /* ---------- player messages ---------- */
-function addPlayer(ws, r, name) {
+function addPlayer(ws, r, name, spec) {
   if (!name) return err(ws, "اكتب اسمك");
-  if (r.phase != "lobby") return err(ws, "اللعبة بدأت بالفعل");
+  if (r.phase == "lobby") spec = false;
+  else if (!spec) return err(ws, "اللعبة بدأت بالفعل. يمكنك المشاهدة", "started");
+  else if (r.set.approvalMode == "ask") return err(ws, "الغرفة تتطلب موافقة المضيف");
+  else if (["reveal", "over"].includes(r.phase)) return err(ws, "لا يمكن المشاهدة الآن");
   if (r.players.length >= 20) return err(ws, "الغرفة ممتلئة");
   if (r.banned.includes(name.toLowerCase())) return err(ws, "تم طردك من هذه الغرفة");
   if (r.players.some(p => p.name.toLowerCase() == name.toLowerCase())) return err(ws, "الاسم مستخدم");
-  const p = { name, tok: Math.random().toString(36).slice(2) + Date.now().toString(36), ws, on: true, alive: true, inv: [] };
+  const p = { name, tok: Math.random().toString(36).slice(2) + Date.now().toString(36), ws, on: true, alive: !spec, inv: [] };
+  if (spec) { p.spec = true; p.role = "citizen"; r.chat.push({ n: "النظام", x: "👁 " + name + " يشاهد اللعبة", d: false, sys: true }); }
   r.players.push(p); if (!r.host) r.host = p; ws.r = r; ws.p = p;
   send(p, { t: "tok", code: r.code, tok: p.tok }); push(r);
 }
@@ -152,6 +157,16 @@ function closeRoom(r, m) {
   });
   rejectAll(r); rooms.delete(r.code); notifyBrowsers();
 }
+function kickPlayer(r, t, m) { /* used by the host kick and the admin kick */
+  r.banned.push(t.name.toLowerCase());
+  send(t, { t: "kicked", m });
+  const w = t.ws; clearTimeout(t.rm); t.tok = Math.random().toString(36) + "x"; t.on = false; t.ws = null;
+  if (w) { w.p = null; w.r = null; setTimeout(() => w.close(), 150); }
+  if (r.phase == "lobby") return leave(r, t);
+  t.kicked = true; t.alive = false; r.acts = (r.acts || []).filter(a => a.from !== t);
+  if (r.phase == "son" && r.son === t) { const a = alive(r); return r.sonDone(a[rnd(a.length)]); }
+  advance(r);
+}
 function advance(r) { /* after a player is removed, move on if everyone remaining is already done */
   const ph = r.phase;
   if (["night", "vote", "reveal", "day"].includes(ph)) {
@@ -166,7 +181,7 @@ function advance(r) { /* after a player is removed, move on if everyone remainin
 const dual = (r, p) => p.role == "silencer" && !alive(r).some(q => q.role == "killer"); /* no killer left: the Silencer also kills */
 function migrate(r, old) { /* host gone for good: pass host powers to the next connected player */
   if (r.host !== old || old.on) return;
-  const n = r.players.find(q => q.on && !q.kicked && q !== old); if (!n) { old.hostGone = true; return; } /* nobody connected: the first player to come back becomes host */
+  const n = r.players.find(q => q.on && !q.kicked && !q.spec && q !== old); if (!n) { old.hostGone = true; return; } /* nobody connected: the first player to come back becomes host */
   r.host = n; r.chat.push({ n: "النظام", x: "👑 أصبح " + n.name + " هو المضيف الجديد", d: false, sys: true }); push(r);
 }
 const H = {
@@ -180,7 +195,7 @@ const H = {
     const name = clean(d.name).slice(0, 14);
     if (!r) return err(ws, "الغرفة غير موجودة");
     if (ws.pend) return; /* already waiting for an answer */
-    if (r.set.approvalMode != "ask" || r.phase != "lobby") return addPlayer(ws, r, name);
+    if (r.set.approvalMode != "ask" || r.phase != "lobby") return addPlayer(ws, r, name, !!d.spec);
     if (!name) return err(ws, "اكتب اسمك");
     if (r.banned.includes(name.toLowerCase())) return err(ws, "تم طردك من هذه الغرفة");
     if (r.players.length >= MAXP) return err(ws, "الغرفة ممتلئة");
@@ -196,7 +211,7 @@ const H = {
     if (!p) return err(ws, "انتهت الغرفة", "room");
     clearTimeout(p.rm); clearTimeout(p.ht); if (p.ws && p.ws !== ws) { send(p, { t: "replaced" }); p.ws.p = null; p.ws.close(); }
     p.ws = ws; p.on = true; p.hostGone = false; ws.r = r; ws.p = p;
-    if (r.host !== p && !r.host.on && r.host.hostGone) { r.host = p; r.chat.push({ n: "النظام", x: "👑 أصبح " + p.name + " هو المضيف الجديد", d: false, sys: true }); }
+    if (r.host !== p && !p.spec && !r.host.on && r.host.hostGone) { r.host = p; r.chat.push({ n: "النظام", x: "👑 أصبح " + p.name + " هو المضيف الجديد", d: false, sys: true }); }
     push(r);
   },
   set(ws, d, r, p) {
@@ -261,19 +276,12 @@ const H = {
   },
   again(ws, d, r, p) {
     if (p !== r.host || r.phase != "over") return; clearTimeout(r.timer);
-    r.players = r.players.filter(q => q.on); r.players.forEach(q => { q.alive = true; q.role = undefined; });
+    r.players = r.players.filter(q => q.on); r.players.forEach(q => { q.alive = true; q.spec = false; q.role = undefined; });
     Object.assign(r, { phase: "lobby", end: 0, win: null, chat: [], rep: null, res: null, sons: [], log: [], silenced: null }); push(r);
   },
   kick(ws, d, r, p) {
     const t = r.players[d.id]; if (p !== r.host || !t || t === p) return;
-    r.banned.push(t.name.toLowerCase());
-    send(t, { t: "kicked", m: "طردك المضيف من الغرفة" });
-    const w = t.ws; clearTimeout(t.rm); t.tok = Math.random().toString(36) + "x"; t.on = false; t.ws = null;
-    if (w) { w.p = null; w.r = null; setTimeout(() => w.close(), 150); }
-    if (r.phase == "lobby") return leave(r, t);
-    t.kicked = true; t.alive = false; r.acts = (r.acts || []).filter(a => a.from !== t);
-    if (r.phase == "son" && r.son === t) { const a = alive(r); return r.sonDone(a[rnd(a.length)]); }
-    advance(r);
+    kickPlayer(r, t, "طردك المضيف من الغرفة");
   },
   approve(ws, d, r, p) {
     if (p !== r.host || r.phase != "lobby") return;
@@ -290,7 +298,7 @@ const H = {
 /* ---------- admin API: needs the ADMIN_KEY secret ---------- */
 const fails = new Map(); let gFails = 0, gReset = Date.now();
 const hash = x => crypto.createHash("sha256").update(String(x)).digest();
-const ADMIN_HASH = "scrypt$5df39e47fc9c691ae4120d169b9de399$099732ef149e9bb39d663e94270ef141e1f00911a62a73e1c611357785d11816"; /* hash of the admin password: safe in a public repo. To change it: node make-admin-hash.js "new password" */
+const ADMIN_HASH = "scrypt$dd175b692d3c590194280e475a2dbd67$a20acfa3491c394226584e97160c2f96ed6749541d783a9f5132bff5cff7d94c"; /* hash of the admin password: safe in a public repo. To change it: node make-admin-hash.js "new password" */
 const ADMIN_ON = ADMIN.length >= 8 || !!ADMIN_HASH; /* the ADMIN_KEY environment variable, when set, replaces the built-in password */
 function adminOk(key) {
   key = String(key || "").slice(0, 200);
@@ -303,9 +311,9 @@ function adminAuth(q) { /* 200 ok, 403 wrong key, 429 locked out, 404 admin disa
   const ip = String(q.headers["x-forwarded-for"] || "").split(",").pop().trim() || q.socket.remoteAddress, now = Date.now();
   const f = fails.get(ip) || { n: 0, until: 0 };
   if (now - gReset > 9e5) { gFails = 0; gReset = now; }
-  if (f.until > now || gFails > 40) return 429;
+  if (f.until > now || gFails > 40) { adminAuth.wait = Math.ceil(Math.max(f.until - now, gFails > 40 ? gReset + 9e5 - now : 0) / 1000); return 429; }
   if (!adminOk(q.headers["x-admin-key"])) {
-    f.n++; gFails++; if (f.n >= 5) { f.until = now + 9e5; f.n = 0; } fails.set(ip, f); return 403;
+    f.n++; gFails++; if (f.n >= 5) { f.until = now + 9e5; f.n = 0; } fails.set(ip, f); adminAuth.tries = 5 - f.n; return 403;
   }
   fails.delete(ip); return 200;
 }
@@ -313,20 +321,24 @@ const ADM = {
   rooms: () => ({ ok: true, rooms: [...rooms.values()].map(r => ({ code: r.code, phase: r.phase, night: r.night, host: r.host && r.host.name, created: r.created, players: r.players.map(p => ({ n: p.name, on: p.on, a: p.alive })) })) }),
   close: d => { const r = rooms.get(String(d.code || "").toUpperCase()); if (!r) return { ok: false, m: "no such room" }; closeRoom(r, "أغلق المشرف هذه الغرفة"); console.log("admin closed room", r.code); return { ok: true }; },
   closeall: () => { const n = rooms.size; [...rooms.values()].forEach(r => closeRoom(r, "أغلق المشرف السيرفر")); console.log("admin closed all rooms:", n); return { ok: true, n }; },
-  say: d => { const m = clean(d.text).slice(0, 200); if (!m) return { ok: false }; rooms.forEach(r => r.players.forEach(p => send(p, { t: "notice", m }))); return { ok: true }; }
+  say: d => { const m = clean(d.text).slice(0, 200); if (!m) return { ok: false }; const one = d.code ? rooms.get(String(d.code).toUpperCase()) : null; (one ? [one] : [...rooms.values()]).forEach(r => r.players.forEach(p => send(p, { t: "notice", m }))); return { ok: true }; },
+  kick: d => { const r = rooms.get(String(d.code || "").toUpperCase()), t = r && r.players.find(p => p.name === d.name); if (!t) return { ok: false, m: "not found" }; kickPlayer(r, t, "طردك المشرف من الغرفة"); console.log("admin kicked", d.name, "from", r.code); return { ok: true }; },
+  stats: () => { const all = [...rooms.values()]; return { ok: true, rooms: all.length, online: all.reduce((n, r) => n + r.players.filter(p => p.on).length, 0), players: all.reduce((n, r) => n + r.players.length, 0), games: STATS.games, up: Math.round((Date.now() - STATS.t0) / 1000), mem: Math.round(process.memoryUsage().rss / 1048576), env: ADMIN.length >= 8 }; }
 };
 
 /* ---------- server ---------- */
 const srv = http.createServer((q, s) => {
   const u = q.url.split("?")[0];
   if (u.startsWith("/admin-api/")) {
+    s.setHeader("Content-Type", "application/json"); s.setHeader("Cache-Control", "no-store");
+    if (u == "/admin-api/status" && q.method == "GET") return s.end(JSON.stringify({ enabled: ADMIN_ON, env: ADMIN.length >= 8 }));
     const st = q.method == "POST" ? adminAuth(q) : 404;
-    if (st != 200) { s.statusCode = st; return s.end("{}"); }
+    if (st != 200) { s.statusCode = st; return s.end(JSON.stringify(st == 429 ? { wait: adminAuth.wait } : st == 403 ? { tries: adminAuth.tries } : {})); }
     let body = ""; q.on("data", c => { body += c; if (body.length > 4000) q.destroy(); });
     q.on("end", () => {
       let d = {}; try { d = JSON.parse(body || "{}"); } catch (e) {}
       const f = Object.hasOwn(ADM, u.slice(11)) ? ADM[u.slice(11)] : null;
-      s.setHeader("Content-Type", "application/json"); if (!f) { s.statusCode = 404; return s.end("{}"); } s.end(JSON.stringify(f(d)));
+      if (!f) { s.statusCode = 404; return s.end("{}"); } s.end(JSON.stringify(f(d)));
     });
     return;
   }

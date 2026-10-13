@@ -127,6 +127,56 @@ h1 .flick{font-size:1.25em;letter-spacing:.04em;background:linear-gradient(180de
 .chip{border-radius:999px}
 .wrap{padding:66px 20px 58px}h1,h1+p.dim{text-align:center}
 .big{text-shadow:0 0 24px rgba(226,176,74,.45)}
+/* ===== v3: themes, text size, flip card, conn pill ===== */
+html[data-theme=crimson]{--lamp:#e0605a;--lamp2:#ff9a92;--blood:#ff4d4d;--night:#150b0d;--smoke:#241418;--edge:#4a2a30}
+html[data-theme=emerald]{--lamp:#4fd19a;--lamp2:#9cf0c8;--night:#0a1512;--smoke:#12221d;--edge:#25483c}
+html[data-theme=royal]{--lamp:#7aa7ff;--lamp2:#b6d0ff;--night:#0b1020;--smoke:#141b30;--edge:#2a3760}
+html[data-theme=crimson] .go,html[data-theme=emerald] .go,html[data-theme=royal] .go{color:#0d0d10;border-color:var(--lamp2)}
+html[data-size="1"] .wrap{zoom:1.12}html[data-size="2"] .wrap{zoom:1.26}
+.btn.sw{flex:1;min-width:0;padding:8px 4px;font-size:14px}.btn.sw::before{content:"";display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--c);margin-inline-end:6px;vertical-align:-2px;box-shadow:0 0 8px var(--c)}
+.i-eye::before{content:"👁"}
+.flip{perspective:900px;width:min(272px,80vw);height:395px;margin:10px auto 14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fin{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip.flipped .fin{transform:rotateY(180deg)}.flip.nofx .fin{transition:none}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;overflow:hidden}
+.face.back{background:repeating-conic-gradient(#1b222a 0 15deg,#222b35 0 30deg);border:2px solid var(--lamp);box-shadow:0 0 34px rgba(226,176,74,.22),inset 0 0 46px rgba(0,0,0,.65)}
+.face.back::before{content:"";position:absolute;inset:10px;border:1px solid var(--lamp);opacity:.5;border-radius:12px}
+.sig{font-size:84px;color:var(--lamp);text-shadow:0 0 26px var(--lamp);animation:fl2 3s ease-in-out infinite}
+.face.front{transform:rotateY(180deg);background:linear-gradient(180deg,#1f2832,#10151a);border:2px solid var(--lamp);justify-content:flex-start;padding-top:26px}
+.face.front.mafia{border-color:var(--blood)}.face.front.neutral{border-color:var(--ash)}
+.face.front>*{position:relative;z-index:1}.face .art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;z-index:0}
+.aura{position:absolute!important;width:230px;height:230px;border-radius:50%;top:-10px;background:radial-gradient(circle,rgba(226,176,74,.38),transparent 65%);animation:pu2 2.8s ease-in-out infinite;z-index:0!important}
+.face.front.mafia .aura{background:radial-gradient(circle,rgba(181,68,63,.5),transparent 65%)}.face.front.neutral .aura{background:radial-gradient(circle,rgba(124,133,144,.4),transparent 65%)}
+.ico{font-size:70px;line-height:1.1;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6));animation:fl2 3.2s ease-in-out infinite}
+.face.front h2{margin:6px 0 2px}.face.front .sd{font-weight:700;color:var(--lamp);margin-bottom:6px}.face.front.mafia .sd{color:var(--blood)}.face.front p.dim{font-size:13px;line-height:1.55}
+@keyframes fl2{50%{transform:translateY(-8px)}}@keyframes pu2{50%{transform:scale(1.18);opacity:.65}}
+#conn{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9;background:#7a2323;color:#fff;padding:6px 16px;border-radius:999px;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s}#conn.on{opacity:1}
+.qc{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.qc .mini{font-size:15px}
+html[dir=ltr] .btn.mi{letter-spacing:.02em}
+/* ===== v4: player cards, atmosphere, dawn/over cards ===== */
+.pc{display:flex;align-items:center;gap:12px;justify-content:flex-start;text-align:start;padding:10px 14px;min-height:60px;font-size:18px}
+.pc::before{content:attr(data-i);flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:700 20px Cairo,sans-serif;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);background:radial-gradient(circle at 30% 25%,hsl(var(--h,40) 70% 62%),hsl(var(--h,40) 55% 30%));box-shadow:0 0 0 2px rgba(255,255,255,.12),0 4px 10px rgba(0,0,0,.45)}
+.pc::after{content:"‹";margin-inline-start:auto;font-size:26px;opacity:.35;transition:.2s}html[dir=ltr] .pc::after{content:"›"}
+.pc:hover::after{opacity:1;transform:translateX(-4px)}html[dir=ltr] .pc:hover::after{transform:translateX(4px)}
+.pc.off::before,.pc.foe::before{filter:grayscale(1) brightness(.6)}.pc.foe::before{filter:none;background:radial-gradient(circle at 30% 25%,#e0605a,#5a1515)}.pc.off::after,.pc.foe::after{content:"🚫";opacity:.8}
+.list{display:flex;flex-direction:column;gap:9px}
+h2::after{content:"";display:block;width:52px;height:3px;border-radius:3px;background:var(--lamp);opacity:.7;margin-top:6px}.c h2::after,h2.c::after,.icon+h2::after{margin-inline:auto}
+.icon{filter:drop-shadow(0 0 22px var(--lamp))}
+.dcard{border:1px solid rgba(181,68,63,.55);background:linear-gradient(180deg,rgba(60,18,18,.65),rgba(24,10,10,.65));border-radius:16px;padding:14px 16px;margin:10px 0;text-align:center;box-shadow:0 8px 26px rgba(0,0,0,.45),inset 0 0 30px rgba(181,68,63,.15);position:relative;overflow:hidden}
+.dcard::before{content:"✝";position:absolute;inset-inline-end:10px;top:-8px;font-size:64px;opacity:.07}
+.dcard.ok{border-color:rgba(226,176,74,.5);background:linear-gradient(180deg,rgba(60,48,18,.55),rgba(24,20,10,.55));box-shadow:0 8px 26px rgba(0,0,0,.45),inset 0 0 30px rgba(226,176,74,.14)}.dcard.ok::before{content:"☀";opacity:.1}
+.dcard.sil{border-color:rgba(124,133,144,.6);background:rgba(26,32,39,.7);box-shadow:none}.dcard.sil::before{content:"🤐";opacity:.12}
+.dcard b{color:#fff}
+.pl{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--edge);border-radius:12px;background:rgba(26,32,39,.7);margin:6px 0}
+.pl span{margin-inline-start:auto;font-size:14px;color:var(--lamp)}.pl.out{opacity:.55}.pl.out b{text-decoration:line-through}.pl.mafia{border-color:rgba(181,68,63,.6)}
+.win-ring{position:relative}.win-ring::before{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:2px solid var(--lamp);opacity:.5;animation:ring 2.6s ease-out infinite;pointer-events:none}
+.win-ring::after{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;border:2px solid var(--lamp);opacity:.5;animation:ring 2.6s ease-out 1.3s infinite;pointer-events:none}
+@keyframes ring{from{transform:scale(.6);opacity:.6}to{transform:scale(2);opacity:0}}
+html::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;--star:#cfe0ff;background-image:radial-gradient(1.5px 1.5px at 22px 38px,var(--star),transparent),radial-gradient(1px 1px at 96px 120px,var(--star),transparent),radial-gradient(1.5px 1.5px at 160px 60px,var(--star),transparent),radial-gradient(1px 1px at 60px 170px,var(--star),transparent),radial-gradient(2px 2px at 140px 150px,var(--star),transparent);background-size:190px 200px;animation:tw 5s ease-in-out infinite alternate}
+html:has(body[data-ph=day])::before{--star:#ffd98a;animation-duration:9s;opacity:.4}html:has(body[data-ph=dead])::before{--star:#ff8a84;opacity:.35}
+@keyframes tw{from{opacity:.25}to{opacity:.7}}
+.big{text-shadow:0 0 22px currentColor;border:1px solid rgba(226,176,74,.25);border-radius:18px;padding:2px 18px;background:rgba(0,0,0,.28);width:fit-content;margin-inline:auto}
+.btn.go,.btn.go.mi{font-size:19px}
 @media (prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}}
 </style>
 <meta name="theme-color" content="#0f1317">
@@ -181,7 +231,7 @@ Object.assign(DESC, {
 const DECOY = { type: "none", q: "لا قدرة لك الليلة. اختر أي لاعب حتى لا يعرف أحد أنك بلا قدرة." };
 
 /* ---------- helpers ---------- */
-let G, N = 6, NAMES = [], T, cb, AC, muted = false;
+let KEEPFLIP = false, G, N = 6, NAMES = [], T, cb, AC, muted = false;
 
 /* Role scaling: COUNTS above overrides a size; otherwise this builds it (5 to 20) */
 function rolesFor(n) {
@@ -221,9 +271,18 @@ const SFX = {
   win:   () => [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, .5, "triangle", .15, i * .12)),
   lose:  () => [392, 349, 311, 233].forEach((f, i) => tone(f, .7, "sawtooth", .1, i * .25))
 };
+const PREF = { theme: "noir", size: 0, vib: true, lang: "ar" };
+try { Object.assign(PREF, JSON.parse(localStorage.getItem("mfp"))); } catch (e) {}
+const EN = {"الصوت": "Sound", "ملء الشاشة": "Fullscreen", "مافيا التسكيت": "Mute Mafia", "من تريد إسكاته؟": "Who do you want to silence?", "مافيا القتل": "Kill Mafia", "من تريد قتله؟": "Who do you want to kill?", "الطبيب": "Doctor", "من تريد إنقاذه؟": "Who do you want to save?", "المحقق": "Detective", "من تريد التحقيق معه؟": "Who do you want to investigate?", "عمدة الصالحين": "Mayor of the Righteous", "مواطن طبيعي": "Ordinary Citizen", "الحارس": "Bodyguard", "من تريد حمايته؟": "Who do you want to protect?", "الابن المدلل": "Spoiled Son", "المهرّج": "Joker", "القناص": "Sniper", "لديك رصاصة واحدة فقط في اللعبة. هل تطلق الليلة؟": "You have only one bullet in the whole game. Will you shoot tonight?", "يختار كل ليلة لاعبًا فيُمنع من الكلام في النقاش التالي، لكنه يصوّت. يستطيع إسكات نفسه ليبعد الشبهات عنه. وإذا مات القاتل يتولى القتل أيضًا: يسكت لاعبًا ويقتل لاعبًا في الليلة نفسها.": "Each night picks a player who can't speak in the next discussion, but still votes. Can silence themselves to avert suspicion. If the Killer dies, takes over the killing too: silences one player and kills one in the same night.", "يختار كل ليلة لاعبًا ليُقتل، إلا إذا أنقذه الطبيب.": "Each night picks a player to kill, unless the Doctor saves them.", "ينقذ كل ليلة لاعبًا من القتل، ويمكنه إنقاذ نفسه. لا يجوز أن ينقذ الشخص نفسه ليلتين متتاليتين.": "Saves a player from the kill each night, and may save themselves. Cannot save the same player two nights in a row.", "يحقق كل ليلة مع لاعب ويعرف فقط: من المافيا، أو ليس من المافيا.": "Investigates one player each night and learns only: Mafia, or not Mafia.", "في التصويت يستطيع مرة واحدة فقط أن يحسب صوته بثلاثة أصوات. الخيار يظهر له في أعلى شاشة التصويت.": "In the vote, once only, may count their vote as three. The option appears at the top of the voting screen.", "بلا قدرة خاصة. سلاحه النقاش والتصويت. يأخذ الهاتف ليلًا كالجميع حتى لا يعرف أحد من هو.": "No special ability. Their weapons are discussion and voting. Takes the phone at night like everyone, so nobody knows who they are.", "يحمي كل ليلة لاعبًا، وإذا هوجم يموت الحارس بدلًا منه. لا يحمي الشخص نفسه ليلتين متتاليتين.": "Protects a player each night; if that player is attacked, the Bodyguard dies instead. Cannot protect the same player two nights in a row.", "عندما يموت، قتلًا أو إعدامًا، يختار لاعبًا يشك فيه ليموت معه.": "When they die, by kill or execution, they pick a suspect to die with them.", "محايد. إذا صوّتت المدينة لإعدامه فاز وحده وانتهت اللعبة.": "Neutral. If the town votes to execute them, they win alone and the game ends.", "معه رصاصة واحدة في اللعبة كلها، ويقرر في أي ليلة يطلقها. إذا أصاب لاعبًا من المافيا مات الهدف فقط. وإذا أخطأ (الهدف ليس من المافيا) مات الهدف والقناص معًا.": "Has a single bullet for the whole game and chooses which night to fire it. If they hit a Mafia member, only the target dies. If they miss (the target is not Mafia), both the target and the Sniper die.", "لا قدرة لك الليلة. اختر أي لاعب حتى لا يعرف أحد أنك بلا قدرة.": "You have no ability tonight. Pick any player so nobody knows you have none.", "كان": "was", "مرّر الهاتف إلى": "Pass the phone to", "المقعد": "Seat", "من": "of", "اضغط مطوّلًا لتأكيد هويتك": "Hold to confirm your identity", "استمر بالضغط حتى يمتلئ الشريط": "Keep holding until the bar fills", "صُنع بواسطة": "Made by", "استهدف": "targeted", "أنقذ": "saved", "أسكت": "silenced", "حقق مع": "investigated", "حمى": "protected", "أطلق النار على": "shot", "أخذ معه": "took with them", "تفصيل التصويت": "Vote breakdown", "امتنع": "abstained", "الليلة": "Night", "من المافيا": "Mafia", "ليس من المافيا": "Not Mafia", "لم يتحرك أحد": "Nobody acted", "لم يمت أحد": "Nobody died", "تصويت اليوم": "Today's vote", "أُعدم": "executed", "لا إعدام": "No execution", "ملخص اللعبة": "Game summary", "حُمي": "Protected", "أُنقذ": "Saved", "الليلة الماضية)": "Last Night)", "زميلك)": "Your Teammate)", "قُتل": "was killed", "على يد": "by", "برصاصة القناص": "by the Sniper's bullet", "وهو يحمي": "while protecting", "بعد أن أخطأ هدفه": "after missing their target", "مات القناص": "The Sniper died", "و": "and", "المافيا": "Mafia", "لعبة تمرير الهاتف. المدينة نائمة، وليس الجميع بريئًا.": "A pass-the-phone game. The city sleeps, and not everyone is innocent.", "لاعب": "Player", "التالي: اختيار الشخصيات": "Next: choose roles", "رجوع": "Back", "دليل اللعبة": "Game Guide", "الهدف": "Goal", "تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يتساوى عددها مع عدد أهل المدينة أو يزيد عليه. وإذا فني الطرفان معًا (كالابن المدلل يأخذ آخر مافيا معه) تكون النتيجة تعادلًا.": "The town wins when every Mafia member is out of the game. The Mafia win when they equal or outnumber the town. If both sides are wiped out together (for example the Spoiled Son takes the last Mafia with him), it is a draw.", "كيف تسير الجولة": "How a round works", "الليل": "Night", "الفجر": "Dawn", "تُعلن النتائج: من قُتل ويُكشف دوره للجميع، ومن أُسكت.": "Results are announced: who was killed (their role is revealed to everyone) and who was silenced.", "النقاش": "Discussion", "وقت محدد للكلام والاتهام والدفاع. من أُسكت لا يتكلم.": "Timed discussion for talking, accusing and defending. A silenced player cannot speak.", "التصويت": "Voting", "كل لاعب يصوّت سرًّا بتمرير الهاتف. صاحب أعلى الأصوات يُعدم ويُكشف دوره. إذا تعادلت الأصوات فلا أحد يُعدم. الامتناع مسموح.": "Each player votes secretly by passing the phone. The player with the most votes is executed and their role is revealed. If votes tie, nobody is executed. Abstaining is allowed.", "عدد اللاعبين": "Number of players", "إلى": "to", "لاعبًا. يزيد عدد المافيا مع العدد (حوالي الربع)، وفي الألعاب الكبيرة يُضاف محقق وطبيب ثانٍ. إذا كان في المافيا أكثر من قاتل فالقتل يتم بالأغلبية، وعند التعادل يُختار أحد الأهداف عشوائيًا.": "players. The Mafia count grows with the number of players (about a quarter), and large games add a second Detective and Doctor. With more than one killer the kill is decided by majority, and on a tie one target is picked at random.", "أهل المدينة": "Town", "محايد": "Neutral", "قواعد مهمة": "Important rules", "في بداية اللعبة يعرف أفراد المافيا بعضهم عند كشف الأدوار.": "At the start, Mafia members know each other when roles are revealed.", "عند موت أي لاعب، قتلًا أو إعدامًا، يُكشف دوره للجميع.": "When any player dies, by kill or execution, their role is revealed to everyone.", "المسكَّت يصوّت كالمعتاد لكنه لا يتكلم حتى نهاية ذلك النهار.": "A silenced player votes as usual but does not speak until the end of that day.", "نصائح للعب": "Tips", "ضع الهاتف على الطاولة وسلّمه يدًا بيد. اضغط «أخفِ» قبل أن تمرّره، ولا تنظر إلى شاشة غيرك.": "Put the phone on the table and hand it over. Press \"Hide\" before passing it, and never look at another player's screen.", "دورك في اللعبة": "Your role", "أنت من المافيا.": "You are Mafia.", "أنت من أهل المدينة.": "You are Town.", "أنت محايد: تفوز إذا صوّتت المدينة لإعدامك.": "You are Neutral: you win if the town votes to execute you.", "رفيقك": "Your teammate", "أخفِ الدور ومرّر الهاتف": "Hide role and pass the phone", "تغلق المدينة عينيها. المافيا وحدها تعرف من يمشي في الظلام.": "The city closes its eyes. Only the Mafia know who walks in the dark.", "ابدأ الليل": "Start the night", "مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا.": "The Killer is dead: you will silence one player, then kill one.", "لن أطلق الليلة": "I won't shoot tonight", "ثانيًا: من تريد قتله؟": "Second: who do you want to kill?", "تم": "Done", "تم تسجيل اختيارك.": "Your choice is recorded.", "أخفِ الشاشة ومرّر الهاتف": "Hide the screen and pass the phone", "طلع الفجر": "Dawn breaks", "مرّت الليلة ولم يمت أحد.": "The night passed and nobody died.", "صامت اليوم. يستطيع التصويت لكن لا يتكلم.": "Silenced today. Can vote but cannot speak.", "متابعة": "Continue", "صامت اليوم": "Silenced today", "انتقل إلى التصويت": "Go to voting", "صوّت لإعدام من؟": "Vote to execute whom?", "فعّل صوت العمدة: يُحسب بثلاثة أصوات، مرة واحدة فقط": "Use the Mayor's vote: counts as three votes, once only", "امتنع عن التصويت": "Abstain from voting", "تعادلت الأصوات. لا أحد يُعدم اليوم.": "Votes tied. Nobody is executed today.", "نتيجة التصويت": "Vote result", "أنت الابن المدلل وقد متّ. اختر لاعبًا تشك فيه ليموت معك.": "You are the Spoiled Son and you died. Pick a player you suspect to die with you.", "أخذ": "took", "معه": "with them", "المدينة نائمة، وليس الجميع بريئًا.": "The city sleeps, and not everyone is innocent.", "العودة إلى غرفتك": "Back to your room", "لعب": "Play", "الشخصيات": "Roles", "الإعدادات": "Settings", "طريقة اللعب": "Game mode", "تمرير الهاتف": "Pass the Phone", "مغلق": "Off", "مفعّل": "On", "مدة النقاش": "Discussion time", "ثانية": "seconds", "إظهار دور اللاعب بعد موته": "Reveal a player's role after death", "نعم": "Yes", "لا": "No", "اختر الشخصيات": "Choose roles", "لاعبين": "players", "المواطنون يملؤون المقاعد الباقية": "Citizens fill the remaining seats", "كلاسيكي": "Classic", "مخصص": "Custom", "إلزامي": "Required", "عدد الشخصيات أكبر من عدد اللاعبين.": "There are more roles than players.", "ابدأ اللعبة": "Start game", "فازت المدينة": "The Town wins", "فازت المافيا": "The Mafia win", "فاز المهرّج": "The Joker wins", "تعادل: فناء الطرفين معًا": "Draw: both sides wiped out", "خرج)": "Out)", "القائمة الرئيسية": "Main menu", "بانتظار موافقة المضيف": "Waiting for the host's approval", "سيرد على طلبك قريبًا.": "will answer your request soon.", "إلغاء الطلب": "Cancel request", "فُتحت اللعبة في نافذة أخرى. اضغط «العودة إلى غرفتك» هنا لاستعادتها.": "The game was opened in another window. Press \"Back to your room\" here to restore it.", "لعب جماعي": "Multiplayer", "اسمك": "Your name", "غرفة بالرمز": "Room by code", "الغرفة عامة": "Public room", "الغرفة خاصة": "Private room", "بموافقتك": "With your approval", "دخول مباشر": "Direct entry", "إنشاء غرفة": "Create room", "رمز الغرفة": "Room code", "انضمام بالرمز": "Join by code", "غرف عامة": "Public rooms", "تصفّح الغرف العامة": "Browse public rooms", "لا توجد غرف عامة الآن. أنشئ واحدة!": "No public rooms right now. Create one!", "بموافقة المضيف": "Host approval", "مافيا": "Mafia", "وقت النقاش": "Discussion time", "انضمام": "Join", "الغرف العامة": "Public rooms", "اكتب اسمك أولاً": "Type your name first", "يريد الانضمام.": "wants to join.", "طلبات أخرى": "more requests", "قبول": "Accept", "رفض": "Decline", "اكتب اسمك": "Type your name", "طرد": "Kick", "من الغرفة؟": "from the room?", "الدردشة العامة (قراءة فقط)": "Public chat (read only)", "دردشة الموتى": "Dead chat", "لا يراها الأحياء)": "the living can't see it)", "اكتب لبقية الموتى...": "Write to the other dead...", "اكتب رسالة...": "Type a message...", "لا يمكنك الكتابة الآن.": "You can't write right now.", "بانتظار الباقين": "Waiting for the others", "جاهز للتصويت": "Ready to vote", "ث": "s", "إظهار الدور بعد الموت": "Reveal role after death", "الغرفة عامة (تظهر في القائمة)": "Public room (shown in the list)", "الغرفة خاصة (بالرمز فقط)": "Private room (code only)", "الدخول بموافقتك": "Join by your approval", "أصبحت المضيف الآن": "You are now the host", "الغرفة": "Room", "شارك الرمز مع أصدقائك": "Share the code with your friends", "لاعبين)": "players)", "عامة": "Public", "خاصة": "Private", "أنت)": "You)", "غير متصل": "Offline", "بانتظار المضيف ليبدأ اللعبة...": "Waiting for the host to start the game...", "خروج": "Leave", "جاهز": "Ready", "أنت خارج اللعبة وتشاهد.": "You are out of the game and watching.", "متّ! اختر لاعبًا تشك فيه ليموت معك.": "You died! Pick a player you suspect to die with you.", "الابن المدلل يختار من يأخذه معه...": "The Spoiled Son is choosing who to take with him...", "صامت اليوم.": "Silenced today.", "أنت مُسكَت اليوم.": "You are silenced today.", "تم التصويت": "Vote cast", "فعّل صوت العمدة: ثلاثة أصوات، مرة واحدة فقط": "Use the Mayor's vote: three votes, once only", "لا أحد يُعدم اليوم.": "Nobody is executed today.", "طُرد)": "Kicked)", "لعبة جديدة بنفس اللاعبين": "New game, same players", "اتصل بالإنترنت": "Connect to the Internet", "قريبًا": "Coming soon", "المظهر": "Appearance", "ليلي": "Noir", "قرمزي": "Crimson", "زمردي": "Emerald", "ملكي": "Royal", "حجم الخط": "Text size", "الاهتزاز": "Vibration", "اللغة": "Language", "اضغط على البطاقة لكشف دورك": "Tap the card to reveal your role", "أنا بريء!": "I'm innocent!", "أشك فيك": "I suspect you", "أوافق": "I agree", "لنصوّت!": "Let's vote!", "جارٍ إعادة الاتصال…": "Reconnecting…", "مشاهدة بالرمز": "Watch by code", "اللعبة بدأت بالفعل. يمكنك المشاهدة": "The game already started. You can watch instead", "لا يمكن المشاهدة الآن": "You can't watch right now", "الغرفة تتطلب موافقة المضيف": "This room needs the host's approval", "يشاهد اللعبة": "is watching the game", "الغرفة غير موجودة": "Room not found", "اللعبة بدأت بالفعل": "The game already started", "الغرفة ممتلئة": "The room is full", "الاسم مستخدم": "Name already taken", "تم طردك من هذه الغرفة": "You were kicked from this room", "انتهت الغرفة": "The room has ended", "عدد الشخصيات أكبر من عدد اللاعبين": "There are more roles than players", "الشخصيات الإلزامية ناقصة": "Required roles are missing", "طردك المضيف من الغرفة": "The host kicked you from the room", "طردك المشرف من الغرفة": "An admin kicked you from the room", "أغلق المشرف هذه الغرفة": "An admin closed this room", "أغلق المشرف السيرفر": "An admin closed the server", "النظام": "System", "أصبح": "became", "هو المضيف الجديد": "the new host", "طلبات كثيرة الآن، حاول بعد قليل": "Too many requests, try again shortly", "يمرَّر الهاتف على كل لاعب حي بترتيب المقاعد. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.": "The phone is passed to every living player in seating order. Every player picks someone, even a plain Citizen, and a Citizen's choice has no effect. That way nobody knows who has an ability."};
+const ENRE = new RegExp("(^|[^\\u0621-\\u065F\\u0670-\\u06D3])(" + Object.keys(EN).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\u0621-\\u065F\\u0670-\\u06D3])", "g");
+const tr = s => (PREF.lang == "en" && s ? String(s).replace(ENRE, (m, p, k) => p + EN[k]).replace(/،/g, ",").replace(/؟/g, "?") : s);
+function applyPref() {
+  const h = document.documentElement; h.dataset.theme = PREF.theme; h.dataset.size = PREF.size; h.lang = PREF.lang; h.dir = PREF.lang == "en" ? "ltr" : "rtl";
+  document.querySelectorAll("[data-t0]").forEach(e => { e.title = tr(e.dataset.t0); });
+}
 const VIB = { turn: [25], dawn: [60], death: [250, 100, 250], gavel: [120, 60, 120], win: [100, 50, 100, 50, 200], lose: [400] };
 const sfx = n => {
-  try { if (VIB[n] && navigator.vibrate) navigator.vibrate(VIB[n]); } catch (e) {}
+  try { if (PREF.vib && VIB[n] && navigator.vibrate) navigator.vibrate(VIB[n]); } catch (e) {}
   if (muted) return; try { SFX[n](); } catch (e) {}
 };
 document.addEventListener("click", e => { if (e.target.closest(".btn")) { try { A().resume(); } catch (_) {} sfx("click"); } });
@@ -244,10 +303,12 @@ const $ = id => document.getElementById(id);
 const esc = s => s.replace(/[&<>"']/g, c => "&#" + c.charCodeAt(0) + ";");
 const rv = p => CFG.showRole ? ` كان ${ROLES[p.role].n}.` : "";
 const show = (h, still, key) => {
+  h = tr(h); const keep = KEEPFLIP && !!document.querySelector(".flip.flipped"); KEEPFLIP = false;
   $("app").className = (still ? "still" : "") + (key ? " key" : "");
   $("sbar").hidden = true;
   clearInterval(T); $("app").innerHTML = `<div class="wrap">${h}</div>`;
   $("app").querySelectorAll(".wrap>*,.list>*").forEach((e, i) => e.style.animationDelay = Math.min(i, 24) * 40 + "ms");
+  if (keep) { const fl = $("app").querySelector(".flip"); if (fl) { fl.classList.add("flipped", "nofx"); setTimeout(() => fl.classList.remove("nofx"), 60); } }
 };
 const alive = () => G.p.filter(x => x.alive);
 const side = p => ROLES[p.role].side;
@@ -273,7 +334,7 @@ const pass = (p, next) => {
 };
 const SKY = '<svg class="sky" viewBox="0 0 210 80" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><rect x="0" y="42" width="30" height="38" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="34" y="24" width="24" height="56" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="54" y="52" width="28" height="28" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="80" y="18" width="22" height="62" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="100" y="36" width="30" height="44" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="128" y="26" width="24" height="54" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="150" y="46" width="28" height="34" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect x="176" y="30" width="26" height="50" fill="#0a0d11" stroke="#1c242d" stroke-width=".6"/><rect class="w" x="5" y="48" width="3" height="4"/><rect class="w" x="13" y="48" width="3" height="4"/><rect class="w" x="5" y="57" width="3" height="4"/><rect class="w" x="13" y="57" width="3" height="4"/><rect class="w" x="5" y="66" width="3" height="4"/><rect class="w" x="13" y="66" width="3" height="4"/><rect class="w" x="5" y="75" width="3" height="4"/><rect class="w" x="13" y="75" width="3" height="4"/><rect class="w" x="39" y="30" width="3" height="4"/><rect class="w" x="39" y="39" width="3" height="4"/><rect class="w" x="47" y="39" width="3" height="4"/><rect class="w" x="47" y="48" width="3" height="4"/><rect class="w" x="39" y="57" width="3" height="4"/><rect class="w" x="39" y="66" width="3" height="4"/><rect class="w" x="47" y="66" width="3" height="4"/><rect class="w" x="47" y="75" width="3" height="4"/><rect class="w" x="59" y="58" width="3" height="4"/><rect class="w" x="67" y="58" width="3" height="4"/><rect class="w" x="59" y="67" width="3" height="4"/><rect class="w" x="67" y="67" width="3" height="4"/><rect class="w" x="93" y="24" width="3" height="4"/><rect class="w" x="85" y="33" width="3" height="4"/><rect class="w" x="85" y="42" width="3" height="4"/><rect class="w" x="93" y="42" width="3" height="4"/><rect class="w" x="93" y="51" width="3" height="4"/><rect class="w" x="85" y="60" width="3" height="4"/><rect class="w" x="85" y="69" width="3" height="4"/><rect class="w" x="93" y="69" width="3" height="4"/><rect class="w" x="105" y="42" width="3" height="4"/><rect class="w" x="121" y="42" width="3" height="4"/><rect class="w" x="105" y="51" width="3" height="4"/><rect class="w" x="121" y="51" width="3" height="4"/><rect class="w" x="105" y="60" width="3" height="4"/><rect class="w" x="121" y="60" width="3" height="4"/><rect class="w" x="105" y="69" width="3" height="4"/><rect class="w" x="121" y="69" width="3" height="4"/><rect class="w" x="141" y="32" width="3" height="4"/><rect class="w" x="133" y="41" width="3" height="4"/><rect class="w" x="133" y="50" width="3" height="4"/><rect class="w" x="141" y="50" width="3" height="4"/><rect class="w" x="141" y="59" width="3" height="4"/><rect class="w" x="133" y="68" width="3" height="4"/><rect class="w" x="155" y="52" width="3" height="4"/><rect class="w" x="163" y="52" width="3" height="4"/><rect class="w" x="155" y="61" width="3" height="4"/><rect class="w" x="163" y="61" width="3" height="4"/><rect class="w" x="155" y="70" width="3" height="4"/><rect class="w" x="163" y="70" width="3" height="4"/><rect class="w" x="189" y="36" width="3" height="4"/><rect class="w" x="197" y="36" width="3" height="4"/><rect class="w" x="189" y="45" width="3" height="4"/><rect class="w" x="197" y="45" width="3" height="4"/><rect class="w" x="189" y="54" width="3" height="4"/><rect class="w" x="197" y="54" width="3" height="4"/><rect class="w" x="189" y="63" width="3" height="4"/><rect class="w" x="197" y="63" width="3" height="4"/><rect class="w" x="189" y="72" width="3" height="4"/><rect class="w" x="197" y="72" width="3" height="4"/></svg>';
 const badge = () => '<div class="cbadge"><small>صُنع بواسطة</small><b>IBRAHIM BUGHA</b></div>';
-const setBar = h => { const b = $("sbar"); b.innerHTML = h; b.hidden = !h; };
+const setBar = h => { const b = $("sbar"); b.innerHTML = tr(h); b.hidden = !h; };
 const barOff = () => alive().map(p => `<span class="chip${G.silenced === p ? " sil" : ""}">${G.silenced === p ? "🤐 " : ""}${p.name}</span>`).join("");
 const isDual = p => p.role == "silencer" && !alive().some(x => x.role == "killer"); /* no killer left: the Silencer also kills */
 const VERB = { kill: "استهدف", save: "أنقذ", silence: "أسكت", investigate: "حقق مع", guard: "حمى", snipe: "أطلق النار على" };
@@ -286,9 +347,21 @@ function tlHtml(log, nm) { /* scrollable end-of-game timeline of every hidden ac
     : `<p><span class="h">تصويت اليوم ${e.n}</span><br>${(e.votes || []).map(v => nm(v.f) + " ← " + (v.t >= 0 ? nm(v.t) : "امتنع") + (v.w > 1 ? " ×" + v.w : "")).join("<br>")}<br>${e.ex >= 0 ? "⚖️ أُعدم " + nm(e.ex) : "لا إعدام"}${sonLn(e.sons, nm)}</p>`).join("");
   return `<h3>ملخص اللعبة</h3><div class="tl">${body}</div>`;
 }
-const tgtBtn = (x, a, fn) => a.noRepeat && x === G.last[a.type] ? `<button class="btn off" disabled>${x.name} (${a.type == "guard" ? "حُمي" : "أُنقذ"} الليلة الماضية)</button>`
-  : a.type == "kill" && side(x) == "mafia" ? `<button class="btn foe" disabled>${x.name} — ${ROLES[x.role].n} (زميلك)</button>` : btn(x.name, fn);
+const SDTXT = { mafia: "أنت من المافيا.", good: "أنت من أهل المدينة.", neutral: "أنت محايد: تفوز إذا صوّتت المدينة لإعدامك." };
+const roleCard = (id, sd, n, desc) => { const ic = (String(n).match(/^\S+/) || ["🎭"])[0], nm = String(n).replace(/^\S+\s*/, "");
+  return `<p class="dim c">اضغط على البطاقة لكشف دورك</p><div class="flip" onclick="this.classList.toggle('flipped')"><div class="fin"><div class="face back"><div class="sig">☪</div></div><div class="face front ${sd}"><div class="aura"></div><img class="art" src="roles/${id}.webp" alt="" onerror="this.remove()"><div class="ico">${ic}</div><h2>${nm}</h2><p class="sd">${SDTXT[sd]}</p><p class="dim">${desc || ""}</p></div></div></div>`; };
+const hue = n => { let h = 0; for (const c of String(n)) h = (h * 31 + c.codePointAt(0)) % 360; return h; };
+const ini = n => Array.from(String(n).replace(/&[a-z#0-9]+;/gi, "?").trim())[0] || "?";
+const pat = n => ` data-i="${ini(n)}" style="--h:${hue(n)}"`;
+const pbtn = (name, fn, cls = "") => btn(name, fn, ("pc " + cls).trim()).replace(/(<button class="[^"]*")/, (m) => m + pat(name));
+const tgtBtn = (x, a, fn) => a.noRepeat && x === G.last[a.type] ? `<button class="btn pc off" disabled${pat(x.name)}>${x.name} (${a.type == "guard" ? "حُمي" : "أُنقذ"} الليلة الماضية)</button>`
+  : a.type == "kill" && side(x) == "mafia" ? `<button class="btn pc foe" disabled${pat(x.name)}>${x.name} — ${ROLES[x.role].n} (زميلك)</button>` : pbtn(x.name, fn);
 const deathLine = (n, cs, nm) => { /* cause of death sentence */
+  if (PREF.lang == "en") {
+    if (!cs || !cs.length) return `<b>${n}</b> was killed.`;
+    const g = c => c.c == "kill" ? `by ${ROLES[c.by].n}` : c.c == "snipe" ? "by the Sniper's bullet" : c.c == "guard" ? `while protecting <b>${nm(c.f)}</b> from ${ROLES[c.by].n}` : `after missing their target <b>${nm(c.f)}</b>`;
+    return `${cs.some(c => c.c != "miss") ? `<b>${n}</b> was killed` : `The Sniper <b>${n}</b> died`} ${cs.map(g).join(" and ")}.`;
+  }
   if (!cs || !cs.length) return `قُتل <b>${n}</b>.`;
   const f = c => c.c == "kill" ? `على يد ${ROLES[c.by].n}` : c.c == "snipe" ? "برصاصة القناص" : c.c == "guard" ? `وهو يحمي <b>${nm(c.f)}</b> من ${ROLES[c.by].n}` : `بعد أن أخطأ هدفه <b>${nm(c.f)}</b>`;
   return `${cs.some(c => c.c != "miss") ? "قُتل" : "مات القناص"} <b>${n}</b> ${cs.map(f).join(" و")}.`;
@@ -309,7 +382,7 @@ function guide() {
     <h3>الهدف</h3>
     <p>تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يتساوى عددها مع عدد أهل المدينة أو يزيد عليه. وإذا فني الطرفان معًا (كالابن المدلل يأخذ آخر مافيا معه) تكون النتيجة تعادلًا.</p>
     <h3>كيف تسير الجولة</h3>
-    <p><b>الليل:</b> يمرَّر الهاتف على كل لاعب حي بترتيب عشوائي. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.</p>
+    <p><b>الليل:</b> يمرَّر الهاتف على كل لاعب حي بترتيب المقاعد. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.</p>
     <p><b>الفجر:</b> تُعلن النتائج: من قُتل ويُكشف دوره للجميع، ومن أُسكت.</p>
     <p><b>النقاش:</b> وقت محدد للكلام والاتهام والدفاع. من أُسكت لا يتكلم.</p>
     <p><b>التصويت:</b> كل لاعب يصوّت سرًّا بتمرير الهاتف. صاحب أعلى الأصوات يُعدم ويُكشف دوره. إذا تعادلت الأصوات فلا أحد يُعدم. الامتناع مسموح.</p>
@@ -341,8 +414,7 @@ function reveal(i) {
   const p = G.p[i];
   pass(p, () => {
     const mates = G.p.filter(x => x !== p && side(x) == "mafia");
-    show(`<p class="dim">دورك في اللعبة</p><div class="role ${side(p)}"><h2>${ROLES[p.role].n}</h2>
-      <p>${{ mafia: "أنت من المافيا.", good: "أنت من أهل المدينة.", neutral: "أنت محايد: تفوز إذا صوّتت المدينة لإعدامك." }[side(p)]}</p><p class="dim">${DESC[p.role] || ""}</p></div>
+    show(`${roleCard(p.role, side(p), ROLES[p.role].n, DESC[p.role])}
       ${side(p) == "mafia" && mates.length ? `<p>رفيقك: <b>${mates.map(m => m.name).join("، ")}</b></p>` : ""}
       ${btn("أخفِ الدور ومرّر الهاتف", `reveal(${i+1})`)}`);
   });
@@ -395,8 +467,8 @@ function dawn() {
   setPh(dead.length ? "dead" : "day"); sfx(dead.length ? "death" : "dawn");
   if (dead.length) flash(); else burst("#e2b04a");
   show(`<div class="icon">${dead.length ? "💀" : "🌅"}</div><h1 class="${dead.length ? "shake" : ""}">طلع الفجر</h1>
-    ${dead.length ? dead.map(t => `<p>${deathLine(t.name, why[idx(t)], i => G.p[i].name)}${rv(t)}</p>`).join("") : "<p>مرّت الليلة ولم يمت أحد.</p>"}
-    ${G.silenced && G.silenced.alive ? `<p><b>${G.silenced.name}</b> صامت اليوم. يستطيع التصويت لكن لا يتكلم.</p>` : ""}
+    ${dead.length ? dead.map(t => `<div class="dcard"><p>${deathLine(t.name, why[idx(t)], i => G.p[i].name)}${rv(t)}</p></div>`).join("") : '<div class="dcard ok"><p>مرّت الليلة ولم يمت أحد.</p></div>'}
+    ${G.silenced && G.silenced.alive ? `<div class="dcard sil"><p><b>${G.silenced.name}</b> صامت اليوم. يستطيع التصويت لكن لا يتكلم.</p></div>` : ""}
     ${btn("متابعة", "after()", "go")}`);
 }
 
@@ -417,7 +489,7 @@ function vote(i) {
     const m = v.role == "mayor" && !G.mayorUsed;
     show(`<h2>صوّت لإعدام من؟</h2>
       ${m ? `<label class="opt"><input type="checkbox" id="m"> فعّل صوت العمدة: يُحسب بثلاثة أصوات، مرة واحدة فقط</label>` : ""}
-      <div class="list">${alive().filter(x => x !== v).map(t => btn(t.name, `cast(${i},${idx(t)})`)).join("")}${btn("امتنع عن التصويت", `cast(${i},-1)`)}</div>`);
+      <div class="list">${alive().filter(x => x !== v).map(t => pbtn(t.name, `cast(${i},${idx(t)})`)).join("")}${btn("امتنع عن التصويت", `cast(${i},-1)`)}</div>`);
   });
 }
 function cast(i, ti) {
@@ -464,8 +536,17 @@ function chars() {
   const g = s => Object.entries(ROLES).filter(([, r]) => r.side == s).map(([id, r]) => `<div class="role ${s}"><b>${r.n}</b><p class="dim">${DESC[id] || ""}</p></div>`).join("");
   show(`<h2>الشخصيات</h2><h3>أهل المدينة</h3>${g("good")}<h3>المافيا</h3>${g("mafia")}<h3>محايد</h3>${g("neutral")}${btn("رجوع", "menu()", "go")}`);
 }
+const THEMES = [["noir", "ليلي", "#e2b04a"], ["crimson", "قرمزي", "#e0605a"], ["emerald", "زمردي", "#4fd19a"], ["royal", "ملكي", "#7aa7ff"]];
+function setPref(k, v) { PREF[k] = v; try { localStorage.setItem("mfp", JSON.stringify(PREF)); } catch (e) {} applyPref(); if (k == "vib" && v) try { navigator.vibrate && navigator.vibrate(40); } catch (e) {} settings(); }
 function settings() {
   show(`<h2>الإعدادات</h2>
+    <h3>المظهر</h3>
+    <div class="row">${THEMES.map(t => `<button class="btn sw${PREF.theme == t[0] ? " on" : ""}" style="--c:${t[2]}" onclick="setPref('theme','${t[0]}')">${t[1]}</button>`).join("")}</div>
+    <p class="dim c">حجم الخط</p>
+    <div class="row">${[0, 1, 2].map(k => `<button class="btn sw${PREF.size == k ? " on" : ""}" style="font-size:${15 + k * 3}px" onclick="setPref('size',${k})">Aa</button>`).join("")}</div>
+    ${btn("الاهتزاز: " + (PREF.vib ? "مفعّل" : "مغلق"), "setPref('vib'," + !PREF.vib + ")")}
+    ${btn("🌐 " + (PREF.lang == "en" ? "العربية" : "English"), "setPref('lang','" + (PREF.lang == "en" ? "ar" : "en") + "')")}
+    <h3>${"طريقة اللعب"}</h3>
     ${btn("الصوت: " + (muted ? "مغلق" : "مفعّل"), "muted=!muted;$('mute').textContent=muted?'🔇':'🔊';settings()")}
     <div class="row">${btn("−", "CFG.discuss=Math.max(30,CFG.discuss-15);settings()", "step")}<div class="c" style="flex:1">مدة النقاش: ${CFG.discuss} ثانية</div>${btn("+", "CFG.discuss=Math.min(300,CFG.discuss+15);settings()", "step")}</div>
     ${btn("إظهار دور اللاعب بعد موته: " + (CFG.showRole ? "نعم" : "لا"), "CFG.showRole=!CFG.showRole;settings()")}
@@ -492,8 +573,8 @@ function win() {
 function over(w) {
   const T = { good: ["🏆", "فازت المدينة"], mafia: ["🕶️", "فازت المافيا"], jester: ["🤡", "فاز المهرّج"], draw: ["🤝", "تعادل: فناء الطرفين معًا"] }[w], g = w != "mafia";
   setPh(w == "draw" ? "night" : g ? "day" : "dead"); sfx(w == "draw" ? "gavel" : g ? "win" : "lose"); burst(w == "draw" ? "#7c8590" : g ? "#e2b04a" : "#b5443f");
-  show(`<div class="icon">${T[0]}</div><h1>${T[1]}</h1>
-    <div class="list">${G.p.map(p => `<p class="${p.alive ? "" : "dim"}">${p.name}: ${ROLES[p.role].n}${p.alive ? "" : " (خرج)"}</p>`).join("")}</div>
+  show(`<div class="win-ring"><div class="icon">${T[0]}</div></div><h1>${T[1]}</h1>
+    <div class="list">${G.p.map(p => `<div class="pl ${side(p)}${p.alive ? "" : " out"}"><b>${p.name}</b><span>${ROLES[p.role].n}${p.alive ? "" : " (خرج)"}</span></div>`).join("")}</div>
     ${tlHtml(G.log, i => G.p[i].name)}${btn("القائمة الرئيسية", "menu()", "go")}${badge()}`, false, true);
 }
 /* ---------- multiplayer client (active only when served by server.js) ---------- */
@@ -505,11 +586,14 @@ const hbAge = () => { try { return Date.now() - (+localStorage.getItem("mf_hb") 
 const mpResume = () => { const v = mpSaved(); if (!v) return menu(); MPOFF = false; WS && WS.readyState == 1 ? SEND({ t: "rejoin", code: v.code, tok: v.tok }) : mpConnect(); };
 function err(t) {
   let e = $("er"); if (!e) { e = document.createElement("div"); e.id = "er"; document.body.append(e); }
-  e.textContent = t; e.className = "on"; setTimeout(() => e.className = "", 3000);
+  e.textContent = tr(t); e.className = "on"; setTimeout(() => e.className = "", 3000);
 }
+let RC = 800, RCT;
+function conn(on) { let e = $("conn"); if (!e) { e = document.createElement("div"); e.id = "conn"; document.body.append(e); } e.textContent = on ? tr("🔌 جارٍ إعادة الاتصال…") : ""; e.className = on ? "on" : ""; }
+const mpWake = () => { if ((S || mpSaved()) && !MPOFF && !(WS && WS.readyState <= 1)) { clearTimeout(RCT); mpConnect(); } };
 function mpConnect(first) {
-  WS = new WebSocket(window.MP_SERVER || ((location.protocol == "https:" ? "wss://" : "ws://") + location.host));
-  WS.onopen = () => { if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
+  const w = WS = new WebSocket(window.MP_SERVER || ((location.protocol == "https:" ? "wss://" : "ws://") + location.host));
+  WS.onopen = () => { RC = 800; conn(false); if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
   WS.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.t == "tok") { MPOFF = false; mpUnbrowse(); try { localStorage.setItem("mf", JSON.stringify(m)); } catch (x) {} }
@@ -521,12 +605,11 @@ function mpConnect(first) {
     else if (m.t == "replaced") { MPOFF = true; S = null; err("فُتحت اللعبة في نافذة أخرى. اضغط «العودة إلى غرفتك» هنا لاستعادتها."); menu(); }
     else if (m.t == "state") mpRender(m);
   };
-  WS.onclose = () => { if ((S || mpSaved()) && !MPOFF) setTimeout(() => mpConnect(), 1500); };
+  w.onclose = () => { if (WS !== w) return; if ((S || mpSaved()) && !MPOFF) { conn(true); clearTimeout(RCT); RCT = setTimeout(() => mpConnect(), RC); RC = Math.min(RC * 1.6, 8000); } };
 }
 setInterval(() => SEND({ t: "ping" }), 20000);
 setInterval(() => { if (S && !MPOFF) try { localStorage.setItem("mf_hb", Date.now()); } catch (e) {} }, 2000); /* tells other tabs this one is alive */
 /* coming back to the app, or the network returning: re-open a dropped connection straight away */
-const mpWake = () => { if (S && !MPOFF && (!WS || WS.readyState > 1)) mpConnect(); };
 addEventListener("online", mpWake); document.addEventListener("visibilitychange", () => { if (document.visibilityState == "visible") mpWake(); });
 /* ---------- multiplayer menu: private (code) and public room browser ---------- */
 let CR = { visibility: "private", approvalMode: "auto" }, BR = false, ROOMS = [], W_FROM = false, LASTREQ = 0;
@@ -537,7 +620,7 @@ function mpMenu() {
     <div class="row">${btn(CR.visibility == "open" ? "🌐 الغرفة عامة" : "🔒 الغرفة خاصة", "CR.visibility=CR.visibility=='open'?'private':'open';mpMenu()")}${btn(CR.approvalMode == "ask" ? "🔔 بموافقتك" : "⚡ دخول مباشر", "CR.approvalMode=CR.approvalMode=='ask'?'auto':'ask';mpMenu()")}</div>
     ${btn("إنشاء غرفة", "mpGo('create')", "go")}
     <input type="text" id="mc" maxlength="4" placeholder="رمز الغرفة" style="text-transform:uppercase;text-align:center;letter-spacing:6px">
-    ${btn("انضمام بالرمز", "mpGo('join')")}
+    ${btn("انضمام بالرمز", "mpGo('join')")}${btn("مشاهدة بالرمز", "mpGo('join',true)", "mi i-eye")}
     <h3>🌐 غرف عامة</h3>
     ${btn("تصفّح الغرف العامة", "mpBrowse()")}${btn("رجوع", "mode()")}`, true);
 }
@@ -561,20 +644,22 @@ function mpModal(s) { /* the host's pop-up: someone wants to join */
   let m = $("modal"); if (!m) { m = document.createElement("div"); m.id = "modal"; document.body.append(m); }
   const q = s && s.host && s.pending && s.pending[0];
   if (!q) { m.className = ""; m.innerHTML = ""; LASTREQ = 0; return; }
-  if (s.pending.length > LASTREQ) { sfx("knock"); try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) {} }
+  if (s.pending.length > LASTREQ) { sfx("knock"); try { PREF.vib && navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) {} }
   LASTREQ = s.pending.length; m.className = "on";
-  m.innerHTML = `<div class="card"><p><b>${esc(q.n)}</b> يريد الانضمام.</p>${s.pending.length > 1 ? `<p class="dim">+${s.pending.length - 1} طلبات أخرى</p>` : ""}<div class="row">${btn("قبول", `SEND({t:'approve',id:${q.id},ok:true})`, "go")}${btn("رفض", `SEND({t:'approve',id:${q.id},ok:false})`)}</div></div>`;
+  m.innerHTML = tr(`<div class="card"><p><b>${esc(q.n)}</b> يريد الانضمام.</p>${s.pending.length > 1 ? `<p class="dim">+${s.pending.length - 1} طلبات أخرى</p>` : ""}<div class="row">${btn("قبول", `SEND({t:'approve',id:${q.id},ok:true})`, "go")}${btn("رفض", `SEND({t:'approve',id:${q.id},ok:false})`)}</div></div>`);
 }
-function mpGo(k) {
+function mpGo(k, spec) {
   const name = MN.trim(), code = ($("mc").value || "").trim().toUpperCase();
   if (!name) return err("اكتب اسمك");
-  const go = () => SEND({ t: k, name, code, visibility: CR.visibility, approvalMode: CR.approvalMode });
+  const go = () => SEND({ t: k, name, code, spec: !!spec, visibility: CR.visibility, approvalMode: CR.approvalMode });
   WS && WS.readyState == 1 ? go() : mpConnect(go);
 }
 function mpLeave() { mpClear(); S = null; mpModal(null); WS && WS.close(); menu(); }
 const mpSet = o => SEND({ t: "set", ...o });
 const mpAdj = (id, d) => mpSet({ roles: { ...S.set.roles, [id]: Math.max(reqFor(S.players.length).includes(id) ? 1 : 0, (S.set.roles[id] || 0) + d) } });
 const mpVote = i => SEND({ t: "vote", target: i, m: !!($("m") && $("m").checked) });
+const QC = ["👍", "😂", "😡", "🤔", "😱", "أنا بريء!", "أشك فيك", "أوافق", "لنصوّت!"];
+const mpQuick = i => SEND({ t: "chat", text: tr(QC[i]) });
 const mpChat = () => { const i = $("ci"); if (i && i.value.trim()) { SEND({ t: "chat", text: i.value }); i.value = ""; i.focus(); } };
 
 const mpKick = i => { if (!window.confirm || confirm("طرد " + S.players[i].n + " من الغرفة؟")) SEND({ t: "kick", id: i }); };
@@ -583,9 +668,9 @@ function mpTl(s, opts, fn, kill, a) { /* target list + disabled "saved last nigh
   const set = new Set(opts), mt = s.mates || [], pl = s.players;
   if (a && a.noRepeat && s.noRep >= 0 && pl[s.noRep].a) set.add(s.noRep);
   if (kill) mt.forEach(j => pl[j].a && set.add(j));
-  return [...set].sort((x, y) => x - y).map(i => opts.includes(i) ? btn(pn(i), fn(i))
-    : kill && mt.includes(i) ? `<button class="btn foe" disabled>${pn(i)} — ${ROLES[s.mateRoles[i]].n} (زميلك)</button>`
-    : `<button class="btn off" disabled>${pn(i)} (${a.type == "guard" ? "حُمي" : "أُنقذ"} الليلة الماضية)</button>`).join("");
+  return [...set].sort((x, y) => x - y).map(i => opts.includes(i) ? pbtn(pn(i), fn(i))
+    : kill && mt.includes(i) ? `<button class="btn pc foe" disabled${pat(S.players[i].n)}>${pn(i)} — ${ROLES[s.mateRoles[i]].n} (زميلك)</button>`
+    : `<button class="btn pc off" disabled${pat(S.players[i].n)}>${pn(i)} (${a.type == "guard" ? "حُمي" : "أُنقذ"} الليلة الماضية)</button>`).join("");
 }
 const mpD1 = i => { D1 = i; mpRender(S); };
 const mpD2 = i => { SEND({ t: "act", target: D1, target2: i }); D1 = null; };
@@ -599,7 +684,7 @@ const deadH = () => S.chat.filter(m => m.d).map(row).join("");
 const talk = () => !S.players[S.me].mu && (S.alive ? (S.phase == "day" ? !S.sil : S.phase == "over") : true);
 const chatBox = () => (split() ? '<p class="dim">الدردشة العامة (قراءة فقط)</p>' : "") + `<div id="chat" class="chat">${chatH()}</div>` +
   (split() ? `<p class="dim">دردشة الموتى 👻 (لا يراها الأحياء)</p><div id="chatd" class="chat">${deadH()}</div>` : "") +
-  (talk() ? `<input type="text" id="ci" maxlength="200" placeholder="${split() ? "اكتب لبقية الموتى..." : "اكتب رسالة..."}" onkeydown="if(event.key=='Enter')mpChat()">` : '<p class="dim">لا يمكنك الكتابة الآن.</p>');
+  (talk() && !split() && S.phase == "day" ? `<div class="qc">${QC.map((q, i) => `<button class="mini" onclick="mpQuick(${i})">${q}</button>`).join("")}</div>` : "") + (talk() ? `<input type="text" id="ci" maxlength="200" placeholder="${split() ? "اكتب لبقية الموتى..." : "اكتب رسالة..."}" onkeydown="if(event.key=='Enter')mpChat()">` : '<p class="dim">لا يمكنك الكتابة الآن.</p>');
 const muteRow = () => S.host ? `<div class="row" style="flex-wrap:wrap">${S.players.map((p, i) => i == S.me ? "" : `<button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"} ${esc(p.n)}</button><button class="mini" onclick="mpKick(${i})">🚪</button>`).join("")}</div>` : "";
 const watch = (ic, t, m) => `<div class="icon">${ic}</div><h2>${t}</h2><p class="dim">${m}</p><div class="big" id="t"></div>${chatBox()}`;
 const clock = () => { if (S.end) T = setInterval(() => { const e = $("t"); if (e) { const v = Math.max(0, Math.ceil((S.end - Date.now()) / 1000)); e.textContent = v; e.classList.toggle("hot", v <= 10); } }, 400); };
@@ -607,8 +692,8 @@ function mpLive() {
   const c = $("chat"); if (c) { const b = c.scrollHeight - c.scrollTop - c.clientHeight < 40; c.innerHTML = chatH(); if (b) c.scrollTop = c.scrollHeight; }
   const cd = $("chatd"); if (cd) { const b = cd.scrollHeight - cd.scrollTop - cd.clientHeight < 40; cd.innerHTML = deadH(); if (b) cd.scrollTop = cd.scrollHeight; }
   if (S.phase == "day") setBar(barMp());
-  const r = $("rd"); if (r) r.textContent = S.done ? `بانتظار الباقين ${S.cnt.join("/")}` : "جاهز للتصويت";
-  const m = $("mr"); if (m) m.innerHTML = muteRow();
+  const r = $("rd"); if (r) r.textContent = tr(S.done ? `بانتظار الباقين ${S.cnt.join("/")}` : "جاهز للتصويت");
+  const m = $("mr"); if (m) m.innerHTML = tr(muteRow());
 }
 function lobbySet(s) {
   const st = s.set, n = s.players.length, tot = Object.values(st.roles).reduce((a, b) => a + b, 0);
@@ -635,7 +720,7 @@ function mpRender(s) {
       ${s.host ? lobbySet(s) : '<p class="dim">بانتظار المضيف ليبدأ اللعبة...</p>'}${btn("خروج", "mpLeave()")}`;
   } else if (ph == "reveal") {
     setPh("night");
-    h = `<p class="dim">دورك في اللعبة</p><div class="role ${rl.side}"><h2>${rl.n}</h2><p class="dim">${DESC[s.role] || ""}</p></div>
+    KEEPFLIP = true; h = `${roleCard(s.role, rl.side, rl.n, DESC[s.role])}
       ${s.mates && s.mates.length ? `<p>رفيقك: <b>${s.mates.map(i => pn(i)).join("، ")}</b></p>` : ""}
       ${btn(s.done ? `بانتظار الباقين ${s.cnt.join("/")}` : "جاهز", "SEND({t:'ready'})", "go")}<div class="big" id="t"></div>`;
   } else if (ph == "night") {
@@ -653,7 +738,7 @@ function mpRender(s) {
     }
   } else if (ph == "son") {
     setPh("dead");
-    h = s.opts ? `<h2>${rl.n}</h2><p>متّ! اختر لاعبًا تشك فيه ليموت معك.</p><div class="list">${s.opts.map(i => btn(pn(i), `SEND({t:'son',target:${i}})`)).join("")}</div><div class="big" id="t"></div>`
+    h = s.opts ? `<h2>${rl.n}</h2><p>متّ! اختر لاعبًا تشك فيه ليموت معك.</p><div class="list">${s.opts.map(i => pbtn(pn(i), `SEND({t:'son',target:${i}})`)).join("")}</div><div class="big" id="t"></div>`
       : `<div class="icon">👦</div><h2>الابن المدلل يختار من يأخذه معه...</h2><div class="big" id="t"></div>`;
   } else if (ph == "dawn") {
     const R = s.rep, d = R.dead.length; setPh(d ? "dead" : "day");
@@ -670,7 +755,7 @@ function mpRender(s) {
     if (!s.alive) h = watch("🗳️", "التصويت", "أنت خارج اللعبة وتشاهد.");
     else if (s.done) h = `<div class="icon">🗳️</div><h2>تم التصويت</h2><p class="dim">بانتظار الباقين ${s.cnt.join("/")}</p><div class="big" id="t"></div>`;
     else h = `<h2>صوّت لإعدام من؟</h2>${s.mayor ? '<label class="opt"><input type="checkbox" id="m"> فعّل صوت العمدة: ثلاثة أصوات، مرة واحدة فقط</label>' : ""}
-      <div class="list">${s.opts.map(i => btn(pn(i), `mpVote(${i})`)).join("")}${btn("امتنع عن التصويت", "mpVote(-1)")}</div><div class="big" id="t"></div>`;
+      <div class="list">${s.opts.map(i => pbtn(pn(i), `mpVote(${i})`)).join("")}${btn("امتنع عن التصويت", "mpVote(-1)")}</div><div class="big" id="t"></div>`;
   } else if (ph == "result") {
     const x = s.res.ex; setPh("day"); if (ch && x >= 0) { sfx("gavel"); flash(); }
     h = `<div class="icon">⚖️</div><h2>نتيجة التصويت</h2>${x >= 0 ? `<p>أُعدم <b>${pn(x)}</b>.${rvm(x)}</p>` : "<p>لا أحد يُعدم اليوم.</p>"}${vlHtml(s.res.votes, pn)}${sonsH()}`;
@@ -723,7 +808,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 function netUi() {
   const b = $("mpbtn"); if (!b) return;
   const off = !navigator.onLine, ok = !off && window.MP;
-  b.textContent = off ? "اتصل بالإنترنت" : window.MP ? "لعب جماعي" : "لعب جماعي · قريبًا";
+  b.textContent = tr(off ? "اتصل بالإنترنت" : window.MP ? "لعب جماعي" : "لعب جماعي · قريبًا");
   b.disabled = !ok; b.classList.toggle("go", !!ok);
 }
 function loadMP() { /* a page opened offline can enable multiplayer once the network is back */
@@ -731,6 +816,7 @@ function loadMP() { /* a page opened offline can enable multiplayer once the net
   const sc = document.createElement("script"); sc.src = "mp-config.js?" + Date.now(); sc.onload = sc.onerror = netUi; document.head.appendChild(sc);
 }
 addEventListener("online", () => { netUi(); loadMP(); }); addEventListener("offline", netUi);
+applyPref();
 document.addEventListener("keydown", e => {
   if (e.key == "Enter" && !/INPUT|BUTTON|TEXTAREA/.test(document.activeElement.tagName)) { const b = document.querySelector(".go:not([disabled])"); b && b.click(); }
 });

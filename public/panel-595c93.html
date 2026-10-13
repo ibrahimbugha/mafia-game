@@ -1,56 +1,91 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Admin</title>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>لوحة المشرف · Admin</title><link rel="icon" href="favicon-32.png">
 <style>
-body{font:16px/1.6 system-ui,sans-serif;background:#0f1317;color:#e8e1d0;margin:0;padding:20px;max-width:760px;margin-inline:auto}
-input,button{font:inherit;padding:10px;border-radius:6px;border:1px solid #2c353f;background:#1a2027;color:#e8e1d0;box-sizing:border-box}
-input{width:100%;margin:6px 0}button{cursor:pointer}.go{background:#e2b04a;color:#1a1405;font-weight:700}.red{background:#b5443f;border-color:#b5443f;color:#fff}
-.room{border:1px solid #2c353f;border-radius:8px;padding:12px;margin:10px 0}.dim{color:#7c8590}.bad{color:#ff7b72}.row{display:flex;gap:8px;align-items:center}.row input{flex:1}
+@font-face{font-family:Cairo;font-weight:400;src:url(fonts/cairo-arabic-400-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:Cairo;font-weight:700;src:url(fonts/cairo-arabic-700-normal.woff2) format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF}
+:root{color-scheme:dark;--g:#e2b04a;--r:#b5443f;--l:#2f3a46}
+*{box-sizing:border-box}body{font:16px/1.6 Cairo,system-ui,sans-serif;background:#0f1317 radial-gradient(circle at 85% 0,rgba(226,176,74,.12),transparent 45%);color:#e8e1d0;margin:0;padding:20px;max-width:820px;margin-inline:auto}
+h1{font-size:26px;color:var(--g);margin:0 0 4px}h3{margin:18px 0 6px;color:var(--g);font-size:17px}.dim{color:#7c8590}.ok{color:#7ddc9a}.bad{color:#ff8a84}
+input,button{font:inherit;padding:10px 14px;border-radius:12px;border:1px solid var(--l);background:#1a2027;color:#e8e1d0}
+input{width:100%}button{cursor:pointer;font-weight:700;transition:.15s}button:hover{border-color:var(--g)}button:active{transform:scale(.97)}
+.go{background:linear-gradient(180deg,#ffd978,#e2b04a 60%,#c48c2c);color:#1a1405;border-color:#f3c764}.red{background:#7a2323;border-color:#b5443f;color:#fff}.sm{padding:3px 10px;font-size:13px;border-radius:999px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row input{flex:1;min-width:140px}
+.card{border:1px solid var(--l);border-radius:14px;padding:14px;margin:10px 0;background:rgba(26,32,39,.7)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:12px 0}.stat{text-align:center;border:1px solid var(--l);border-radius:14px;padding:10px;background:rgba(26,32,39,.7)}.stat b{display:block;font-size:26px;color:var(--g)}.stat span{font-size:13px;color:#7c8590}
+.chip{display:inline-flex;align-items:center;gap:6px;margin:3px;padding:2px 10px;border-radius:999px;border:1px solid var(--l);background:#1a2027;font-size:14px}.chip.off{opacity:.55}.chip.dead{text-decoration:line-through}.chip button{padding:0 6px;border-radius:50%;background:#7a2323;border-color:#b5443f;font-size:13px}
+.code{font:700 22px monospace;letter-spacing:.15em;color:var(--g)}details{margin-top:14px}summary{cursor:pointer;color:var(--g)}ol{padding-inline-start:22px}code{background:#1a2027;padding:1px 6px;border-radius:6px;direction:ltr;display:inline-block}
 </style></head><body>
-<h2>Admin</h2>
-<div id="login">
-  <p class="dim">Enter the admin password.</p>
-  <input id="key" type="password" autocomplete="off" placeholder="Admin password">
-  <button class="go" id="go" style="width:100%">Enter</button>
+<h1>🕵️ لوحة المشرف <small class="dim">· Admin</small></h1>
+<div id="st" class="dim">جارٍ التحقق… / Checking…</div>
+<div id="login" class="card" hidden>
+  <p class="dim">أدخل كلمة مرور المشرف · Enter the admin password</p>
+  <div class="row"><input id="key" type="password" autocomplete="current-password" placeholder="••••••••" dir="ltr"><button id="eye" type="button" title="show">👁</button><button class="go" id="go">دخول · Login</button></div>
   <p id="msg" class="bad"></p>
 </div>
 <div id="panel" hidden>
-  <div class="row"><b id="count"></b><span style="flex:1"></span><button id="refresh">Refresh</button><button class="red" id="all">Close ALL rooms</button></div>
-  <div class="row" style="margin-top:10px"><input id="say" maxlength="200" placeholder="Announcement to every player"><button id="send">Send</button></div>
+  <div class="row"><span class="dim" id="upd"></span><span style="flex:1"></span><button id="refresh">🔄 تحديث</button><button id="out">خروج · Logout</button></div>
+  <div class="stats" id="stats"></div>
+  <h3>📢 رسالة لكل اللاعبين · Announce to everyone</h3>
+  <div class="row"><input id="say" maxlength="200" placeholder="…"><button class="go" id="send">إرسال · Send</button></div>
+  <p id="sayres" class="ok"></p>
+  <div class="row"><h3 style="flex:1">🏠 الغرف · Rooms <span id="count" class="dim"></span></h3><button class="red" id="all">إغلاق كل الغرف · Close all</button></div>
   <div id="rooms"></div>
-  <p class="dim">Updates every 5 seconds. The password stays in this page's memory only; closing the tab forgets it.</p>
+  <details><summary>🔑 كيف أغيّر كلمة المرور؟ · How do I change the password?</summary>
+    <ol><li>Render → your service → <b>Environment</b> → <b>Add Environment Variable</b></li><li>Key: <code>ADMIN_KEY</code> · Value: a long password (8+ chars)</li><li>Save. The service restarts. The new password replaces the old one (the old one stops working).</li></ol>
+    <p class="dim">5 wrong tries lock the panel for 15 minutes. · الإغلاق 15 دقيقة بعد 5 محاولات خاطئة.</p></details>
 </div>
 <script>
-let KEY = "", timer;
-const $ = id => document.getElementById(id);
+let KEY = sessionStorage.getItem("ak") || "", timer;
+const $ = id => document.getElementById(id), el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
 async function api(path, body) {
   const r = await fetch("/admin-api/" + path, { method: "POST", headers: { "Content-Type": "application/json", "x-admin-key": KEY }, body: JSON.stringify(body || {}) });
-  if (r.status == 200) return r.json();
-  throw new Error(r.status == 403 ? "Wrong password." : r.status == 429 ? "Too many wrong tries. Wait 15 minutes." : "Admin is not enabled on this server.");
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  if (r.status == 200) return j;
+  const err = new Error(r.status == 403 ? "كلمة المرور خاطئة · Wrong password" + (j.tries != null ? " (" + j.tries + " left)" : "") : r.status == 429 ? "محاولات كثيرة، انتظر " + Math.ceil((j.wait || 900) / 60) + " دقيقة · Locked, wait " + Math.ceil((j.wait || 900) / 60) + " min" : "لوحة المشرف غير مفعّلة · Admin is not enabled"); err.code = r.status; throw err;
 }
+const fmt = s => s < 3600 ? Math.round(s / 60) + " د/min" : (s / 3600).toFixed(1) + " س/h";
 async function load() {
-  const d = await api("rooms"), box = $("rooms"); box.textContent = "";
-  $("count").textContent = d.rooms.length + " room(s)";
+  const [s, d] = [await api("stats"), await api("rooms")];
+  const box = $("stats"); box.textContent = "";
+  [["غرف · rooms", s.rooms], ["متصلون · online", s.online], ["ألعاب منتهية · games", s.games], ["تشغيل · uptime", fmt(s.up)], ["ذاكرة · MB", s.mem]].forEach(([l, v]) => { const x = el("div", "stat"); x.append(el("b", "", v), el("span", "", l)); box.append(x); });
+  $("count").textContent = "(" + d.rooms.length + ")"; $("upd").textContent = "آخر تحديث: " + new Date().toLocaleTimeString();
+  const rb = $("rooms"); rb.textContent = "";
+  if (!d.rooms.length) rb.append(el("p", "dim", "لا توجد غرف الآن · No rooms right now"));
   d.rooms.forEach(r => {
-    const el = document.createElement("div"); el.className = "room";
-    const head = document.createElement("div"); head.className = "row";
-    const t = document.createElement("b"); t.textContent = r.code + " · " + r.phase + (r.night ? " · night " + r.night : "");
-    const sp = document.createElement("span"); sp.style.flex = "1";
-    const b = document.createElement("button"); b.className = "red"; b.textContent = "Close room";
-    b.onclick = async () => { if (confirm("Close room " + r.code + " and disconnect its players?")) { await api("close", { code: r.code }); load(); } };
-    head.append(t, sp, b);
-    const info = document.createElement("div"); info.className = "dim";
-    info.textContent = "Host: " + (r.host || "?") + " · started " + Math.round((Date.now() - r.created) / 60000) + " min ago · " + r.players.map(p => p.n + (p.on ? "" : " (offline)") + (p.a ? "" : " ✝")).join(", ");
-    el.append(head, info); box.append(el);
+    const c = el("div", "card"), h = el("div", "row");
+    h.append(el("span", "code", r.code), el("span", "dim", r.phase + (r.night ? " · ليلة " + r.night : "")), el("span", "", ""));
+    h.lastChild.style.flex = "1";
+    const cl = el("button", "red sm", "إغلاق · Close"); cl.onclick = async () => { if (confirm("Close room " + r.code + "?")) { await api("close", { code: r.code }); load(); } };
+    h.append(cl); c.append(h);
+    c.append(el("div", "dim", "المضيف · Host: " + (r.host || "?") + " · " + Math.round((Date.now() - r.created) / 60000) + " min"));
+    const pl = el("div"); r.players.forEach(p => {
+      const ch = el("span", "chip" + (p.on ? "" : " off") + (p.a ? "" : " dead"), p.n);
+      const k = el("button", "", "✕"); k.title = "kick"; k.onclick = async () => { if (confirm("Kick " + p.n + "?")) { await api("kick", { code: r.code, name: p.n }); load(); } }; ch.append(k); pl.append(ch);
+    }); c.append(pl);
+    const row = el("div", "row"), inp = el("input"); inp.placeholder = "رسالة لهذه الغرفة فقط · message to this room"; inp.maxLength = 200;
+    const sb = el("button", "sm", "إرسال"); sb.onclick = async () => { if (inp.value.trim()) { await api("say", { code: r.code, text: inp.value }); inp.value = ""; } };
+    row.append(inp, sb); c.append(row); rb.append(c);
   });
 }
-$("go").onclick = async () => {
+function enter() { $("login").hidden = true; $("panel").hidden = false; clearInterval(timer); timer = setInterval(() => load().catch(e => { if (e.code) logout(e.message); }), 4000); }
+function logout(m) { clearInterval(timer); KEY = ""; sessionStorage.removeItem("ak"); $("panel").hidden = true; $("login").hidden = false; $("msg").textContent = m || ""; }
+async function login() {
   KEY = $("key").value; $("msg").textContent = "";
-  try { await load(); $("login").hidden = true; $("panel").hidden = false; timer = setInterval(() => load().catch(() => {}), 5000); }
-  catch (e) { $("msg").textContent = e.message; KEY = ""; }
-};
-$("key").onkeydown = e => { if (e.key == "Enter") $("go").click(); };
-$("refresh").onclick = () => load();
-$("all").onclick = async () => { if (confirm("Close EVERY room and disconnect all players?")) { const r = await api("closeall"); alert("Closed " + r.n + " room(s)."); load(); } };
-$("send").onclick = async () => { const text = $("say").value.trim(); if (text) { await api("say", { text }); $("say").value = ""; } };
+  try { await load(); sessionStorage.setItem("ak", KEY); enter(); } catch (e) { $("msg").textContent = e.message; KEY = ""; }
+}
+$("go").onclick = login; $("key").onkeydown = e => { if (e.key == "Enter") login(); };
+$("eye").onclick = () => { $("key").type = $("key").type == "password" ? "text" : "password"; };
+$("refresh").onclick = () => load().catch(e => logout(e.message)); $("out").onclick = () => logout();
+$("all").onclick = async () => { if (confirm("Close EVERY room?")) { const r = await api("closeall"); alert("Closed " + r.n); load(); } };
+$("send").onclick = async () => { const text = $("say").value.trim(); if (text) { await api("say", { text }); $("say").value = ""; $("sayres").textContent = "✓ أُرسلت · Sent"; setTimeout(() => $("sayres").textContent = "", 2500); } };
+(async () => {
+  try {
+    const s = await (await fetch("/admin-api/status")).json();
+    if (!s.enabled) { $("st").textContent = "⛔ لوحة المشرف غير مفعّلة على هذا السيرفر · Admin is disabled"; $("st").className = "bad"; return; }
+    $("st").textContent = "✓ السيرفر يعمل · Server online" + (s.env ? " · كلمة المرور من Render (ADMIN_KEY)" : ""); $("st").className = "ok";
+    if (KEY) { try { await load(); return enter(); } catch (e) { KEY = ""; } }
+    $("login").hidden = false;
+  } catch (e) { $("st").textContent = "⛔ لا يمكن الوصول للسيرفر. هل فتحت الصفحة من رابط Render؟ · Can't reach the server (open this page from your Render URL)"; $("st").className = "bad"; }
+})();
 </script></body></html>
