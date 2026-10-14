@@ -12,7 +12,7 @@ const R = {
   spoiledson: { side: "good" }, jester: { side: "neutral" }, sniper: { side: "good", act: "snipe", once: 1, skip: 1 }
 };
 const REQ = ["killer", "silencer", "doctor"];
-const reqFor = n => (n <= 5 ? ["killer", "doctor"] : REQ); /* 5-player games: the Silencer is optional */
+const reqFor = n => ["killer", "doctor"]; /* the Silencer is optional in every game size */
 const TM = { reveal: 25, night: 45, vote: 45, son: 40, pause: 9 }; /* seconds */
 
 const ADMIN = process.env.ADMIN_KEY || ""; /* secret admin key: set it in Render, never in GitHub */
@@ -36,7 +36,7 @@ function view(r, p) {
     players: r.players.map(q => ({ n: q.name, a: q.alive, c: q.on, mu: !!q.mute, k: !!q.kicked, h: q === r.host, r: g && !q.spec && (over || (!q.alive && r.set.showRole)) ? q.role : undefined, sp: !!q.spec })) };
   if (g) {
     Object.assign(o, { role: p.role, alive: p.alive, inv: p.inv, used: !!p.used, sil: r.silenced === p, mayor: p.role == "mayor" && !r.mayorUsed && p.alive,
-      chat: r.chat.filter(m => !m.d || !p.alive || over).slice(-60) });
+      chat: r.chat.filter(m => (!m.m || side(p) == "mafia") && (!m.d || !p.alive || over)).slice(-60) });
     if (side(p) == "mafia") { o.mates = r.players.map((q, j) => (q !== p && side(q) == "mafia" ? j : -1)).filter(j => j >= 0); o.mateRoles = {}; o.mates.forEach(j => { o.mateRoles[j] = r.players[j].role; }); }
     const k = { night: "act", vote: "vote", day: "ready", reveal: "ready" }[r.phase];
     if (k) { o.done = !!p[k]; o.cnt = [a.filter(q => q[k]).length, a.length]; }
@@ -266,6 +266,10 @@ const H = {
   },
   chat(ws, d, r, p) {
     const x = clean(d.text).slice(0, 200); if (!x || p.mute) return;
+    if (d.mafia) { /* secret Mafia chat: only living Mafia, only at night */
+      if (r.phase != "night" || !p.alive || side(p) != "mafia") return;
+      r.chat.push({ n: p.name, x, m: true }); if (r.chat.length > 200) r.chat.shift(); return push(r);
+    }
     const open = ["lobby", "over"].includes(r.phase);
     const live = r.phase == "day" ? p.alive && r.silenced !== p : open, dead = !p.alive && !open;
     if (!dead && !live) return;
