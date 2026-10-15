@@ -169,3 +169,12 @@ Publishing on Google Play needs a Play developer account. Check Google's current
 
 ## Offline (pass-the-phone)
 The game page, icons and fonts are cached by the service worker (cache `mafia-v6`), so pass-the-phone works in airplane mode after the first online visit. Multiplayer needs internet; the menu button shows "اتصل بالإنترنت" when offline.
+
+## 10. New features (Phase 3)
+
+- **Scheduled matches:** Multiplayer menu → 📅. Pick a time, others reserve a seat, everyone reserved gets a ready-check 1 minute before, then a public room opens and the scheduler becomes host.
+- **Room alerts (push notifications):** players tap "🔕 Turn on public-room alerts". Alerts while the game is open work with no setup. To also alert players whose app is closed, add these in Render → Environment:
+  - `VAPID_PUBLIC` and `VAPID_PRIVATE`: run `npx web-push generate-vapid-keys` once and paste the two keys.
+  - `VAPID_SUBJECT` (optional): `mailto:you@example.com`.
+- **Auto-update:** the server stamps `sw.js` with a hash of the app files, so every deploy is detected by phones automatically (no version number to bump).
+- **Also new:** waiting-room scene, Arabic voice announcer (Settings → 📢), Last Words (host setting, off by default), result share card, and a Telegram/WhatsApp voice-chat link (host setting).

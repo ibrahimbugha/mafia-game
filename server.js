@@ -14,7 +14,7 @@ const R = {
 };
 const REQ = ["killer", "silencer", "doctor"];
 const reqFor = n => ["killer", "doctor"]; /* the Silencer is optional in every game size */
-const TM = { reveal: 25, night: 45, vote: 45, son: 40, pause: 9 }; /* seconds */
+const TM = { reveal: 25, night: 45, vote: 45, son: 40, pause: 9, last: 15 }; /* seconds */
 
 const ADMIN = process.env.ADMIN_KEY || ""; /* secret admin key: set it in Render, never in GitHub */
 const STATS = { t0: Date.now(), games: 0 };
@@ -34,9 +34,9 @@ function targets(r, p) {
 function view(r, p) {
   const g = r.phase != "lobby", over = r.phase == "over", a = alive(r);
   const o = { t: "state", code: r.code, me: idx(r, p), host: p === r.host, phase: r.phase, end: r.end, set: r.set, night: r.night, win: r.win, rep: r.rep, res: r.res, sons: r.sons, sl: r.silenced ? idx(r, r.silenced) : -1, log: over ? r.log : undefined,
-    players: r.players.map(q => ({ n: q.name, a: q.alive, c: q.on, mu: !!q.mute, k: !!q.kicked, h: q === r.host, r: g && !q.spec && (over || (!q.alive && r.set.showRole)) ? q.role : undefined, sp: !!q.spec })) };
+    players: r.players.map(q => ({ n: q.name, a: q.alive, c: q.on, mu: !!q.mute || (!!q.lwm && r.phase != "over"), k: !!q.kicked, h: q === r.host, r: g && !q.spec && (over || (!q.alive && r.set.showRole)) ? q.role : undefined, sp: !!q.spec })) };
   if (g) {
-    Object.assign(o, { role: p.role, alive: p.alive, inv: p.inv, used: !!p.used, sil: r.silenced === p, mayor: p.role == "mayor" && !r.mayorUsed && p.alive,
+    Object.assign(o, { lw: r.phase == "last" && r.lw ? idx(r, r.lw) : -1, lws: !!r.lwSent, role: p.role, alive: p.alive, inv: p.inv, used: !!p.used, sil: r.silenced === p, mayor: p.role == "mayor" && !r.mayorUsed && p.alive,
       chat: r.chat.filter(m => (!m.m || side(p) == "mafia") && (!m.d || !p.alive || over)).slice(-60) });
     if (side(p) == "mafia") { o.mates = r.players.map((q, j) => (q !== p && side(q) == "mafia" ? j : -1)).filter(j => j >= 0); o.mateRoles = {}; o.mates.forEach(j => { o.mateRoles[j] = r.players[j].role; }); }
     const k = { night: "act", vote: "vote", day: "ready", reveal: "ready" }[r.phase];
@@ -72,6 +72,16 @@ function afterDeaths(r, list, done) { /* Spoiled Son takes one suspected player 
   r.sonDone = t => { t.alive = false; list.push(t); r.sons.push([idx(r, s), idx(r, t)]); afterDeaths(r, list, done); };
   phase(r, "son", TM.son, () => { const a = alive(r); r.sonDone(a[rnd(a.length)]); });
 }
+function lastWords(r, list, done) { /* host setting "Last Words": every player who just died gets 15 s to send ONE message to the living chat, then is muted for good */
+  const q = r.set.lastWords ? [...list] : [];
+  const next = () => {
+    if (r.lw) r.lw.lwm = true; r.lw = null; r.lwSent = false;
+    const p = q.shift(); if (!p) return done();
+    if (p.kicked || p.spec || !p.on || p.mute) { p.lwm = true; return next(); } /* gone or muted by the host: no last words */
+    r.lw = p; r.lwNext = next; phase(r, "last", TM.last, next);
+  };
+  next();
+}
 function dawn(r) {
   const A = r.acts, saved = A.filter(a => a.type == "save").map(a => a.to), c = {};
   A.filter(a => a.type == "kill").forEach(a => { const i = idx(r, a.to); c[i] = (c[i] || 0) + 1; });
@@ -86,7 +96,7 @@ function dawn(r) {
   const s = A.find(a => a.type == "silence"); r.silenced = s && s.to.alive ? s.to : null;
   r.sons = []; r.rep = { dead: D.map(p => idx(r, p)), sil: r.silenced ? idx(r, r.silenced) : -1, why };
   r.log.push({ k: "n", n: r.night, acts: A.map(a => ({ t: a.type, f: idx(r, a.from), r: a.from.role, to: idx(r, a.to), m: a.type == "investigate" ? side(a.to) == "mafia" : undefined })), dead: r.rep.dead, sil: r.rep.sil, sons: r.sons });
-  afterDeaths(r, D, () => phase(r, "dawn", TM.pause, () => { const w = win(r); w ? over(r, w) : day(r); }));
+  afterDeaths(r, D, () => phase(r, "dawn", TM.pause, () => lastWords(r, D, () => { const w = win(r); w ? over(r, w) : day(r); })));
 }
 function day(r) { r.players.forEach(p => { p.ready = false; }); phase(r, "day", r.set.discuss, () => vote(r)); }
 function vote(r) { r.players.forEach(p => { p.vote = null; }); phase(r, "vote", TM.vote, () => tally(r)); }
@@ -96,7 +106,7 @@ function tally(r) {
   r.sons = []; r.res = { ex: -1, votes: alive(r).map(p => ({ f: idx(r, p), t: p.vote ? p.vote.t : -1, w: p.vote && p.vote.m ? 3 : 1 })) }; let list = [];
   const ent = { k: "v", n: r.night, votes: r.res.votes, ex: -1, sons: r.sons }; r.log.push(ent);
   if (mx > 0 && top.length == 1) { const x = r.players[top[0]]; x.alive = false; r.res.ex = ent.ex = +top[0]; list = [x]; if (x.role == "jester") return over(r, "jester"); }
-  afterDeaths(r, list, () => phase(r, "result", TM.pause, () => { const w = win(r); w ? over(r, w) : night(r); }));
+  afterDeaths(r, list, () => phase(r, "result", TM.pause, () => lastWords(r, list, () => { const w = win(r); w ? over(r, w) : night(r); })));
 }
 
 /* ---------- player messages ---------- */
@@ -165,6 +175,7 @@ function kickPlayer(r, t, m) { /* used by the host kick and the admin kick */
   if (w) { w.p = null; w.r = null; setTimeout(() => w.close(), 150); }
   if (r.phase == "lobby") return leave(r, t);
   t.kicked = true; t.alive = false; r.acts = (r.acts || []).filter(a => a.from !== t);
+  if (r.phase == "last" && r.lw === t) return r.lwNext();
   if (r.phase == "son" && r.son === t) { const a = alive(r); return r.sonDone(a[rnd(a.length)]); }
   advance(r);
 }
@@ -286,8 +297,14 @@ const H_SCHED = {
   sready(ws, d) { const sid = sidOf(ws, d), m = SCHED.get(+d.id), x = m && m.seats.find(y => y.sid == sid); if (x) { x.ready = true; sinfo(ws); } }
 };
 
+const VOICE_HOST = /^(t\.me|telegram\.me|telegram\.dog|chat\.whatsapp\.com|call\.whatsapp\.com|wa\.me)$/; /* only Telegram / WhatsApp voice links are accepted, so a host can not put an arbitrary link in front of players */
+function cleanVoice(x) { /* "" = no link, null = rejected, otherwise a safe https URL */
+  x = String(x || "").trim().slice(0, 300); if (!x) return "";
+  if (!/^[a-z]+:\/\//i.test(x)) x = "https://" + x;
+  try { const u = new URL(x); if (!["https:", "http:"].includes(u.protocol) || u.username || u.password || !VOICE_HOST.test(u.hostname.toLowerCase())) return null; u.protocol = "https:"; return u.href.slice(0, 300); } catch (e) { return null; }
+}
 const mkroom = (vis, appr) => ({ code: mkcode(), players: [], phase: "lobby", end: 0, night: 0, last: {}, chat: [], sons: [], acts: [], touched: Date.now(), created: Date.now(), banned: [], log: [],
-  set: { roles: { killer: 1, silencer: 1, doctor: 1, detective: 1, mayor: 1 }, discuss: 120, showRole: true, visibility: vis == "open" ? "open" : "private", approvalMode: appr == "ask" ? "ask" : "auto" }, pending: [] });
+  set: { roles: { killer: 1, silencer: 1, doctor: 1, detective: 1, mayor: 1 }, discuss: 120, showRole: true, lastWords: false, voice: "", visibility: vis == "open" ? "open" : "private", approvalMode: appr == "ask" ? "ask" : "auto" }, pending: [] });
 const dual = (r, p) => p.role == "silencer" && !alive(r).some(q => q.role == "killer"); /* no killer left: the Silencer also kills */
 function migrate(r, old) { /* host gone for good: pass host powers to the next connected player */
   if (r.host !== old || old.on) return;
@@ -328,6 +345,8 @@ const H = {
     if (d.roles) { const o = {}; for (const k in R) if (k != "citizen") { const v = Math.max(0, Math.min(20, +d.roles[k] | 0)); o[k] = reqFor(r.players.length).includes(k) ? Math.max(1, v) : v; } s.roles = o; }
     if (d.discuss) s.discuss = Math.max(30, Math.min(300, +d.discuss | 0));
     if (typeof d.showRole == "boolean") s.showRole = d.showRole;
+    if (typeof d.lastWords == "boolean") s.lastWords = d.lastWords;
+    if (typeof d.voice == "string") { const v = cleanVoice(d.voice); if (v === null) err(ws, "رابط غير مدعوم: استخدم رابط تيليجرام أو واتساب"); else s.voice = v; }
     if (["open", "private"].includes(d.visibility)) { const was = s.visibility; s.visibility = d.visibility; if (was != "open" && d.visibility == "open") pingPublic(r, ws); }
     if (["auto", "ask"].includes(d.approvalMode)) { s.approvalMode = d.approvalMode; if (d.approvalMode == "auto") [...r.pending].forEach(q => admit(r, q)); }
     push(r);
@@ -339,8 +358,8 @@ const H = {
     if (tot > n) return err(ws, "عدد الشخصيات أكبر من عدد اللاعبين");
     if (reqFor(n).some(k => !(r.set.roles[k] >= 1))) return err(ws, "الشخصيات الإلزامية ناقصة");
     const roles = shuffle([...Object.entries(r.set.roles).flatMap(([k, c]) => Array(c).fill(k)), ...Array(n - tot).fill("citizen")]);
-    r.players.forEach((q, i) => { q.role = roles[i]; q.alive = true; q.inv = []; q.used = false; q.ready = false; q.act = null; q.vote = null; });
-    Object.assign(r, { night: 0, last: {}, silenced: null, mayorUsed: false, win: null, chat: [], rep: null, res: null, sons: [], log: [] });
+    r.players.forEach((q, i) => { q.role = roles[i]; q.alive = true; q.inv = []; q.used = false; q.ready = false; q.act = null; q.vote = null; q.lwm = false; });
+    Object.assign(r, { lw: null, lwSent: false, night: 0, last: {}, silenced: null, mayorUsed: false, win: null, chat: [], rep: null, res: null, sons: [], log: [] });
     rejectAll(r); /* anyone still waiting to join is told the game started */
     phase(r, "reveal", TM.reveal, () => night(r));
   },
@@ -374,7 +393,11 @@ const H = {
     if (r.phase == "son" && r.son === p && t && t.alive) r.sonDone(t);
   },
   chat(ws, d, r, p) {
-    const x = clean(d.text).slice(0, 200); if (!x || p.mute) return;
+    const x = clean(d.text).slice(0, 200); if (!x || p.mute || (p.lwm && r.phase != "over")) return;
+    if (r.phase == "last" && p === r.lw) { /* the dying player's single last message, sent to the living chat */
+      if (r.lwSent) return; r.lwSent = true; r.chat.push({ n: p.name, x, lw: true }); if (r.chat.length > 200) r.chat.shift();
+      return phase(r, "last", 3, r.lwNext); /* let everyone read it for 3 s, then continue */
+    }
     if (d.mafia) { /* secret Mafia chat: only living Mafia, only at night */
       if (r.phase != "night" || !p.alive || side(p) != "mafia") return;
       r.chat.push({ n: p.name, x, m: true }); if (r.chat.length > 200) r.chat.shift(); return push(r);
@@ -389,7 +412,7 @@ const H = {
   },
   again(ws, d, r, p) {
     if (p !== r.host || r.phase != "over") return; clearTimeout(r.timer);
-    r.players = r.players.filter(q => q.on); r.players.forEach(q => { q.alive = true; q.spec = false; q.role = undefined; });
+    r.players = r.players.filter(q => q.on); r.players.forEach(q => { q.alive = true; q.spec = false; q.lwm = false; q.role = undefined; }); r.lw = null;
     Object.assign(r, { phase: "lobby", end: 0, win: null, chat: [], rep: null, res: null, sons: [], log: [], silenced: null }); push(r);
   },
   kick(ws, d, r, p) {
