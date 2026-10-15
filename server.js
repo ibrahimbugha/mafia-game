@@ -1,5 +1,6 @@
 const http = require("http"), fs = require("fs"), path = require("path"), crypto = require("crypto");
 const { WebSocketServer } = require("ws");
+let WP = null; try { WP = require("web-push"); } catch (e) {} /* optional: real push needs the "web-push" package + VAPID keys (see README) */
 const PORT = process.env.PORT || 3000, MIN = +process.env.MIN_PLAYERS || 5, F = process.env.FAST ? 0.1 : 1;
 const PUB = path.join(__dirname, "public");
 const TYPES = { ".js": "text/javascript", ".json": "application/manifest+json", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8" };
@@ -110,7 +111,7 @@ function addPlayer(ws, r, name, spec) {
   if (r.players.some(p => p.name.toLowerCase() == name.toLowerCase())) return err(ws, "الاسم مستخدم");
   const p = { name, tok: Math.random().toString(36).slice(2) + Date.now().toString(36), ws, on: true, alive: !spec, inv: [] };
   if (spec) { p.spec = true; p.role = "citizen"; r.chat.push({ n: "النظام", x: "👁 " + name + " يشاهد اللعبة", d: false, sys: true }); }
-  r.players.push(p); if (!r.host) r.host = p; ws.r = r; ws.p = p;
+  r.players.push(p); if (!r.host) r.host = p; else if (r.hostName && name.toLowerCase() == r.hostName && r.phase == "lobby") r.host = p; /* the person who scheduled a match becomes its host */ ws.r = r; ws.p = p;
   send(p, { t: "tok", code: r.code, tok: p.tok }); push(r);
 }
 /* ---------- public room browser + join approval ---------- */
@@ -178,6 +179,115 @@ function advance(r) { /* after a player is removed, move on if everyone remainin
   push(r);
 }
 
+
+/* ---------- push notifications: "a new public room is open" ---------- */
+const VPUB = process.env.VAPID_PUBLIC || "", VPRIV = process.env.VAPID_PRIVATE || "";
+const PUSH_ON = !!(WP && VPUB && VPRIV);
+if (PUSH_ON) try { WP.setVapidDetails(process.env.VAPID_SUBJECT || "mailto:admin@example.com", VPUB, VPRIV); } catch (e) { console.error("VAPID keys invalid:", e.message); }
+const SUBS = new Map(); /* endpoint -> { sub, sid, lang }. Clients re-register every time the app opens, so a server restart loses nothing for long */
+const PUSH_HOST = /(^|\.)(googleapis\.com|push\.services\.mozilla\.com|notify\.windows\.com|push\.apple\.com)$/; /* only real browser push services: the server never calls arbitrary URLs */
+const PUB_MSG = { ar: ["🕶️ المافيا", "غرفة مافيا عامة جديدة مفتوحة الآن!"], en: ["🕶️ Mafia", "A new public Mafia room is open!"] };
+function sendPush(filter, mk) {
+  if (!PUSH_ON) return;
+  SUBS.forEach((x, ep) => {
+    if (!filter(x)) return;
+    WP.sendNotification(x.sub, JSON.stringify(mk(x)), { TTL: 120, urgency: "high" }).catch(e => { if (e && (e.statusCode == 404 || e.statusCode == 410)) SUBS.delete(ep); });
+  });
+}
+let lastPing = 0;
+function pingPublic(r, by, skip) { /* a public lobby was created (or turned public): tell idle players. At most once per room and once per 30 s overall */
+  if (r.pinged || Date.now() - lastPing < 30000) return; r.pinged = true; lastPing = Date.now();
+  const bs = by && by.sid;
+  wss.clients.forEach(c => { if (c.readyState == 1 && c !== by && !c.r && !c.pend) c.send(JSON.stringify({ t: "pubnew", code: r.code, host: r.host ? r.host.name : "" })); }); /* open app, not in a room */
+  sendPush(x => x.sid != bs && !(skip && skip.has(x.sid)), x => { const m = PUB_MSG[x.lang] || PUB_MSG.ar; return { title: m[0], body: m[1], tag: "pub-room", url: "/?pub=1" }; });
+}
+function readBody(q, cb) { let b = ""; q.on("data", c => { b += c; if (b.length > 4000) q.destroy(); }); q.on("end", () => { let d = {}; try { d = JSON.parse(b || "{}"); } catch (e) {} cb(d); }); }
+function pushApi(q, s, u) {
+  s.setHeader("Content-Type", "application/json"); s.setHeader("Cache-Control", "no-store"); s.setHeader("Access-Control-Allow-Origin", "*"); s.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (q.method == "OPTIONS") { s.statusCode = 204; return s.end(); }
+  if (u == "/push-api/key" && q.method == "GET") return s.end(JSON.stringify({ on: PUSH_ON, key: PUSH_ON ? VPUB : "" }));
+  if (q.method != "POST") { s.statusCode = 404; return s.end("{}"); }
+  readBody(q, d => {
+    if (u == "/push-api/unsubscribe") { SUBS.delete(String(d.endpoint || "")); return s.end('{"ok":true}'); }
+    if (u != "/push-api/subscribe" || !PUSH_ON) { s.statusCode = 404; return s.end("{}"); }
+    const sub = d.sub || {}, k = sub.keys || {}; let host = "";
+    try { const U = new URL(sub.endpoint); if (U.protocol == "https:") host = U.hostname; } catch (e) {}
+    if (!host || !PUSH_HOST.test(host) || String(sub.endpoint).length > 600 || typeof k.p256dh != "string" || typeof k.auth != "string" || k.p256dh.length > 200 || k.auth.length > 100) { s.statusCode = 400; return s.end("{}"); }
+    if (!SUBS.has(sub.endpoint) && SUBS.size >= 5000) { s.statusCode = 503; return s.end("{}"); }
+    SUBS.set(sub.endpoint, { sub: { endpoint: sub.endpoint, keys: { p256dh: k.p256dh, auth: k.auth } }, sid: clean(d.sid).slice(0, 40), lang: d.lang == "en" ? "en" : "ar" });
+    s.end('{"ok":true}');
+  });
+}
+
+/* ---------- scheduled matches: reserve a seat, ready-check 1 minute before, then a public room opens ---------- */
+const SCHED = new Map(), sbrowsers = new Set(); let schedId = 1, sTimer = null;
+const SMAX = 10, SLEAD = process.env.FAST ? 3000 : 120000; /* a match must be scheduled at least 2 minutes ahead (and at most 24 h) */
+const sview = ws => [...SCHED.values()].sort((a, b) => a.at - b.at).map(m => ({ id: m.id, host: m.host, at: m.at, n: m.seats.length, max: MAXP, rc: m.rc, mine: m.seats.some(x => x.sid == ws.sid), own: m.sid == ws.sid }));
+const sendSched = ws => ws.readyState == 1 && ws.send(JSON.stringify({ t: "sched", list: sview(ws) }));
+function pushSched() { if (sTimer) return; sTimer = setTimeout(() => { sTimer = null; sbrowsers.forEach(sendSched); }, 200); }
+const sidOf = (ws, d) => { if (d && d.sid) ws.sid = clean(d.sid).slice(0, 40); return ws.sid || ""; };
+const sendRc = (m, x) => { if (x.ws && x.ws.readyState == 1) x.ws.send(JSON.stringify({ t: "rcheck", id: m.id, at: m.at, host: m.host, ready: !!x.ready })); };
+const sinfo = ws => ws.readyState == 1 && ws.send(JSON.stringify({ t: "sinfo", n: [...SCHED.values()].filter(m => m.seats.some(x => x.sid == ws.sid)).length }));
+function schedGone(m, msg) { SCHED.delete(m.id); m.seats.forEach(x => x.ws && x.ws.readyState == 1 && x.ws.send(JSON.stringify({ t: "sclosed", id: m.id, m: msg }))); pushSched(); }
+function startSched(m) {
+  SCHED.delete(m.id); pushSched();
+  const live = m.seats.filter(x => x.ws && x.ws.readyState == 1), subs = new Set([...SUBS.values()].map(x => x.sid));
+  if (!live.length && !m.seats.some(x => subs.has(x.sid))) return; /* nobody can be reached: no room */
+  const r = mkroom("open", "auto"); r.hostName = m.host.toLowerCase(); r.sched = true; rooms.set(r.code, r);
+  setTimeout(() => { if (rooms.get(r.code) === r && !r.players.length) rooms.delete(r.code); }, 600000); /* nobody came: tidy up */
+  live.forEach(x => x.ws.send(JSON.stringify({ t: "sgo", code: r.code, name: x.name, auto: !!x.ready })));
+  const off = new Set(m.seats.filter(x => !x.ws || x.ws.readyState != 1).map(x => x.sid)), L = { ar: ["🕶️ المافيا", "مباراتك بدأت! اضغط للانضمام"], en: ["🕶️ Mafia", "Your match is starting! Tap to join"] };
+  sendPush(x => off.has(x.sid), x => ({ title: (L[x.lang] || L.ar)[0], body: (L[x.lang] || L.ar)[1], tag: "sched-go", url: "/?room=" + r.code }));
+  pingPublic(r, null, new Set(m.seats.map(x => x.sid)));
+}
+function schedTick() {
+  const now = Date.now();
+  SCHED.forEach(m => {
+    if (!m.rc && m.at - now <= 60000) {
+      m.rc = true; m.seats.forEach(x => sendRc(m, x)); pushSched();
+      const off = new Set(m.seats.filter(x => !x.ws || x.ws.readyState != 1).map(x => x.sid)), L = { ar: ["⏱ هل أنت جاهز؟", "مباراتك المجدولة تبدأ بعد دقيقة"], en: ["⏱ Ready?", "Your scheduled match starts in 1 minute"] };
+      sendPush(x => off.has(x.sid), x => ({ title: (L[x.lang] || L.ar)[0], body: (L[x.lang] || L.ar)[1], tag: "sched-rc", url: "/?sched=1" }));
+    }
+    if (m.at <= now) startSched(m);
+  });
+}
+setInterval(schedTick, process.env.FAST ? 500 : 5000);
+
+const mkseat = (ws, name, sid) => ({ sid, name, ws, ready: false });
+const H_SCHED = {
+  sbrowse(ws, d) { sidOf(ws, d); sbrowsers.add(ws); sendSched(ws); },
+  sunbrowse(ws) { sbrowsers.delete(ws); },
+  sreg(ws, d) { const sid = sidOf(ws, d); if (!sid) return; SCHED.forEach(m => m.seats.forEach(x => { if (x.sid == sid) { x.ws = ws; if (m.rc) sendRc(m, x); } })); sinfo(ws); },
+  sched(ws, d) {
+    const sid = sidOf(ws, d), name = clean(d.name).slice(0, 14), at = +d.at, now = Date.now();
+    if (!sid) return err(ws, "حدث خطأ، أعد تحميل الصفحة");
+    if (!name) return err(ws, "اكتب اسمك");
+    if (!(at >= now + SLEAD && at <= now + 24 * 3600e3)) return err(ws, "اختر وقتًا بعد دقيقتين على الأقل وخلال 24 ساعة");
+    if (SCHED.size >= SMAX) return err(ws, "عدد المباريات المجدولة وصل الحد الأقصى");
+    if ([...SCHED.values()].some(m => m.sid == sid)) return err(ws, "لديك مباراة مجدولة بالفعل");
+    if ([...SCHED.values()].some(m => m.seats.some(x => x.sid == sid))) return err(ws, "لديك حجز في مباراة أخرى بالفعل");
+    const m = { id: schedId++, sid, host: name, at, seats: [mkseat(ws, name, sid)], rc: false }; SCHED.set(m.id, m); pushSched(); sinfo(ws);
+  },
+  sreserve(ws, d) {
+    const sid = sidOf(ws, d), name = clean(d.name).slice(0, 14), m = SCHED.get(+d.id);
+    if (!m) return err(ws, "المباراة غير موجودة");
+    if (!sid) return err(ws, "حدث خطأ، أعد تحميل الصفحة");
+    if (!name) return err(ws, "اكتب اسمك");
+    if ([...SCHED.values()].some(x => x.seats.some(y => y.sid == sid))) return err(ws, "لديك حجز بالفعل");
+    if (m.seats.some(x => x.name.toLowerCase() == name.toLowerCase())) return err(ws, "الاسم مستخدم في هذه المباراة");
+    if (m.seats.length >= MAXP) return err(ws, "المباراة ممتلئة");
+    m.seats.push(mkseat(ws, name, sid)); if (m.rc) sendRc(m, m.seats[m.seats.length - 1]); pushSched(); sinfo(ws);
+  },
+  sunreserve(ws, d) {
+    const sid = sidOf(ws, d), m = SCHED.get(+d.id); if (!m || !sid) return;
+    if (m.sid == sid) return schedGone(m, "أُلغيت المباراة المجدولة");
+    m.seats = m.seats.filter(x => x.sid != sid); pushSched(); sinfo(ws);
+  },
+  sready(ws, d) { const sid = sidOf(ws, d), m = SCHED.get(+d.id), x = m && m.seats.find(y => y.sid == sid); if (x) { x.ready = true; sinfo(ws); } }
+};
+
+const mkroom = (vis, appr) => ({ code: mkcode(), players: [], phase: "lobby", end: 0, night: 0, last: {}, chat: [], sons: [], acts: [], touched: Date.now(), created: Date.now(), banned: [], log: [],
+  set: { roles: { killer: 1, silencer: 1, doctor: 1, detective: 1, mayor: 1 }, discuss: 120, showRole: true, visibility: vis == "open" ? "open" : "private", approvalMode: appr == "ask" ? "ask" : "auto" }, pending: [] });
 const dual = (r, p) => p.role == "silencer" && !alive(r).some(q => q.role == "killer"); /* no killer left: the Silencer also kills */
 function migrate(r, old) { /* host gone for good: pass host powers to the next connected player */
   if (r.host !== old || old.on) return;
@@ -186,9 +296,8 @@ function migrate(r, old) { /* host gone for good: pass host powers to the next c
 }
 const H = {
   create(ws, d) {
-    const r = { code: mkcode(), players: [], phase: "lobby", end: 0, night: 0, last: {}, chat: [], sons: [], acts: [], touched: Date.now(), created: Date.now(), banned: [], log: [],
-      set: { roles: { killer: 1, silencer: 1, doctor: 1, detective: 1, mayor: 1 }, discuss: 120, showRole: true, visibility: d.visibility == "open" ? "open" : "private", approvalMode: d.approvalMode == "ask" ? "ask" : "auto" }, pending: [] };
-    rooms.set(r.code, r); addPlayer(ws, r, clean(d.name).slice(0, 14));
+    const r = mkroom(d.visibility, d.approvalMode); rooms.set(r.code, r); addPlayer(ws, r, clean(d.name).slice(0, 14));
+    if (r.players.length && r.set.visibility == "open") pingPublic(r, ws);
   },
   join(ws, d) {
     const r = rooms.get(clean(d.code).toUpperCase());
@@ -219,7 +328,7 @@ const H = {
     if (d.roles) { const o = {}; for (const k in R) if (k != "citizen") { const v = Math.max(0, Math.min(20, +d.roles[k] | 0)); o[k] = reqFor(r.players.length).includes(k) ? Math.max(1, v) : v; } s.roles = o; }
     if (d.discuss) s.discuss = Math.max(30, Math.min(300, +d.discuss | 0));
     if (typeof d.showRole == "boolean") s.showRole = d.showRole;
-    if (["open", "private"].includes(d.visibility)) s.visibility = d.visibility;
+    if (["open", "private"].includes(d.visibility)) { const was = s.visibility; s.visibility = d.visibility; if (was != "open" && d.visibility == "open") pingPublic(r, ws); }
     if (["auto", "ask"].includes(d.approvalMode)) { s.approvalMode = d.approvalMode; if (d.approvalMode == "auto") [...r.pending].forEach(q => admit(r, q)); }
     push(r);
   },
@@ -297,6 +406,7 @@ const H = {
   unbrowse(ws) { browsers.delete(ws); },
   ping() {}
 };
+Object.assign(H, H_SCHED);
 
 
 /* ---------- admin API: needs the ADMIN_KEY secret ---------- */
@@ -331,6 +441,14 @@ const ADM = {
 };
 
 /* ---------- server ---------- */
+let bKey = "", bVal = "0";
+function build() { /* short hash of the files that make up the app: changes whenever you deploy new code */
+  try {
+    const fl = ["index.html", "sw.js", "manifest.json"], key = fl.map(f => fs.statSync(path.join(PUB, f)).mtimeMs).join();
+    if (key != bKey) { const h = crypto.createHash("sha1"); fl.forEach(f => h.update(fs.readFileSync(path.join(PUB, f)))); bKey = key; bVal = h.digest("hex").slice(0, 10); }
+  } catch (e) {}
+  return bVal;
+}
 const srv = http.createServer((q, s) => {
   const u = q.url.split("?")[0];
   if (u.startsWith("/admin-api/")) {
@@ -346,12 +464,17 @@ const srv = http.createServer((q, s) => {
     });
     return;
   }
+  if (u.startsWith("/push-api/")) return pushApi(q, s, u);
+  if (u == "/sw.js") { /* the service worker carries a build stamp, so every deploy is detected by phones automatically (no manual version bump) */
+    return fs.readFile(path.join(PUB, "sw.js"), "utf8", (e, t) => { if (e) { s.statusCode = 404; return s.end("404"); } s.setHeader("Content-Type", "text/javascript"); s.setHeader("Cache-Control", "no-cache"); s.end(t.split("__BUILD__").join(build())); });
+  }
   if (u == "/health") { s.setHeader("Content-Type", "application/json"); return s.end(JSON.stringify({ ok: true, rooms: rooms.size })); }
   if (u == "/mp-config.js") { s.setHeader("Content-Type", "text/javascript"); return s.end("window.MP=true;"); }
   const f = path.join(PUB, u == "/" ? "index.html" : u);
   if (!f.startsWith(PUB)) { s.statusCode = 403; return s.end(); }
   fs.readFile(f, (e, d) => {
     if (e) { s.statusCode = 404; return s.end("404"); }
+    if (/\.(html|js)$/.test(f)) s.setHeader("Cache-Control", "no-cache"); /* always revalidate pages and scripts so updates arrive */
     s.setHeader("Content-Type", f.endsWith("assetlinks.json") ? "application/json" : TYPES[path.extname(f)] || "text/html; charset=utf-8"); /* assetlinks.json (Android app verification) must be plain JSON */ s.end(d);
   });
 });
@@ -360,11 +483,11 @@ wss.on("connection", ws => {
   ws.on("message", raw => {
     let d; try { d = JSON.parse(raw); } catch { return; }
     if (!d || !Object.hasOwn(H, d.t)) return;
-    if (!["create", "join", "rejoin", "ping", "cancel", "browse", "unbrowse"].includes(d.t) && !(ws.r && ws.p)) return;
+    if (!["create", "join", "rejoin", "ping", "cancel", "browse", "unbrowse", ...Object.keys(H_SCHED)].includes(d.t) && !(ws.r && ws.p)) return;
     try { H[d.t](ws, d, ws.r, ws.p); } catch (e) { console.error(e); }
   });
   ws.on("close", () => {
-    browsers.delete(ws); if (ws.pend) dropPending(ws.pendRoom, ws.pend, "gone");
+    browsers.delete(ws); sbrowsers.delete(ws); SCHED.forEach(m => m.seats.forEach(x => { if (x.ws === ws) x.ws = null; })); if (ws.pend) dropPending(ws.pendRoom, ws.pend, "gone");
     const p = ws.p, r = ws.r; if (!p || p.ws !== ws) return;
     p.on = false; if (r.phase == "lobby") p.rm = setTimeout(() => leave(r, p), 30000 * F);
     if (p === r.host) p.ht = setTimeout(() => migrate(r, p), 30000 * F); push(r);

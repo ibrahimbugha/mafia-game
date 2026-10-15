@@ -294,6 +294,7 @@ const SFX = {
 const PREF = { theme: "noir", size: 0, vib: true, lang: "ar" };
 try { Object.assign(PREF, JSON.parse(localStorage.getItem("mfp"))); } catch (e) {}
 const EN = {"مشاركة الرابط": "Share link", "نسخ الرمز": "Copy code", "تم نسخ الرابط": "Link copied", "تم نسخ الرمز": "Code copied", "تعال العب المافيا معي! رمز الغرفة:": "Come play Mafia with me! Room code:", "ثبّت اللعبة": "Install the game", "ثبّت اللعبة على هاتفك": "Install on your phone", "اضغط زر المشاركة في متصفح Safari": "Tap the Share button in Safari", "اختر «إضافة إلى الشاشة الرئيسية»": "Choose “Add to Home Screen”", "اضغط «إضافة»": "Tap “Add”", "الإحصائيات": "Statistics", "ألعاب ملعوبة": "Games played", "فوز المدينة": "Town wins", "فوز المافيا": "Mafia wins", "فوز المهرّج": "Joker wins", "تعادلات": "Draws", "أدوارك": "Roles", "لعبت": "Played", "فوز": "Wins", "نسبة الفوز": "Win rate", "لا توجد إحصائيات بعد. العب أول لعبة!": "No stats yet. Play your first game!", "مسح الإحصائيات": "Reset stats", "جولة جديدة بنفس اللاعبين": "New round, same players", "ألعاب جماعية": "Online games", "الأدوار التي لعبتها": "Roles you played", "هل تريد مسح كل الإحصائيات؟": "Reset all statistics?", "اقتل هذا": "Kill this one", "اتهم هذا اللاعب": "Accuse this player", "سكت هذا اللاعب": "Silence this player", "صوّتوا ضد هذا اللاعب": "Vote against this player", "لا تقتلوا هذا اللاعب": "Don't kill this player", "دردشة المافيا (سرية)": "Mafia chat (secret)", "اكتب للمافيا...": "Write to the Mafia...", "إرسال": "Send", "صوّتوا:": "Vote:", "دردشة المافيا السريعة": "Mafia Quick Chat", "لا رسائل بعد": "No messages yet", "إغلاق": "Close", "ليلة": "Night", "(أنت)": "(You)", "جمل الدردشة السريعة": "Quick chat sentences", "اكتب جملة...": "Type a sentence...", "أنا أشك بالجميع": "I suspect everyone", "لنهدأ الليلة": "Let's stay calm tonight", "اتبعوا قراري": "Follow my lead", "اضغط على البطاقة أولاً": "Flip the card first", "الصوت": "Sound", "ملء الشاشة": "Fullscreen", "مافيا التسكيت": "Mute Mafia", "من تريد إسكاته؟": "Who do you want to silence?", "مافيا القتل": "Kill Mafia", "من تريد قتله؟": "Who do you want to kill?", "الطبيب": "Doctor", "من تريد إنقاذه؟": "Who do you want to save?", "المحقق": "Detective", "من تريد التحقيق معه؟": "Who do you want to investigate?", "عمدة الصالحين": "Mayor of the Righteous", "مواطن طبيعي": "Ordinary Citizen", "الحارس": "Bodyguard", "من تريد حمايته؟": "Who do you want to protect?", "الابن المدلل": "Spoiled Son", "المهرّج": "Joker", "القناص": "Sniper", "لديك رصاصة واحدة فقط في اللعبة. هل تطلق الليلة؟": "You have only one bullet in the whole game. Will you shoot tonight?", "يختار كل ليلة لاعبًا فيُمنع من الكلام في النقاش التالي، لكنه يصوّت. يستطيع إسكات نفسه ليبعد الشبهات عنه. وإذا مات القاتل يتولى القتل أيضًا: يسكت لاعبًا ويقتل لاعبًا في الليلة نفسها.": "Each night picks a player who can't speak in the next discussion, but still votes. Can silence themselves to avert suspicion. If the Killer dies, takes over the killing too: silences one player and kills one in the same night.", "يختار كل ليلة لاعبًا ليُقتل، إلا إذا أنقذه الطبيب.": "Each night picks a player to kill, unless the Doctor saves them.", "ينقذ كل ليلة لاعبًا من القتل، ويمكنه إنقاذ نفسه. لا يجوز أن ينقذ الشخص نفسه ليلتين متتاليتين.": "Saves a player from the kill each night, and may save themselves. Cannot save the same player two nights in a row.", "يحقق كل ليلة مع لاعب ويعرف فقط: من المافيا، أو ليس من المافيا.": "Investigates one player each night and learns only: Mafia, or not Mafia.", "في التصويت يستطيع مرة واحدة فقط أن يحسب صوته بثلاثة أصوات. الخيار يظهر له في أعلى شاشة التصويت.": "In the vote, once only, may count their vote as three. The option appears at the top of the voting screen.", "بلا قدرة خاصة. سلاحه النقاش والتصويت. يأخذ الهاتف ليلًا كالجميع حتى لا يعرف أحد من هو.": "No special ability. Their weapons are discussion and voting. Takes the phone at night like everyone, so nobody knows who they are.", "يحمي كل ليلة لاعبًا، وإذا هوجم يموت الحارس بدلًا منه. لا يحمي الشخص نفسه ليلتين متتاليتين.": "Protects a player each night; if that player is attacked, the Bodyguard dies instead. Cannot protect the same player two nights in a row.", "عندما يموت، قتلًا أو إعدامًا، يختار لاعبًا يشك فيه ليموت معه.": "When they die, by kill or execution, they pick a suspect to die with them.", "محايد. إذا صوّتت المدينة لإعدامه فاز وحده وانتهت اللعبة.": "Neutral. If the town votes to execute them, they win alone and the game ends.", "معه رصاصة واحدة في اللعبة كلها، ويقرر في أي ليلة يطلقها. إذا أصاب لاعبًا من المافيا مات الهدف فقط. وإذا أخطأ (الهدف ليس من المافيا) مات الهدف والقناص معًا.": "Has a single bullet for the whole game and chooses which night to fire it. If they hit a Mafia member, only the target dies. If they miss (the target is not Mafia), both the target and the Sniper die.", "لا قدرة لك الليلة. اختر أي لاعب حتى لا يعرف أحد أنك بلا قدرة.": "You have no ability tonight. Pick any player so nobody knows you have none.", "كان": "was", "مرّر الهاتف إلى": "Pass the phone to", "المقعد": "Seat", "من": "of", "اضغط مطوّلًا لتأكيد هويتك": "Hold to confirm your identity", "استمر بالضغط حتى يمتلئ الشريط": "Keep holding until the bar fills", "صُنع بواسطة": "Made by", "استهدف": "targeted", "أنقذ": "saved", "أسكت": "silenced", "حقق مع": "investigated", "حمى": "protected", "أطلق النار على": "shot", "أخذ معه": "took with them", "تفصيل التصويت": "Vote breakdown", "امتنع": "abstained", "الليلة": "Night", "من المافيا": "Mafia", "ليس من المافيا": "Not Mafia", "لم يتحرك أحد": "Nobody acted", "لم يمت أحد": "Nobody died", "تصويت اليوم": "Today's vote", "أُعدم": "executed", "لا إعدام": "No execution", "ملخص اللعبة": "Game summary", "حُمي": "Protected", "أُنقذ": "Saved", "الليلة الماضية)": "Last Night)", "زميلك)": "Your Teammate)", "قُتل": "was killed", "على يد": "by", "برصاصة القناص": "by the Sniper's bullet", "وهو يحمي": "while protecting", "بعد أن أخطأ هدفه": "after missing their target", "مات القناص": "The Sniper died", "و": "and", "المافيا": "Mafia", "لعبة تمرير الهاتف. المدينة نائمة، وليس الجميع بريئًا.": "A pass-the-phone game. The city sleeps, and not everyone is innocent.", "لاعب": "Player", "التالي: اختيار الشخصيات": "Next: choose roles", "رجوع": "Back", "دليل اللعبة": "Game Guide", "الهدف": "Goal", "تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يتساوى عددها مع عدد أهل المدينة أو يزيد عليه. وإذا فني الطرفان معًا (كالابن المدلل يأخذ آخر مافيا معه) تكون النتيجة تعادلًا.": "The town wins when every Mafia member is out of the game. The Mafia win when they equal or outnumber the town. If both sides are wiped out together (for example the Spoiled Son takes the last Mafia with him), it is a draw.", "كيف تسير الجولة": "How a round works", "الليل": "Night", "الفجر": "Dawn", "تُعلن النتائج: من قُتل ويُكشف دوره للجميع، ومن أُسكت.": "Results are announced: who was killed (their role is revealed to everyone) and who was silenced.", "النقاش": "Discussion", "وقت محدد للكلام والاتهام والدفاع. من أُسكت لا يتكلم.": "Timed discussion for talking, accusing and defending. A silenced player cannot speak.", "التصويت": "Voting", "كل لاعب يصوّت سرًّا بتمرير الهاتف. صاحب أعلى الأصوات يُعدم ويُكشف دوره. إذا تعادلت الأصوات فلا أحد يُعدم. الامتناع مسموح.": "Each player votes secretly by passing the phone. The player with the most votes is executed and their role is revealed. If votes tie, nobody is executed. Abstaining is allowed.", "عدد اللاعبين": "Number of players", "إلى": "to", "لاعبًا. يزيد عدد المافيا مع العدد (حوالي الربع)، وفي الألعاب الكبيرة يُضاف محقق وطبيب ثانٍ. إذا كان في المافيا أكثر من قاتل فالقتل يتم بالأغلبية، وعند التعادل يُختار أحد الأهداف عشوائيًا.": "players. The Mafia count grows with the number of players (about a quarter), and large games add a second Detective and Doctor. With more than one killer the kill is decided by majority, and on a tie one target is picked at random.", "أهل المدينة": "Town", "محايد": "Neutral", "قواعد مهمة": "Important rules", "في بداية اللعبة يعرف أفراد المافيا بعضهم عند كشف الأدوار.": "At the start, Mafia members know each other when roles are revealed.", "عند موت أي لاعب، قتلًا أو إعدامًا، يُكشف دوره للجميع.": "When any player dies, by kill or execution, their role is revealed to everyone.", "المسكَّت يصوّت كالمعتاد لكنه لا يتكلم حتى نهاية ذلك النهار.": "A silenced player votes as usual but does not speak until the end of that day.", "نصائح للعب": "Tips", "ضع الهاتف على الطاولة وسلّمه يدًا بيد. اضغط «أخفِ» قبل أن تمرّره، ولا تنظر إلى شاشة غيرك.": "Put the phone on the table and hand it over. Press \"Hide\" before passing it, and never look at another player's screen.", "دورك في اللعبة": "Your role", "أنت من المافيا.": "You are Mafia.", "أنت من أهل المدينة.": "You are Town.", "أنت محايد: تفوز إذا صوّتت المدينة لإعدامك.": "You are Neutral: you win if the town votes to execute you.", "رفيقك": "Your teammate", "أخفِ الدور ومرّر الهاتف": "Hide role and pass the phone", "تغلق المدينة عينيها. المافيا وحدها تعرف من يمشي في الظلام.": "The city closes its eyes. Only the Mafia know who walks in the dark.", "ابدأ الليل": "Start the night", "مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا.": "The Killer is dead: you will silence one player, then kill one.", "لن أطلق الليلة": "I won't shoot tonight", "ثانيًا: من تريد قتله؟": "Second: who do you want to kill?", "تم": "Done", "تم تسجيل اختيارك.": "Your choice is recorded.", "أخفِ الشاشة ومرّر الهاتف": "Hide the screen and pass the phone", "طلع الفجر": "Dawn breaks", "مرّت الليلة ولم يمت أحد.": "The night passed and nobody died.", "صامت اليوم. يستطيع التصويت لكن لا يتكلم.": "Silenced today. Can vote but cannot speak.", "متابعة": "Continue", "صامت اليوم": "Silenced today", "انتقل إلى التصويت": "Go to voting", "صوّت لإعدام من؟": "Vote to execute whom?", "فعّل صوت العمدة: يُحسب بثلاثة أصوات، مرة واحدة فقط": "Use the Mayor's vote: counts as three votes, once only", "امتنع عن التصويت": "Abstain from voting", "تعادلت الأصوات. لا أحد يُعدم اليوم.": "Votes tied. Nobody is executed today.", "نتيجة التصويت": "Vote result", "أنت الابن المدلل وقد متّ. اختر لاعبًا تشك فيه ليموت معك.": "You are the Spoiled Son and you died. Pick a player you suspect to die with you.", "أخذ": "took", "معه": "with them", "المدينة نائمة، وليس الجميع بريئًا.": "The city sleeps, and not everyone is innocent.", "العودة إلى غرفتك": "Back to your room", "لعب": "Play", "الشخصيات": "Roles", "الإعدادات": "Settings", "طريقة اللعب": "Game mode", "تمرير الهاتف": "Pass the Phone", "مغلق": "Off", "مفعّل": "On", "مدة النقاش": "Discussion time", "ثانية": "seconds", "إظهار دور اللاعب بعد موته": "Reveal a player's role after death", "نعم": "Yes", "لا": "No", "اختر الشخصيات": "Choose roles", "لاعبين": "players", "المواطنون يملؤون المقاعد الباقية": "Citizens fill the remaining seats", "كلاسيكي": "Classic", "مخصص": "Custom", "إلزامي": "Required", "عدد الشخصيات أكبر من عدد اللاعبين.": "There are more roles than players.", "ابدأ اللعبة": "Start game", "فازت المدينة": "The Town wins", "فازت المافيا": "The Mafia win", "فاز المهرّج": "The Joker wins", "تعادل: فناء الطرفين معًا": "Draw: both sides wiped out", "خرج)": "Out)", "القائمة الرئيسية": "Main menu", "بانتظار موافقة المضيف": "Waiting for the host's approval", "سيرد على طلبك قريبًا.": "will answer your request soon.", "إلغاء الطلب": "Cancel request", "فُتحت اللعبة في نافذة أخرى. اضغط «العودة إلى غرفتك» هنا لاستعادتها.": "The game was opened in another window. Press \"Back to your room\" here to restore it.", "لعب جماعي": "Multiplayer", "اسمك": "Your name", "غرفة بالرمز": "Room by code", "الغرفة عامة": "Public room", "الغرفة خاصة": "Private room", "بموافقتك": "With your approval", "دخول مباشر": "Direct entry", "إنشاء غرفة": "Create room", "رمز الغرفة": "Room code", "انضمام بالرمز": "Join by code", "غرف عامة": "Public rooms", "تصفّح الغرف العامة": "Browse public rooms", "لا توجد غرف عامة الآن. أنشئ واحدة!": "No public rooms right now. Create one!", "بموافقة المضيف": "Host approval", "مافيا": "Mafia", "وقت النقاش": "Discussion time", "انضمام": "Join", "الغرف العامة": "Public rooms", "اكتب اسمك أولاً": "Type your name first", "يريد الانضمام.": "wants to join.", "طلبات أخرى": "more requests", "قبول": "Accept", "رفض": "Decline", "اكتب اسمك": "Type your name", "طرد": "Kick", "من الغرفة؟": "from the room?", "الدردشة العامة (قراءة فقط)": "Public chat (read only)", "دردشة الموتى": "Dead chat", "لا يراها الأحياء)": "the living can't see it)", "اكتب لبقية الموتى...": "Write to the other dead...", "اكتب رسالة...": "Type a message...", "لا يمكنك الكتابة الآن.": "You can't write right now.", "بانتظار الباقين": "Waiting for the others", "جاهز للتصويت": "Ready to vote", "ث": "s", "إظهار الدور بعد الموت": "Reveal role after death", "الغرفة عامة (تظهر في القائمة)": "Public room (shown in the list)", "الغرفة خاصة (بالرمز فقط)": "Private room (code only)", "الدخول بموافقتك": "Join by your approval", "أصبحت المضيف الآن": "You are now the host", "الغرفة": "Room", "شارك الرمز مع أصدقائك": "Share the code with your friends", "لاعبين)": "players)", "عامة": "Public", "خاصة": "Private", "أنت)": "You)", "غير متصل": "Offline", "بانتظار المضيف ليبدأ اللعبة...": "Waiting for the host to start the game...", "خروج": "Leave", "جاهز": "Ready", "أنت خارج اللعبة وتشاهد.": "You are out of the game and watching.", "متّ! اختر لاعبًا تشك فيه ليموت معك.": "You died! Pick a player you suspect to die with you.", "الابن المدلل يختار من يأخذه معه...": "The Spoiled Son is choosing who to take with him...", "صامت اليوم.": "Silenced today.", "أنت مُسكَت اليوم.": "You are silenced today.", "تم التصويت": "Vote cast", "فعّل صوت العمدة: ثلاثة أصوات، مرة واحدة فقط": "Use the Mayor's vote: three votes, once only", "لا أحد يُعدم اليوم.": "Nobody is executed today.", "طُرد)": "Kicked)", "لعبة جديدة بنفس اللاعبين": "New game, same players", "اتصل بالإنترنت": "Connect to the Internet", "قريبًا": "Coming soon", "المظهر": "Appearance", "ليلي": "Noir", "قرمزي": "Crimson", "زمردي": "Emerald", "ملكي": "Royal", "حجم الخط": "Text size", "الاهتزاز": "Vibration", "اللغة": "Language", "اضغط على البطاقة لكشف دورك": "Tap the card to reveal your role", "أنا بريء!": "I'm innocent!", "أشك فيك": "I suspect you", "أوافق": "I agree", "لنصوّت!": "Let's vote!", "جارٍ إعادة الاتصال…": "Reconnecting…", "مشاهدة بالرمز": "Watch by code", "اللعبة بدأت بالفعل. يمكنك المشاهدة": "The game already started. You can watch instead", "لا يمكن المشاهدة الآن": "You can't watch right now", "الغرفة تتطلب موافقة المضيف": "This room needs the host's approval", "يشاهد اللعبة": "is watching the game", "الغرفة غير موجودة": "Room not found", "اللعبة بدأت بالفعل": "The game already started", "الغرفة ممتلئة": "The room is full", "الاسم مستخدم": "Name already taken", "تم طردك من هذه الغرفة": "You were kicked from this room", "انتهت الغرفة": "The room has ended", "عدد الشخصيات أكبر من عدد اللاعبين": "There are more roles than players", "الشخصيات الإلزامية ناقصة": "Required roles are missing", "طردك المضيف من الغرفة": "The host kicked you from the room", "طردك المشرف من الغرفة": "An admin kicked you from the room", "أغلق المشرف هذه الغرفة": "An admin closed this room", "أغلق المشرف السيرفر": "An admin closed the server", "النظام": "System", "أصبح": "became", "هو المضيف الجديد": "the new host", "طلبات كثيرة الآن، حاول بعد قليل": "Too many requests, try again shortly", "يمرَّر الهاتف على كل لاعب حي بترتيب المقاعد. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.": "The phone is passed to every living player in seating order. Every player picks someone, even a plain Citizen, and a Citizen's choice has no effect. That way nobody knows who has an ability."};
+Object.assign(EN, {"المباريات المجدولة": "Scheduled matches", "لا توجد مباريات مجدولة الآن. أنشئ واحدة!": "No scheduled matches right now. Create one!", "احجز مقعدًا": "Reserve a seat", "إلغاء الحجز": "Cancel reservation", "إلغاء المباراة": "Cancel match", "جدولة مباراة جديدة": "Schedule a new match", "جدولة": "Schedule", "ستصلك رسالة «هل أنت جاهز؟» قبل البدء بدقيقة. أبقِ اللعبة مفتوحة أو فعّل التنبيهات.": "You get a ready-check 1 minute before the start. Keep the game open or turn on notifications.", "هل أنت جاهز؟": "Are you ready?", "أنا جاهز": "I'm ready", "لاحقًا": "Later", "بدأت المباراة!": "The match has started!", "غرفتك جاهزة.": "Your room is ready.", "انضم الآن": "Join now", "فحص الجاهزية": "ready check", "تفعيل تنبيهات الغرف العامة": "Turn on public-room alerts", "تنبيهات الغرف: مفعّلة (إيقاف)": "Room alerts: ON (turn off)", "المتصفح لا يدعم التنبيهات": "This browser does not support notifications", "لم يتم السماح بالتنبيهات": "Notifications were not allowed", "تم تفعيل التنبيهات داخل اللعبة": "In-game notifications are on", "تم تفعيل التنبيهات": "Notifications are on", "تم إيقاف التنبيهات": "Notifications are off", "تعذّر تفعيل التنبيهات": "Could not turn on notifications", "غرفة مافيا عامة جديدة مفتوحة!": "A new public Mafia room is open!", "اختر الوقت": "Pick a time", "اختر وقتًا بعد دقيقتين على الأقل وخلال 24 ساعة": "Pick a time at least 2 minutes ahead and within 24 hours", "عدد المباريات المجدولة وصل الحد الأقصى": "Too many scheduled matches right now", "لديك مباراة مجدولة بالفعل": "You already have a scheduled match", "لديك حجز في مباراة أخرى بالفعل": "You already have a reservation in another match", "لديك حجز بالفعل": "You already have a reservation", "الاسم مستخدم في هذه المباراة": "That name is taken in this match", "المباراة ممتلئة": "The match is full", "المباراة غير موجودة": "Match not found", "حدث خطأ، أعد تحميل الصفحة": "Something went wrong, reload the page", "أُلغيت المباراة المجدولة": "The scheduled match was cancelled", "تحديث جديد جاهز": "A new version is ready", "تحديث الآن": "Update now", "بانتظار اللاعبين": "Waiting for players", "اضغط على المصباح": "Tap the lamp", "المحقق يراقبك": "The detective is watching you", "هل تسمع خطوات؟": "Did you hear footsteps?", "المصباح يحتضر!": "The lamp is dying!", "المافيا بين اللاعبين… 👀": "The Mafia is among you… 👀", "كفى، ستكسره!": "Stop, you will break it!"});
 const ENRE = new RegExp("(^|[^\\u0621-\\u065F\\u0670-\\u06D3])(" + Object.keys(EN).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\u0621-\\u065F\\u0670-\\u06D3])", "g");
 const tr = s => (PREF.lang == "en" && s ? String(s).replace(ENRE, (m, p, k) => p + EN[k]).replace(/،/g, ",").replace(/؟/g, "?") : s);
 function applyPref() {
@@ -546,6 +547,7 @@ function after() { sons(DD, () => { const w = win(); w ? over(w) : NXT(); }); }
 
 /* ---------- menu, mode, characters, settings ---------- */
 function menu() {
+  try { setTimeout(() => window.__upd && window.__upd(), 400); } catch (e) {} /* back at the main menu: a waiting update can be applied now */
   setPh("night");
   const sv = window.MP && mpSaved();
   show(`<div class="icon">🕵️</div><h1><span class="flick">المافيا</span></h1><p class="dim">المدينة نائمة، وليس الجميع بريئًا.</p>
@@ -655,7 +657,7 @@ function conn(on) { let e = $("conn"); if (!e) { e = document.createElement("div
 const mpWake = () => { if ((S || mpSaved()) && !MPOFF && !(WS && WS.readyState <= 1)) { clearTimeout(RCT); mpConnect(); } };
 function mpConnect(first) {
   const w = WS = new WebSocket(window.MP_SERVER || ((location.protocol == "https:" ? "wss://" : "ws://") + location.host));
-  WS.onopen = () => { RC = 800; conn(false); if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
+  WS.onopen = () => { RC = 800; conn(false); SEND({ t: "sreg", sid }); if (first) first(); else { const v = mpSaved(); if (v) SEND({ t: "rejoin", code: v.code, tok: v.tok }); } };
   WS.onmessage = e => {
     const m = JSON.parse(e.data);
     if (m.t == "tok") { MPOFF = false; mpUnbrowse(); try { localStorage.setItem("mf", JSON.stringify(m)); } catch (x) {} }
@@ -665,6 +667,12 @@ function mpConnect(first) {
     else if (m.t == "closed" || m.t == "kicked") { err(m.m); mpClear(); S = null; mpModal(null); menu(); }
     else if (m.t == "notice") err("📢 " + m.m);
     else if (m.t == "replaced") { MPOFF = true; S = null; err("فُتحت اللعبة في نافذة أخرى. اضغط «العودة إلى غرفتك» هنا لاستعادتها."); menu(); }
+    else if (m.t == "sched") { SCH = m.list; const el = $("sl"); if (SB && el) el.innerHTML = tr(schedHtml()); }
+    else if (m.t == "sinfo") { try { m.n ? localStorage.setItem("msr", "1") : localStorage.removeItem("msr"); } catch (x) {} }
+    else if (m.t == "rcheck") showRc(m);
+    else if (m.t == "sgo") schedGo(m);
+    else if (m.t == "sclosed") { smodal(null); note(m.m); }
+    else if (m.t == "pubnew") pubNew(m);
     else if (m.t == "state") mpRender(m);
   };
   w.onclose = () => { if (WS !== w) return; if ((S || mpSaved()) && !MPOFF) { conn(true); clearTimeout(RCT); RCT = setTimeout(() => mpConnect(), RC); RC = Math.min(RC * 1.6, 8000); } };
@@ -673,6 +681,83 @@ setInterval(() => SEND({ t: "ping" }), 20000);
 setInterval(() => { if (S && !MPOFF) try { localStorage.setItem("mf_hb", Date.now()); } catch (e) {} }, 2000); /* tells other tabs this one is alive */
 /* coming back to the app, or the network returning: re-open a dropped connection straight away */
 addEventListener("online", mpWake); document.addEventListener("visibilitychange", () => { if (document.visibilityState == "visible") mpWake(); });
+/* ---------- scheduled matches + public-room notifications ---------- */
+const sid = (() => { try { let v = localStorage.getItem("msid"); if (!v) { v = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem("msid", v); } return v; } catch (e) { return "x" + Math.random().toString(36).slice(2, 12); } })();
+let SCH = [], SB = false;
+const API = window.MP_SERVER ? window.MP_SERVER.replace(/^ws/, "http") : "";
+const EN_ = () => PREF.lang == "en";
+const fmtT = t => new Date(t).toLocaleTimeString(EN_() ? "en-US" : "ar", { hour: "numeric", minute: "2-digit" });
+const fmtIn = t => { const m = Math.max(0, Math.round((t - Date.now()) / 60000)), h = Math.floor(m / 60); return EN_() ? "in " + (h ? h + "h " : "") + (m % 60) + "m" : "بعد " + (h ? h + " س " : "") + (m % 60) + " د"; };
+const defTime = () => { const d = new Date(Date.now() + 15 * 60000); d.setMinutes(Math.ceil(d.getMinutes() / 5) * 5, 0, 0); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+function note(t) { let e = $("er"); if (!e) { e = document.createElement("div"); e.id = "er"; document.body.append(e); } toast(t); }
+function smodal(h) { let m = $("smodal"); if (!m) { m = document.createElement("div"); m.id = "smodal"; document.body.append(m); } m.className = h ? "on" : ""; m.innerHTML = h ? tr(`<div class="card">${h}</div>`) : ""; }
+function schedHtml() {
+  if (!SCH.length) return '<p class="dim c">لا توجد مباريات مجدولة الآن. أنشئ واحدة!</p>';
+  return SCH.map(m => `<div class="role"><b>🕘 ${fmtT(m.at)}</b> <span class="dim">· ${fmtIn(m.at)}</span>
+    <p class="dim">👑 ${esc(m.host)} · 🪑 ${m.n} / ${m.max}${m.rc ? " · ⏱ فحص الجاهزية" : ""}</p>
+    ${m.mine ? btn(m.own ? "إلغاء المباراة" : "إلغاء الحجز", `mpSUn(${m.id})`) : btn("🪑 احجز مقعدًا", `mpSRes(${m.id})`, "go")}</div>`).join("");
+}
+function mpSched() {
+  mpUnbrowse(); SB = true;
+  const go = () => SEND({ t: "sbrowse" }); WS && WS.readyState == 1 ? go() : mpConnect(go);
+  show(`<h2>📅 المباريات المجدولة</h2><input type="text" id="mn" maxlength="14" placeholder="اسمك" value="${esc(MN)}" oninput="MN=this.value">
+    <div id="sl" class="list">${schedHtml()}</div>
+    <h3>➕ جدولة مباراة جديدة</h3><div class="row"><input type="time" id="st" value="${defTime()}" style="flex:1">${btn("📅 جدولة", "mpSNew()", "go")}</div>
+    <p class="dim c">ستصلك رسالة «هل أنت جاهز؟» قبل البدء بدقيقة. أبقِ اللعبة مفتوحة أو فعّل التنبيهات.</p>
+    ${pushBtn()}${btn("رجوع", "mpMenu()")}`, true);
+}
+function mpSNew() {
+  const name = (MN || "").trim(); if (!name) return err("اكتب اسمك أولاً");
+  const t = /^(\d\d):(\d\d)$/.exec(($("st") || {}).value || ""); if (!t) return err("اختر الوقت");
+  const d = new Date(); d.setHours(+t[1], +t[2], 0, 0); let at = d.getTime(); if (at < Date.now() + 120000) at += 864e5; /* a time that already passed means tomorrow */
+  SEND({ t: "sched", name, at, sid });
+}
+function mpSRes(id) { const name = (MN || "").trim(); if (!name) return err("اكتب اسمك أولاً"); SEND({ t: "sreserve", id, name, sid }); }
+const mpSUn = id => SEND({ t: "sunreserve", id, sid });
+const mpSReady = id => { SEND({ t: "sready", id, sid }); smodal(null); note("✅ " + (EN_() ? "You are marked ready" : "تم تسجيل جاهزيتك")); };
+function showRc(m) { /* the server says: the match you reserved starts in under a minute */
+  if (m.ready) return; sfx("knock"); try { PREF.vib && navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {}
+  smodal(`<h2>⏱ هل أنت جاهز؟</h2><p>${EN_() ? esc(m.host) + "'s match starts at <b>" + fmtT(m.at) + "</b>, in under a minute." : "مباراة " + esc(m.host) + " تبدأ الساعة <b>" + fmtT(m.at) + "</b> بعد أقل من دقيقة."}</p><div class="row">${btn("✅ أنا جاهز", `mpSReady(${m.id})`, "go")}${btn("لاحقًا", "smodal(null)")}</div>`);
+}
+function schedGo(m) { /* the match started and its public room is open */
+  smodal(null); try { localStorage.removeItem("msr"); } catch (x) {} MN = m.name;
+  if (m.auto && !S) { sfx("knock"); return SEND({ t: "join", name: m.name, code: m.code }); }
+  smodal(`<h2>🎬 بدأت المباراة!</h2><p>غرفتك جاهزة.</p><div class="row">${btn("انضم الآن", `smodal(null);SEND({t:'join',name:'${esc(m.name)}',code:'${m.code}'})`, "go")}${btn("لاحقًا", "smodal(null)")}</div>`);
+}
+setInterval(() => { const el = $("sl"); if (SB && el) el.innerHTML = tr(schedHtml()); }, 20000);
+/* push notifications: "A new public Mafia room is open!" */
+const pushOK = () => "Notification" in window && "serviceWorker" in navigator && /^https?:$/.test(location.protocol);
+const pushOn = () => { try { return pushOK() && localStorage.getItem("pn") == "1" && Notification.permission == "granted"; } catch (e) { return false; } };
+const pushBtn = () => pushOK() ? btn(pushOn() ? "🔔 تنبيهات الغرف: مفعّلة (إيقاف)" : "🔕 تفعيل تنبيهات الغرف العامة", "pushToggle()") : "";
+const u8 = b => { const p = "=".repeat((4 - b.length % 4) % 4), r = atob((b + p).replace(/-/g, "+").replace(/_/g, "/")); return Uint8Array.from(r, c => c.charCodeAt(0)); };
+async function pushSync() { /* (re)register this phone with the server. Returns true when real background push is available */
+  const reg = await navigator.serviceWorker.ready, k = await (await fetch(API + "/push-api/key", { cache: "no-store" })).json();
+  if (!k.on) return false;
+  let sub = await reg.pushManager.getSubscription(); if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(k.key) });
+  await fetch(API + "/push-api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sub: sub.toJSON(), sid, lang: PREF.lang }) });
+  return true;
+}
+async function pushToggle() {
+  if (!pushOK()) return err("المتصفح لا يدعم التنبيهات");
+  try {
+    if (pushOn()) {
+      localStorage.setItem("pn", "0"); const reg = await navigator.serviceWorker.ready, sub = await reg.pushManager.getSubscription();
+      if (sub) { fetch(API + "/push-api/unsubscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(() => {}); await sub.unsubscribe(); }
+      note("تم إيقاف التنبيهات");
+    } else {
+      if (await Notification.requestPermission() != "granted") return err("لم يتم السماح بالتنبيهات");
+      localStorage.setItem("pn", "1"); let on = false; try { on = await pushSync(); } catch (e) {}
+      note(on ? "تم تفعيل التنبيهات" : "تم تفعيل التنبيهات داخل اللعبة");
+    }
+  } catch (e) { err("تعذّر تفعيل التنبيهات"); }
+  SB ? mpSched() : mpMenu();
+}
+function pubNew(m) { /* the server says a public room was just created and you are not in a room */
+  if (S || BR) return;
+  if (document.visibilityState == "visible") return note("🌐 غرفة مافيا عامة جديدة مفتوحة!");
+  if (pushOn()) navigator.serviceWorker.ready.then(r => r.showNotification(EN_() ? "🕶️ Mafia" : "🕶️ المافيا", { body: EN_() ? "A new public Mafia room is open!" : "غرفة مافيا عامة جديدة مفتوحة الآن!", tag: "pub-room", icon: "/icon-192.png", badge: "/favicon-32.png", data: { url: "/?pub=1" } })).catch(() => {});
+}
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { const d = e.data || {}; if (d.t == "nav" && !S) inviteBoot("?" + ((d.url || "").split("?")[1] || "")); });
 /* ---------- multiplayer menu: private (code) and public room browser ---------- */
 let CR = { visibility: "private", approvalMode: "auto" }, BR = false, ROOMS = [], W_FROM = false, LASTREQ = 0;
 function mpMenu() {
@@ -684,9 +769,9 @@ function mpMenu() {
     <input type="text" id="mc" maxlength="4" placeholder="رمز الغرفة" style="text-transform:uppercase;text-align:center;letter-spacing:6px">
     ${btn("انضمام بالرمز", "mpGo('join')")}${btn("مشاهدة بالرمز", "mpGo('join',true)", "mi i-eye")}
     <h3>🌐 غرف عامة</h3>
-    ${btn("تصفّح الغرف العامة", "mpBrowse()")}${btn("رجوع", "mode()")}`, true);
+    ${btn("تصفّح الغرف العامة", "mpBrowse()")}${btn("📅 المباريات المجدولة", "mpSched()")}${pushBtn()}${btn("رجوع", "mode()")}`, true);
 }
-const mpUnbrowse = () => { if (BR) { BR = false; SEND({ t: "unbrowse" }); } };
+const mpUnbrowse = () => { if (BR) { BR = false; SEND({ t: "unbrowse" }); } if (SB) { SB = false; SEND({ t: "sunbrowse" }); } };
 function roomsHtml() {
   if (!ROOMS.length) return '<p class="dim c">لا توجد غرف عامة الآن. أنشئ واحدة!</p>';
   return ROOMS.map(r => `<div class="role"><b>👑 ${esc(r.host)}</b> <span class="dim">· ${r.n} / ${r.max}${r.ask ? " · 🔔 بموافقة المضيف" : ""}</span>
@@ -766,6 +851,18 @@ function mpLive() {
   const r = $("rd"); if (r) r.textContent = tr(S.done ? `بانتظار الباقين ${S.cnt.join("/")}` : "جاهز للتصويت");
   const m = $("mr"); if (m) m.innerHTML = tr(muteRow());
 }
+let LAMPN = 0;
+const LAMPT = ["المحقق يراقبك", "هل تسمع خطوات؟", "المصباح يحتضر!", "المافيا بين اللاعبين… 👀", "كفى، ستكسره!"];
+function lampTap() { /* tiny toy for the waiting room: tap the lamp and it flickers */
+  const e = $("lamp"); if (!e) return; e.classList.remove("fl"); void e.offsetWidth; e.classList.add("fl");
+  try { PREF.vib && navigator.vibrate && navigator.vibrate(15); } catch (x) {}
+  LAMPN++; const w = $("lamptxt"); if (w && LAMPN % 4 == 0) w.textContent = tr(LAMPT[(LAMPN / 4 - 1) % LAMPT.length | 0]);
+}
+function lobbyScene(s) {
+  const drops = Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 3.9 + Math.random() * 3).toFixed(1)}%;--d:${(0.7 + Math.random() * 0.6).toFixed(2)}s;animation-delay:-${(Math.random() * 1.2).toFixed(2)}s"></i>`).join("");
+  return `<div class="scene" aria-hidden="true"><div class="rain">${drops}</div><div class="skyline"></div><div class="pole"></div><button class="lamp" id="lamp" onclick="lampTap()" tabindex="-1"></button>
+    <div class="wait"><span id="lamptxt">بانتظار اللاعبين</span> <span class="dots"><i>.</i><i>.</i><i>.</i></span><br><small class="dim">💡 اضغط على المصباح</small></div></div>`;
+}
 function lobbySet(s) {
   const st = s.set, n = s.players.length, tot = Object.values(st.roles).reduce((a, b) => a + b, 0);
   return `<div class="row">${btn("كلاسيكي", "mpSet({roles:cnt(rolesFor(S.players.length).filter(r=>r!='citizen'))})")}${btn("مخصص", "mpSet({roles:cnt(reqFor(S.players.length))})")}</div>
@@ -789,7 +886,7 @@ function mpRender(s) {
   if (ph == "lobby") {
     setPh("night");
     h = `<h2>الغرفة <span class="flick">${s.code}</span></h2><p class="dim">شارك الرمز مع أصدقائك (${s.players.length} لاعبين) · ${s.set.visibility == "open" ? "🌐 عامة" : "🔒 خاصة"}${s.set.approvalMode == "ask" ? " · 🔔 بموافقة المضيف" : ""}</p>
-      <div class="row">${btn("📤 مشاركة الرابط", `shareRoom('${s.code}')`)}${btn("📋 نسخ الرمز", `copyCode('${s.code}')`)}</div>
+      ${lobbyScene(s)}<div class="row">${btn("📤 مشاركة الرابط", `shareRoom('${s.code}')`)}${btn("📋 نسخ الرمز", `copyCode('${s.code}')`)}</div>
       <div class="list">${s.players.map((p, i) => `<div class="role">${esc(p.n)}${p.h ? " 👑" : ""}${i == s.me ? " (أنت)" : ""}${p.c ? "" : " · غير متصل"}${s.host && i != s.me ? ` <button class="mini" onclick="SEND({t:'mute',id:${i}})">${p.mu ? "🔇" : "🔈"}</button> <button class="mini" onclick="mpKick(${i})">🚪</button>` : ""}</div>`).join("")}</div>
       ${s.host ? lobbySet(s) : '<p class="dim">بانتظار المضيف ليبدأ اللعبة...</p>'}${btn("خروج", "mpLeave()")}`;
   } else if (ph == "reveal") {
@@ -932,7 +1029,11 @@ function shareRoom(c) {
 }
 function copyCode(c) { try { navigator.clipboard.writeText(c).then(() => toast("تم نسخ الرمز")); } catch (e) { prompt("", c); } }
 function inviteBoot(q) { /* ?room=ABCD opens the join screen with the code filled in */
-  const m = /[?&]room=([A-Za-z0-9]{4})(?:&|$)/.exec(q || ""); if (!m || !window.MP) return false;
+  if (!window.MP) return false;
+  const go = f => { try { history.replaceState(null, "", location.pathname); } catch (e) {} f(); return true; };
+  if (/[?&]pub=1(?:&|$)/.test(q || "")) return go(mpBrowse);
+  if (/[?&]sched=1(?:&|$)/.test(q || "")) return go(mpSched);
+  const m = /[?&]room=([A-Za-z0-9]{4})(?:&|$)/.exec(q || ""); if (!m) return false;
   try { history.replaceState(null, "", location.pathname); } catch (e) {}
   mpMenu(); const c = $("mc"); if (c) c.value = m[1].toUpperCase(); return true;
 }
@@ -949,7 +1050,9 @@ addEventListener("appinstalled", () => { DEFER = null; });
 
 menu();
 inviteBoot(location.search);
-if (window.MP && mpSaved() && hbAge() > 6000) mpConnect(); /* auto-rejoin unless another tab of this browser is already in the game */
+if (window.MP && (mpSaved() ? hbAge() > 6000 : (() => { try { return localStorage.getItem("msr") == "1"; } catch (e) { return false; } })())) mpConnect(); /* reconnects for a saved room, or to get the ready-check for a reserved seat */
+if (window.MP && pushOn()) pushSync().catch(() => {}); /* keep this phone registered for room alerts */
+/* auto-rejoin unless another tab of this browser is already in the game */ /* auto-rejoin unless another tab of this browser is already in the game */
 </script>
 <div id="credit">MADE BY IBRAHIM BUGHA</div>
 <style>
@@ -966,7 +1069,53 @@ if (window.MP && mpSaved() && hbAge() > 6000) mpConnect(); /* auto-rejoin unless
 .chip.sil{border-color:#b5443f;color:#ff9b94;background:rgba(181,68,63,.18)}.chip.me{border-color:#e2b04a}
 .tl{max-height:300px;overflow:auto;border:1px solid #2c353f;border-radius:6px;padding:10px;font-size:14px;line-height:1.7}
 .tl p{margin:0 0 10px}.tl .h{color:#e2b04a;font-weight:700}.vl{font-size:14px}.vl p{margin:0}
+#smodal{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.6);backdrop-filter:blur(3px)}#smodal.on{display:flex}
+#smodal .card{background:linear-gradient(180deg,#1f2832,#151a20);border:1px solid var(--lamp);border-radius:18px;padding:16px;width:100%;max-width:420px;box-shadow:0 18px 60px rgba(0,0,0,.7);display:grid;gap:10px;text-align:center}
+input[type=time]{font:inherit;color:inherit;background:transparent;border:1px solid var(--lamp);border-radius:8px;padding:8px;text-align:center}
+#upd{position:fixed;top:10px;inset-inline:12px;margin:auto;max-width:420px;z-index:11;display:flex;gap:8px;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#1f2832,#151a20);border:1px solid var(--lamp);border-radius:14px;padding:8px 12px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#upd button{font:inherit;color:inherit;border:1px solid var(--lamp);background:transparent;border-radius:8px;padding:4px 10px;cursor:pointer}#upd .go{background:var(--lamp);color:#111}#upd .x{border:0}
+/* waiting-room scene: rain, glowing lamp you can tap, lightning */
+.scene{position:relative;height:150px;overflow:hidden;border-radius:16px;background:linear-gradient(#0a0f1e,#161f38);border:1px solid var(--edge,#2a3340);margin:8px 0}
+.scene::after{content:"";position:absolute;inset:0;background:#cfe0ff;opacity:0;pointer-events:none;animation:thund 9s infinite}
+.scene .rain i{position:absolute;top:-16px;width:1.5px;height:15px;background:linear-gradient(transparent,rgba(170,200,255,.75));transform:rotate(12deg);animation:rainf var(--d,.9s) linear infinite}
+.scene .skyline{position:absolute;bottom:0;left:0;right:0;height:52px;background:radial-gradient(circle,#e2b04a 1px,transparent 1.6px) 0 0/13px 11px,#070a10;clip-path:polygon(0 100%,0 55%,8% 55%,8% 28%,16% 28%,16% 60%,24% 60%,24% 18%,31% 18%,31% 50%,40% 50%,40% 35%,48% 35%,48% 65%,57% 65%,57% 22%,66% 22%,66% 55%,75% 55%,75% 40%,84% 40%,84% 60%,92% 60%,92% 28%,100% 28%,100% 100%);animation:twk 4s ease-in-out infinite}
+.scene .pole{position:absolute;bottom:0;inset-inline-end:calc(18% + 10px);width:3px;height:78px;background:#05070a;z-index:1}
+.scene .lamp{position:absolute;bottom:76px;inset-inline-end:18%;width:22px;height:22px;border-radius:50%;border:0;padding:0;background:#ffe9a8;box-shadow:0 0 22px 8px rgba(226,176,74,.65);cursor:pointer;z-index:2;animation:lampg 3.2s ease-in-out infinite}
+.scene .lamp::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);border-left:36px solid transparent;border-right:36px solid transparent;border-bottom:60px solid rgba(226,176,74,.10);pointer-events:none}
+.scene .lamp.fl{animation:lampfl .9s steps(1) 1}
+.scene .wait{position:absolute;top:8px;inset-inline:0;text-align:center;font-size:15px;z-index:3;pointer-events:none}
+.scene .dots i{font-style:normal;animation:dotb 1.2s infinite}.scene .dots i:nth-child(2){animation-delay:.2s}.scene .dots i:nth-child(3){animation-delay:.4s}
+@keyframes rainf{to{transform:translate(-16px,170px) rotate(12deg)}}
+@keyframes lampg{0%,100%{box-shadow:0 0 18px 6px rgba(226,176,74,.55)}50%{box-shadow:0 0 28px 12px rgba(226,176,74,.8)}}
+@keyframes lampfl{0%{opacity:1}10%{opacity:.1}20%{opacity:1}30%{opacity:.15}45%{opacity:1}55%{opacity:.3}70%{opacity:1}}
+@keyframes thund{0%,91%,100%{opacity:0}92%{opacity:.22}93%{opacity:0}95%{opacity:.14}97%{opacity:0}}
+@keyframes twk{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+@keyframes dotb{0%,100%{opacity:.2}50%{opacity:1}}
+@media (prefers-reduced-motion:no-preference){ /* #app.still switches animations off on same-screen refreshes: keep the scene alive */
+  #app.still .scene .rain i{animation:rainf var(--d,.9s) linear infinite!important}#app.still .scene .lamp{animation:lampg 3.2s ease-in-out infinite!important}#app.still .scene .lamp.fl{animation:lampfl .9s steps(1) 1!important}
+  #app.still .scene::after{animation:thund 9s infinite!important}#app.still .scene .skyline{animation:twk 4s ease-in-out infinite!important}#app.still .scene .dots i{animation:dotb 1.2s infinite!important}}
 </style>
-<script>if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){addEventListener("load",()=>{try{navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}})}</script>
+<script>
+/* PWA auto-update: when online the app re-checks for a new version (on open, on coming back, when the network returns, every 10 min).
+   A new version downloads in the background. If you are at the main menu it switches by itself; during a game you get a small banner. */
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol)){
+  let had=!!navigator.serviceWorker.controller,going=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(!had){had=true;return} if(going)return; going=true; location.reload(); });
+  addEventListener("load",()=>{ navigator.serviceWorker.register("sw.js").then(reg=>{
+    const t=x=>typeof tr=="function"?tr(x):x, idle=()=>{ try{ return !S && /i-play/.test(document.getElementById("app").innerHTML||"") }catch(e){ return false } };
+    const apply=()=>{ if(reg.waiting) reg.waiting.postMessage({t:"skip"}) };
+    const banner=()=>{ if(document.getElementById("upd"))return; const b=document.createElement("div"); b.id="upd";
+      b.innerHTML="<span>🔄 "+t("تحديث جديد جاهز")+"</span><button class=\"go\">"+t("تحديث الآن")+"</button><button class=\"x\" aria-label=\"x\">✕</button>";
+      b.querySelector(".go").onclick=apply; b.querySelector(".x").onclick=()=>b.remove(); document.body.append(b); };
+    const ready=()=>{ if(!reg.waiting||!navigator.serviceWorker.controller)return; idle()?apply():banner(); };
+    window.__upd=ready;
+    const watch=w=>w&&w.addEventListener("statechange",()=>{ if(w.state=="installed")ready() });
+    watch(reg.installing); reg.addEventListener("updatefound",()=>watch(reg.installing)); ready();
+    const chk=()=>{ if(navigator.onLine) reg.update().catch(()=>{}) };
+    addEventListener("online",chk); document.addEventListener("visibilitychange",()=>{ if(document.visibilityState=="visible"){chk();ready()} });
+    setInterval(chk,600000); chk();
+  }).catch(()=>{}) });
+}
+</script>
 </body>
 </html>
