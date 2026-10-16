@@ -178,3 +178,4 @@ The game page, icons and fonts are cached by the service worker (cache `mafia-v6
   - `VAPID_SUBJECT` (optional): `mailto:you@example.com`.
 - **Auto-update:** the server stamps `sw.js` with a hash of the app files, so every deploy is detected by phones automatically (no version number to bump).
 - **Also new:** waiting-room scene, Arabic voice announcer (Settings → 📢), Last Words (host setting, off by default), result share card, and a Telegram/WhatsApp voice-chat link (host setting).
+- **Scene backgrounds:** night = storm scene (moon, clouds, rain, lightning + thunder); day and victory = sunny valley; death = red ash. Players can switch them off in Settings (🌧️). To use a photo moon, put a `moon-cutout.png` in `public/`: it is picked up automatically.

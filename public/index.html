@@ -205,7 +205,7 @@ html:has(body[data-ph=day])::before{--star:#ffd98a;animation-duration:9s;opacity
 <script src="mp-config.js"></script>
 </head>
 <body>
-<canvas id="bg"></canvas><div id="vg"></div><div id="sbar" hidden></div><div id="app"></div><div id="fl"></div><div id="fx"></div>
+<div id="scn" aria-hidden="true"><div class="moon-haze"></div><div class="moon" id="moon"></div><div class="cld cld-a"></div><div class="cld cld-b"></div><div class="cld cld-c"></div><div class="horizon"></div></div><canvas id="bg"></canvas><div id="vg"></div><div id="sbar" hidden></div><div id="app"></div><div id="fl"></div><div id="fx"></div>
 <button id="mute" aria-label="الصوت" onclick="muted=!muted;this.textContent=muted?'🔇':'🔊'">🔊</button>
 <button id="fs" aria-label="ملء الشاشة" onclick="document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()">⛶</button>
 <script>
@@ -295,6 +295,7 @@ const PREF = { theme: "noir", size: 0, vib: true, lang: "ar", voice: true };
 try { Object.assign(PREF, JSON.parse(localStorage.getItem("mfp"))); } catch (e) {}
 const EN = {"مشاركة الرابط": "Share link", "نسخ الرمز": "Copy code", "تم نسخ الرابط": "Link copied", "تم نسخ الرمز": "Code copied", "تعال العب المافيا معي! رمز الغرفة:": "Come play Mafia with me! Room code:", "ثبّت اللعبة": "Install the game", "ثبّت اللعبة على هاتفك": "Install on your phone", "اضغط زر المشاركة في متصفح Safari": "Tap the Share button in Safari", "اختر «إضافة إلى الشاشة الرئيسية»": "Choose “Add to Home Screen”", "اضغط «إضافة»": "Tap “Add”", "الإحصائيات": "Statistics", "ألعاب ملعوبة": "Games played", "فوز المدينة": "Town wins", "فوز المافيا": "Mafia wins", "فوز المهرّج": "Joker wins", "تعادلات": "Draws", "أدوارك": "Roles", "لعبت": "Played", "فوز": "Wins", "نسبة الفوز": "Win rate", "لا توجد إحصائيات بعد. العب أول لعبة!": "No stats yet. Play your first game!", "مسح الإحصائيات": "Reset stats", "جولة جديدة بنفس اللاعبين": "New round, same players", "ألعاب جماعية": "Online games", "الأدوار التي لعبتها": "Roles you played", "هل تريد مسح كل الإحصائيات؟": "Reset all statistics?", "اقتل هذا": "Kill this one", "اتهم هذا اللاعب": "Accuse this player", "سكت هذا اللاعب": "Silence this player", "صوّتوا ضد هذا اللاعب": "Vote against this player", "لا تقتلوا هذا اللاعب": "Don't kill this player", "دردشة المافيا (سرية)": "Mafia chat (secret)", "اكتب للمافيا...": "Write to the Mafia...", "إرسال": "Send", "صوّتوا:": "Vote:", "دردشة المافيا السريعة": "Mafia Quick Chat", "لا رسائل بعد": "No messages yet", "إغلاق": "Close", "ليلة": "Night", "(أنت)": "(You)", "جمل الدردشة السريعة": "Quick chat sentences", "اكتب جملة...": "Type a sentence...", "أنا أشك بالجميع": "I suspect everyone", "لنهدأ الليلة": "Let's stay calm tonight", "اتبعوا قراري": "Follow my lead", "اضغط على البطاقة أولاً": "Flip the card first", "الصوت": "Sound", "ملء الشاشة": "Fullscreen", "مافيا التسكيت": "Mute Mafia", "من تريد إسكاته؟": "Who do you want to silence?", "مافيا القتل": "Kill Mafia", "من تريد قتله؟": "Who do you want to kill?", "الطبيب": "Doctor", "من تريد إنقاذه؟": "Who do you want to save?", "المحقق": "Detective", "من تريد التحقيق معه؟": "Who do you want to investigate?", "عمدة الصالحين": "Mayor of the Righteous", "مواطن طبيعي": "Ordinary Citizen", "الحارس": "Bodyguard", "من تريد حمايته؟": "Who do you want to protect?", "الابن المدلل": "Spoiled Son", "المهرّج": "Joker", "القناص": "Sniper", "لديك رصاصة واحدة فقط في اللعبة. هل تطلق الليلة؟": "You have only one bullet in the whole game. Will you shoot tonight?", "يختار كل ليلة لاعبًا فيُمنع من الكلام في النقاش التالي، لكنه يصوّت. يستطيع إسكات نفسه ليبعد الشبهات عنه. وإذا مات القاتل يتولى القتل أيضًا: يسكت لاعبًا ويقتل لاعبًا في الليلة نفسها.": "Each night picks a player who can't speak in the next discussion, but still votes. Can silence themselves to avert suspicion. If the Killer dies, takes over the killing too: silences one player and kills one in the same night.", "يختار كل ليلة لاعبًا ليُقتل، إلا إذا أنقذه الطبيب.": "Each night picks a player to kill, unless the Doctor saves them.", "ينقذ كل ليلة لاعبًا من القتل، ويمكنه إنقاذ نفسه. لا يجوز أن ينقذ الشخص نفسه ليلتين متتاليتين.": "Saves a player from the kill each night, and may save themselves. Cannot save the same player two nights in a row.", "يحقق كل ليلة مع لاعب ويعرف فقط: من المافيا، أو ليس من المافيا.": "Investigates one player each night and learns only: Mafia, or not Mafia.", "في التصويت يستطيع مرة واحدة فقط أن يحسب صوته بثلاثة أصوات. الخيار يظهر له في أعلى شاشة التصويت.": "In the vote, once only, may count their vote as three. The option appears at the top of the voting screen.", "بلا قدرة خاصة. سلاحه النقاش والتصويت. يأخذ الهاتف ليلًا كالجميع حتى لا يعرف أحد من هو.": "No special ability. Their weapons are discussion and voting. Takes the phone at night like everyone, so nobody knows who they are.", "يحمي كل ليلة لاعبًا، وإذا هوجم يموت الحارس بدلًا منه. لا يحمي الشخص نفسه ليلتين متتاليتين.": "Protects a player each night; if that player is attacked, the Bodyguard dies instead. Cannot protect the same player two nights in a row.", "عندما يموت، قتلًا أو إعدامًا، يختار لاعبًا يشك فيه ليموت معه.": "When they die, by kill or execution, they pick a suspect to die with them.", "محايد. إذا صوّتت المدينة لإعدامه فاز وحده وانتهت اللعبة.": "Neutral. If the town votes to execute them, they win alone and the game ends.", "معه رصاصة واحدة في اللعبة كلها، ويقرر في أي ليلة يطلقها. إذا أصاب لاعبًا من المافيا مات الهدف فقط. وإذا أخطأ (الهدف ليس من المافيا) مات الهدف والقناص معًا.": "Has a single bullet for the whole game and chooses which night to fire it. If they hit a Mafia member, only the target dies. If they miss (the target is not Mafia), both the target and the Sniper die.", "لا قدرة لك الليلة. اختر أي لاعب حتى لا يعرف أحد أنك بلا قدرة.": "You have no ability tonight. Pick any player so nobody knows you have none.", "كان": "was", "مرّر الهاتف إلى": "Pass the phone to", "المقعد": "Seat", "من": "of", "اضغط مطوّلًا لتأكيد هويتك": "Hold to confirm your identity", "استمر بالضغط حتى يمتلئ الشريط": "Keep holding until the bar fills", "صُنع بواسطة": "Made by", "استهدف": "targeted", "أنقذ": "saved", "أسكت": "silenced", "حقق مع": "investigated", "حمى": "protected", "أطلق النار على": "shot", "أخذ معه": "took with them", "تفصيل التصويت": "Vote breakdown", "امتنع": "abstained", "الليلة": "Night", "من المافيا": "Mafia", "ليس من المافيا": "Not Mafia", "لم يتحرك أحد": "Nobody acted", "لم يمت أحد": "Nobody died", "تصويت اليوم": "Today's vote", "أُعدم": "executed", "لا إعدام": "No execution", "ملخص اللعبة": "Game summary", "حُمي": "Protected", "أُنقذ": "Saved", "الليلة الماضية)": "Last Night)", "زميلك)": "Your Teammate)", "قُتل": "was killed", "على يد": "by", "برصاصة القناص": "by the Sniper's bullet", "وهو يحمي": "while protecting", "بعد أن أخطأ هدفه": "after missing their target", "مات القناص": "The Sniper died", "و": "and", "المافيا": "Mafia", "لعبة تمرير الهاتف. المدينة نائمة، وليس الجميع بريئًا.": "A pass-the-phone game. The city sleeps, and not everyone is innocent.", "لاعب": "Player", "التالي: اختيار الشخصيات": "Next: choose roles", "رجوع": "Back", "دليل اللعبة": "Game Guide", "الهدف": "Goal", "تفوز المدينة عندما يخرج كل أفراد المافيا من اللعبة. وتفوز المافيا عندما يتساوى عددها مع عدد أهل المدينة أو يزيد عليه. وإذا فني الطرفان معًا (كالابن المدلل يأخذ آخر مافيا معه) تكون النتيجة تعادلًا.": "The town wins when every Mafia member is out of the game. The Mafia win when they equal or outnumber the town. If both sides are wiped out together (for example the Spoiled Son takes the last Mafia with him), it is a draw.", "كيف تسير الجولة": "How a round works", "الليل": "Night", "الفجر": "Dawn", "تُعلن النتائج: من قُتل ويُكشف دوره للجميع، ومن أُسكت.": "Results are announced: who was killed (their role is revealed to everyone) and who was silenced.", "النقاش": "Discussion", "وقت محدد للكلام والاتهام والدفاع. من أُسكت لا يتكلم.": "Timed discussion for talking, accusing and defending. A silenced player cannot speak.", "التصويت": "Voting", "كل لاعب يصوّت سرًّا بتمرير الهاتف. صاحب أعلى الأصوات يُعدم ويُكشف دوره. إذا تعادلت الأصوات فلا أحد يُعدم. الامتناع مسموح.": "Each player votes secretly by passing the phone. The player with the most votes is executed and their role is revealed. If votes tie, nobody is executed. Abstaining is allowed.", "عدد اللاعبين": "Number of players", "إلى": "to", "لاعبًا. يزيد عدد المافيا مع العدد (حوالي الربع)، وفي الألعاب الكبيرة يُضاف محقق وطبيب ثانٍ. إذا كان في المافيا أكثر من قاتل فالقتل يتم بالأغلبية، وعند التعادل يُختار أحد الأهداف عشوائيًا.": "players. The Mafia count grows with the number of players (about a quarter), and large games add a second Detective and Doctor. With more than one killer the kill is decided by majority, and on a tie one target is picked at random.", "أهل المدينة": "Town", "محايد": "Neutral", "قواعد مهمة": "Important rules", "في بداية اللعبة يعرف أفراد المافيا بعضهم عند كشف الأدوار.": "At the start, Mafia members know each other when roles are revealed.", "عند موت أي لاعب، قتلًا أو إعدامًا، يُكشف دوره للجميع.": "When any player dies, by kill or execution, their role is revealed to everyone.", "المسكَّت يصوّت كالمعتاد لكنه لا يتكلم حتى نهاية ذلك النهار.": "A silenced player votes as usual but does not speak until the end of that day.", "نصائح للعب": "Tips", "ضع الهاتف على الطاولة وسلّمه يدًا بيد. اضغط «أخفِ» قبل أن تمرّره، ولا تنظر إلى شاشة غيرك.": "Put the phone on the table and hand it over. Press \"Hide\" before passing it, and never look at another player's screen.", "دورك في اللعبة": "Your role", "أنت من المافيا.": "You are Mafia.", "أنت من أهل المدينة.": "You are Town.", "أنت محايد: تفوز إذا صوّتت المدينة لإعدامك.": "You are Neutral: you win if the town votes to execute you.", "رفيقك": "Your teammate", "أخفِ الدور ومرّر الهاتف": "Hide role and pass the phone", "تغلق المدينة عينيها. المافيا وحدها تعرف من يمشي في الظلام.": "The city closes its eyes. Only the Mafia know who walks in the dark.", "ابدأ الليل": "Start the night", "مات القاتل: ستسكت لاعبًا ثم تقتل لاعبًا.": "The Killer is dead: you will silence one player, then kill one.", "لن أطلق الليلة": "I won't shoot tonight", "ثانيًا: من تريد قتله؟": "Second: who do you want to kill?", "تم": "Done", "تم تسجيل اختيارك.": "Your choice is recorded.", "أخفِ الشاشة ومرّر الهاتف": "Hide the screen and pass the phone", "طلع الفجر": "Dawn breaks", "مرّت الليلة ولم يمت أحد.": "The night passed and nobody died.", "صامت اليوم. يستطيع التصويت لكن لا يتكلم.": "Silenced today. Can vote but cannot speak.", "متابعة": "Continue", "صامت اليوم": "Silenced today", "انتقل إلى التصويت": "Go to voting", "صوّت لإعدام من؟": "Vote to execute whom?", "فعّل صوت العمدة: يُحسب بثلاثة أصوات، مرة واحدة فقط": "Use the Mayor's vote: counts as three votes, once only", "امتنع عن التصويت": "Abstain from voting", "تعادلت الأصوات. لا أحد يُعدم اليوم.": "Votes tied. Nobody is executed today.", "نتيجة التصويت": "Vote result", "أنت الابن المدلل وقد متّ. اختر لاعبًا تشك فيه ليموت معك.": "You are the Spoiled Son and you died. Pick a player you suspect to die with you.", "أخذ": "took", "معه": "with them", "المدينة نائمة، وليس الجميع بريئًا.": "The city sleeps, and not everyone is innocent.", "العودة إلى غرفتك": "Back to your room", "لعب": "Play", "الشخصيات": "Roles", "الإعدادات": "Settings", "طريقة اللعب": "Game mode", "تمرير الهاتف": "Pass the Phone", "مغلق": "Off", "مفعّل": "On", "مدة النقاش": "Discussion time", "ثانية": "seconds", "إظهار دور اللاعب بعد موته": "Reveal a player's role after death", "نعم": "Yes", "لا": "No", "اختر الشخصيات": "Choose roles", "لاعبين": "players", "المواطنون يملؤون المقاعد الباقية": "Citizens fill the remaining seats", "كلاسيكي": "Classic", "مخصص": "Custom", "إلزامي": "Required", "عدد الشخصيات أكبر من عدد اللاعبين.": "There are more roles than players.", "ابدأ اللعبة": "Start game", "فازت المدينة": "The Town wins", "فازت المافيا": "The Mafia win", "فاز المهرّج": "The Joker wins", "تعادل: فناء الطرفين معًا": "Draw: both sides wiped out", "خرج)": "Out)", "القائمة الرئيسية": "Main menu", "بانتظار موافقة المضيف": "Waiting for the host's approval", "سيرد على طلبك قريبًا.": "will answer your request soon.", "إلغاء الطلب": "Cancel request", "فُتحت اللعبة في نافذة أخرى. اضغط «العودة إلى غرفتك» هنا لاستعادتها.": "The game was opened in another window. Press \"Back to your room\" here to restore it.", "لعب جماعي": "Multiplayer", "اسمك": "Your name", "غرفة بالرمز": "Room by code", "الغرفة عامة": "Public room", "الغرفة خاصة": "Private room", "بموافقتك": "With your approval", "دخول مباشر": "Direct entry", "إنشاء غرفة": "Create room", "رمز الغرفة": "Room code", "انضمام بالرمز": "Join by code", "غرف عامة": "Public rooms", "تصفّح الغرف العامة": "Browse public rooms", "لا توجد غرف عامة الآن. أنشئ واحدة!": "No public rooms right now. Create one!", "بموافقة المضيف": "Host approval", "مافيا": "Mafia", "وقت النقاش": "Discussion time", "انضمام": "Join", "الغرف العامة": "Public rooms", "اكتب اسمك أولاً": "Type your name first", "يريد الانضمام.": "wants to join.", "طلبات أخرى": "more requests", "قبول": "Accept", "رفض": "Decline", "اكتب اسمك": "Type your name", "طرد": "Kick", "من الغرفة؟": "from the room?", "الدردشة العامة (قراءة فقط)": "Public chat (read only)", "دردشة الموتى": "Dead chat", "لا يراها الأحياء)": "the living can't see it)", "اكتب لبقية الموتى...": "Write to the other dead...", "اكتب رسالة...": "Type a message...", "لا يمكنك الكتابة الآن.": "You can't write right now.", "بانتظار الباقين": "Waiting for the others", "جاهز للتصويت": "Ready to vote", "ث": "s", "إظهار الدور بعد الموت": "Reveal role after death", "الغرفة عامة (تظهر في القائمة)": "Public room (shown in the list)", "الغرفة خاصة (بالرمز فقط)": "Private room (code only)", "الدخول بموافقتك": "Join by your approval", "أصبحت المضيف الآن": "You are now the host", "الغرفة": "Room", "شارك الرمز مع أصدقائك": "Share the code with your friends", "لاعبين)": "players)", "عامة": "Public", "خاصة": "Private", "أنت)": "You)", "غير متصل": "Offline", "بانتظار المضيف ليبدأ اللعبة...": "Waiting for the host to start the game...", "خروج": "Leave", "جاهز": "Ready", "أنت خارج اللعبة وتشاهد.": "You are out of the game and watching.", "متّ! اختر لاعبًا تشك فيه ليموت معك.": "You died! Pick a player you suspect to die with you.", "الابن المدلل يختار من يأخذه معه...": "The Spoiled Son is choosing who to take with him...", "صامت اليوم.": "Silenced today.", "أنت مُسكَت اليوم.": "You are silenced today.", "تم التصويت": "Vote cast", "فعّل صوت العمدة: ثلاثة أصوات، مرة واحدة فقط": "Use the Mayor's vote: three votes, once only", "لا أحد يُعدم اليوم.": "Nobody is executed today.", "طُرد)": "Kicked)", "لعبة جديدة بنفس اللاعبين": "New game, same players", "اتصل بالإنترنت": "Connect to the Internet", "قريبًا": "Coming soon", "المظهر": "Appearance", "ليلي": "Noir", "قرمزي": "Crimson", "زمردي": "Emerald", "ملكي": "Royal", "حجم الخط": "Text size", "الاهتزاز": "Vibration", "اللغة": "Language", "اضغط على البطاقة لكشف دورك": "Tap the card to reveal your role", "أنا بريء!": "I'm innocent!", "أشك فيك": "I suspect you", "أوافق": "I agree", "لنصوّت!": "Let's vote!", "جارٍ إعادة الاتصال…": "Reconnecting…", "مشاهدة بالرمز": "Watch by code", "اللعبة بدأت بالفعل. يمكنك المشاهدة": "The game already started. You can watch instead", "لا يمكن المشاهدة الآن": "You can't watch right now", "الغرفة تتطلب موافقة المضيف": "This room needs the host's approval", "يشاهد اللعبة": "is watching the game", "الغرفة غير موجودة": "Room not found", "اللعبة بدأت بالفعل": "The game already started", "الغرفة ممتلئة": "The room is full", "الاسم مستخدم": "Name already taken", "تم طردك من هذه الغرفة": "You were kicked from this room", "انتهت الغرفة": "The room has ended", "عدد الشخصيات أكبر من عدد اللاعبين": "There are more roles than players", "الشخصيات الإلزامية ناقصة": "Required roles are missing", "طردك المضيف من الغرفة": "The host kicked you from the room", "طردك المشرف من الغرفة": "An admin kicked you from the room", "أغلق المشرف هذه الغرفة": "An admin closed this room", "أغلق المشرف السيرفر": "An admin closed the server", "النظام": "System", "أصبح": "became", "هو المضيف الجديد": "the new host", "طلبات كثيرة الآن، حاول بعد قليل": "Too many requests, try again shortly", "يمرَّر الهاتف على كل لاعب حي بترتيب المقاعد. كل لاعب يختار لاعبًا، حتى المواطن العادي، واختياره بلا أثر. هكذا لا يعرف أحد من صاحب القدرة.": "The phone is passed to every living player in seating order. Every player picks someone, even a plain Citizen, and a Citizen's choice has no effect. That way nobody knows who has an ability."};
 Object.assign(EN, {"المباريات المجدولة": "Scheduled matches", "لا توجد مباريات مجدولة الآن. أنشئ واحدة!": "No scheduled matches right now. Create one!", "احجز مقعدًا": "Reserve a seat", "إلغاء الحجز": "Cancel reservation", "إلغاء المباراة": "Cancel match", "جدولة مباراة جديدة": "Schedule a new match", "جدولة": "Schedule", "ستصلك رسالة «هل أنت جاهز؟» قبل البدء بدقيقة. أبقِ اللعبة مفتوحة أو فعّل التنبيهات.": "You get a ready-check 1 minute before the start. Keep the game open or turn on notifications.", "هل أنت جاهز؟": "Are you ready?", "أنا جاهز": "I'm ready", "لاحقًا": "Later", "بدأت المباراة!": "The match has started!", "غرفتك جاهزة.": "Your room is ready.", "انضم الآن": "Join now", "فحص الجاهزية": "ready check", "تفعيل تنبيهات الغرف العامة": "Turn on public-room alerts", "تنبيهات الغرف: مفعّلة (إيقاف)": "Room alerts: ON (turn off)", "المتصفح لا يدعم التنبيهات": "This browser does not support notifications", "لم يتم السماح بالتنبيهات": "Notifications were not allowed", "تم تفعيل التنبيهات داخل اللعبة": "In-game notifications are on", "تم تفعيل التنبيهات": "Notifications are on", "تم إيقاف التنبيهات": "Notifications are off", "تعذّر تفعيل التنبيهات": "Could not turn on notifications", "غرفة مافيا عامة جديدة مفتوحة!": "A new public Mafia room is open!", "اختر الوقت": "Pick a time", "اختر وقتًا بعد دقيقتين على الأقل وخلال 24 ساعة": "Pick a time at least 2 minutes ahead and within 24 hours", "عدد المباريات المجدولة وصل الحد الأقصى": "Too many scheduled matches right now", "لديك مباراة مجدولة بالفعل": "You already have a scheduled match", "لديك حجز في مباراة أخرى بالفعل": "You already have a reservation in another match", "لديك حجز بالفعل": "You already have a reservation", "الاسم مستخدم في هذه المباراة": "That name is taken in this match", "المباراة ممتلئة": "The match is full", "المباراة غير موجودة": "Match not found", "حدث خطأ، أعد تحميل الصفحة": "Something went wrong, reload the page", "أُلغيت المباراة المجدولة": "The scheduled match was cancelled", "تحديث جديد جاهز": "A new version is ready", "تحديث الآن": "Update now", "بانتظار اللاعبين": "Waiting for players", "اضغط على المصباح": "Tap the lamp", "المحقق يراقبك": "The detective is watching you", "هل تسمع خطوات؟": "Did you hear footsteps?", "المصباح يحتضر!": "The lamp is dying!", "المافيا بين اللاعبين… 👀": "The Mafia is among you… 👀", "كفى، ستكسره!": "Stop, you will break it!", "المعلّق الصوتي": "Voice announcer", "المعلّق الصوتي مفعّل": "Voice announcer is on", "حلّ الليل. أغمضوا أعينكم.": "Night falls. Close your eyes.", "بدأ النقاش. تحدثوا.": "Discussion begins. Talk.", "حان وقت التصويت.": "Time to vote.", "انتهت اللعبة.": "The game is over.", "الكلمات الأخيرة لـ": "Last words of", "الكلمات الأخيرة: مفعّلة (15 ث)": "Last words: ON (15 s)", "الكلمات الأخيرة: مغلقة": "Last words: OFF", "كلماتك الأخيرة": "Your last words", "لديك رسالة واحدة فقط. اجعلها تُذكر.": "You get one message only. Make it count.", "تم إرسال كلماتك الأخيرة.": "Your last words were sent.", "يقول كلماته الأخيرة…": "is saying their last words…", "اكتب كلماتك الأخيرة...": "Type your last words...", "الانضمام للدردشة الصوتية": "Join Voice Chat", "رابط الدردشة الصوتية (تيليجرام / واتساب)": "Voice chat link (Telegram / WhatsApp)", "رابط غير مدعوم: استخدم رابط تيليجرام أو واتساب": "Unsupported link: use a Telegram or WhatsApp link", "بطاقة النتيجة (مشاركة / تنزيل)": "Result card (share / download)", "بطاقة النتيجة": "Result card", "مشاركة": "Share", "تنزيل": "Download", "تعذّر إنشاء البطاقة": "Could not create the card"});
+Object.assign(EN, {"الخلفيات المتحركة: مفعّلة": "Animated backgrounds: ON", "الخلفيات المتحركة: مغلقة": "Animated backgrounds: OFF"});
 const ENRE = new RegExp("(^|[^\\u0621-\\u065F\\u0670-\\u06D3])(" + Object.keys(EN).sort((a, b) => b.length - a.length).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")(?![\\u0621-\\u065F\\u0670-\\u06D3])", "g");
 /* ---------- Arabic voice announcer (browser text-to-speech) ---------- */
 function say(txt) {
@@ -621,6 +622,7 @@ function settings() {
     <div class="row">${[0, 1, 2].map(k => `<button class="btn sw${PREF.size == k ? " on" : ""}" style="font-size:${15 + k * 3}px" onclick="setPref('size',${k})">Aa</button>`).join("")}</div>
     ${btn("الاهتزاز: " + (PREF.vib ? "مفعّل" : "مغلق"), "setPref('vib'," + !PREF.vib + ")")}
     ${"speechSynthesis" in window ? btn("📢 المعلّق الصوتي: " + (PREF.voice !== false ? "مفعّل" : "مغلق"), "setPref('voice'," + (PREF.voice === false) + ")") : ""}
+    ${btn("🌧️ " + (PREF.fx !== false ? "الخلفيات المتحركة: مفعّلة" : "الخلفيات المتحركة: مغلقة"), "setPref('fx'," + (PREF.fx === false) + ")")}
     ${btn("🌐 " + (PREF.lang == "en" ? "العربية" : "English"), "setPref('lang','" + (PREF.lang == "en" ? "ar" : "en") + "')")}
     <h3>${"طريقة اللعب"}</h3>
     ${btn("الصوت: " + (muted ? "مغلق" : "مفعّل"), "muted=!muted;$('mute').textContent=muted?'🔇':'🔊';settings()")}
@@ -1025,33 +1027,112 @@ function mpRender(s) {
 const IC = { killer:"🔪", silencer:"🤐", doctor:"💉", detective:"🔍", mayor:"🎩", citizen:"🧑", bodyguard:"🛡️", spoiledson:"👦", jester:"🃏", sniper:"🎯" };
 Object.entries(IC).forEach(([id, ic]) => ROLES[id].n = ic + " " + ROLES[id].n);
 
-/* ---------- atmosphere: rain + lightning at night, dust by day, ash after a death ---------- */
-SFX.thunder = () => noise(1.6, 220, .25);
-const cv = $("bg"), cx = cv.getContext("2d"); let W, H, lit = 0;
-const rs = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; }; addEventListener("resize", rs); rs();
+/* ---------- atmosphere: night = storm + moon, day = sunny valley, death = falling ash ---------- */
+SFX.thunder = () => { /* deep rolling thunder: low-passed noise that fades out. Only plays once the browser has allowed sound */
+  if (!AC || AC.state != "running") return;
+  const a = A(), d = 2.1, t = a.currentTime, b = a.createBuffer(1, a.sampleRate * d, a.sampleRate), x = b.getChannelData(0); let lo = 0;
+  for (let i = 0; i < x.length; i++) { const k = i / x.length; lo = lo * .985 + (Math.random() * 2 - 1) * .12; x[i] = lo * Math.pow(1 - k, 1.7) * (.35 + .65 * Math.min(1, k * 16)); }
+  const s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(); s.buffer = b;
+  f.type = "lowpass"; f.frequency.setValueAtTime(180, t); f.frequency.exponentialRampToValueAtTime(54, t + d);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.4, t + .06); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  s.connect(f).connect(g).connect(a.destination); s.start(t); s.stop(t + d);
+};
+const cv = $("bg"), cx = cv.getContext("2d"); let W, H, lit = 0, LT = 4 + Math.random() * 5, drops = [], skyL, frontL, cloudsD = [], birds = [], sunA = 0, lastPh = "", fxCleared = false;
 const mk = () => ({ x: Math.random() * W, y: Math.random() * H, v: 6 + Math.random() * 10, l: 10 + Math.random() * 18, s: Math.random() });
-const P = Array.from({ length: 110 }, mk);
-function loop() {
-  cx.clearRect(0, 0, W, H);
+let P = [];
+const mkLayer = () => { const c = document.createElement("canvas"); c.width = W; c.height = H; return c; };
+function treeAt(g, x, y, s) {
+  g.save(); g.translate(x, y); g.scale(s, s);
+  const tg = g.createLinearGradient(-8, 0, 8, 0); tg.addColorStop(0, "#3E2723"); tg.addColorStop(.5, "#5D4037"); tg.addColorStop(1, "#3E2723");
+  g.fillStyle = tg; g.beginPath(); g.moveTo(-8, 0); g.lineTo(-4, -55); g.lineTo(4, -55); g.lineTo(8, 0); g.closePath(); g.fill();
+  g.fillStyle = "#1B5E20"; g.beginPath(); g.arc(0, -75, 35, 0, 7); g.arc(-22, -60, 25, 0, 7); g.arc(22, -60, 25, 0, 7); g.fill();
+  g.fillStyle = "#2E7D32"; g.beginPath(); g.arc(0, -85, 28, 0, 7); g.arc(-15, -75, 20, 0, 7); g.arc(15, -75, 20, 0, 7); g.fill();
+  g.fillStyle = "#66BB6A"; g.beginPath(); g.arc(-6, -92, 15, 0, 7); g.arc(10, -88, 13, 0, 7); g.fill(); g.restore();
+}
+function hillLayer(g, y0, y1, c0, c1, step, f) { /* one rolling green hill band */
+  const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, c0); gr.addColorStop(1, c1); g.fillStyle = gr; g.beginPath(); g.moveTo(0, H);
+  for (let x = 0; x <= W + step; x += step) g.lineTo(x, f(x)); g.lineTo(W, H); g.closePath(); g.fill();
+}
+function buildScene() { /* everything that does not move is drawn once here, not 60 times a second */
+  const n = Math.min(320, Math.max(120, W * H / 9000 | 0));
+  drops = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, l: 11 + Math.random() * 24, v: 560 + Math.random() * 520, o: Math.random() }));
+  P = Array.from({ length: 110 }, mk);
+  skyL = mkLayer(); let g = skyL.getContext("2d");
+  const sg = g.createLinearGradient(0, 0, 0, H * .8); sg.addColorStop(0, "#0288D1"); sg.addColorStop(.5, "#4FC3F7"); sg.addColorStop(1, "#E1F5FE"); g.fillStyle = sg; g.fillRect(0, 0, W, H);
+  frontL = mkLayer(); g = frontL.getContext("2d");
+  hillLayer(g, H * .45, H * .7, "#81C784", "#4CAF50", 100, x => H * .55 - Math.sin(x * .003) * 45);
+  hillLayer(g, H * .5, H, "#66BB6A", "#2E7D32", 80, x => H * .65 - Math.sin(x * .004) * 55 - Math.cos(x * .01) * 15);
+  hillLayer(g, H * .7, H, "#4CAF50", "#1B5E20", 60, x => H * .82 - Math.sin(x * .005) * 35);
+  treeAt(g, W * .12, H * .85, .42); treeAt(g, W * .88, H * .83, .42);
+  cloudsD = [{ x: W * .28, y: H * .38, min: W * .18, max: W * .42 }, { x: W * .72, y: H * .42, min: W * .58, max: W * .85 }].map(c => ({ ...c, s: .025 + Math.random() * .05, d: Math.random() > .5 ? 1 : -1 }));
+  birds = [{ x: W * .3, y: H * .25 }, { x: W * .6, y: H * .3 }].map(b => ({ ...b, s: .5 + Math.random() * .3, a: Math.random() * 3 }));
+}
+const rs = () => { W = cv.width = innerWidth; H = cv.height = innerHeight; buildScene(); }; addEventListener("resize", rs); rs();
+function sunAt(x, y, r) {
+  const gl = cx.createRadialGradient(x, y, r * .2, x, y, r * 4.5); gl.addColorStop(0, "rgba(255,248,200,1)"); gl.addColorStop(.3, "rgba(255,215,0,.35)"); gl.addColorStop(.6, "rgba(255,180,0,.08)"); gl.addColorStop(1, "rgba(255,255,255,0)");
+  cx.fillStyle = gl; cx.beginPath(); cx.arc(x, y, r * 4.5, 0, 7); cx.fill();
+  cx.save(); cx.translate(x, y); cx.rotate(sunA); cx.fillStyle = "rgba(255,255,220,.07)";
+  for (let i = 0; i < 12; i++) { cx.rotate(Math.PI / 6); cx.beginPath(); cx.moveTo(0, 0); cx.lineTo(-25, H * 1.2); cx.lineTo(25, H * 1.2); cx.closePath(); cx.fill(); }
+  cx.restore();
+  const sg = cx.createRadialGradient(x, y, 0, x, y, r); sg.addColorStop(0, "#FFFFFF"); sg.addColorStop(.4, "#FFF9C4"); sg.addColorStop(1, "#FBC02D"); cx.fillStyle = sg; cx.beginPath(); cx.arc(x, y, r, 0, 7); cx.fill();
+}
+function cloudAt(c) {
+  cx.save(); cx.translate(c.x, c.y); cx.scale(.65, .65); cx.fillStyle = "rgba(255,255,255,.85)"; cx.beginPath();
+  cx.arc(50, 50, 40, Math.PI * .5, Math.PI * 1.5); cx.arc(110, 30, 50, Math.PI, Math.PI * 1.85); cx.arc(170, 30, 40, Math.PI * 1.37, Math.PI * 1.91); cx.arc(210, 50, 35, Math.PI * 1.5, Math.PI * .5);
+  cx.moveTo(210, 85); cx.lineTo(50, 85); cx.closePath(); cx.fill();
+  cx.fillStyle = "rgba(210,225,240,.25)"; cx.beginPath(); cx.arc(110, 42, 45, Math.PI * .2, Math.PI * .9); cx.fill(); cx.restore();
+}
+function birdAt(b) {
+  const s = 7, w = Math.sin(b.a) * s * .8; cx.strokeStyle = "#374151"; cx.lineWidth = 2; cx.lineCap = "round"; cx.beginPath();
+  cx.moveTo(b.x - s, b.y + w); cx.quadraticCurveTo(b.x - s / 2, b.y - s / 2, b.x, b.y); cx.quadraticCurveTo(b.x + s / 2, b.y - s / 2, b.x + s, b.y + w); cx.stroke();
+}
+function dayFrame(k) { /* k = how many 60 fps frames passed (0 = a still picture) */
+  cx.drawImage(skyL, 0, 0); sunA += .001 * k; sunAt(W * .8, H * .2, 55);
+  cloudsD.forEach(c => { c.x += c.s * c.d * k; if (c.x > c.max) { c.x = c.max; c.d = -1; } else if (c.x < c.min) { c.x = c.min; c.d = 1; } cloudAt(c); });
+  birds.forEach(b => { b.x += b.s * k; b.a += .06 * k; b.y += Math.sin(b.x * .008) * .15 * k; if (b.x > W + 100) { b.x = -100; b.y = H * .2 + Math.random() * H * .2; } birdAt(b); });
+  cx.drawImage(frontL, 0, 0);
+}
+function strike() { /* double flash, then thunder a moment later (like real light vs sound) */
+  lit = 1; setTimeout(() => lit = 0, 110); setTimeout(() => lit = .42, 145); setTimeout(() => lit = 0, 225); setTimeout(() => sfx("thunder"), 350 + Math.random() * 900);
+}
+function rainFrame(dt) { /* all drops of the same strength are drawn as ONE path: much lighter on phones */
+  const B = [[], [], []], col = ["rgba(187,219,255,.2)", "rgba(187,219,255,.34)", "rgba(198,226,255,.52)"], wd = [.8, 1.1, 1.5];
+  drops.forEach(d => {
+    d.y += d.v * dt; d.x -= d.v * .055 * dt;
+    if (d.y > H + d.l || d.x < -40) { d.y = -d.l - Math.random() * 80; d.x = Math.random() * (W + 120); }
+    B[d.o < .4 ? 0 : d.o < .75 ? 1 : 2].push(d);
+  });
+  cx.lineCap = "round";
+  B.forEach((a, i) => { cx.strokeStyle = col[i]; cx.lineWidth = wd[i]; cx.beginPath(); a.forEach(d => { cx.moveTo(d.x, d.y); cx.lineTo(d.x - 2, d.y + d.l); }); cx.stroke(); });
+}
+let lastT = performance.now();
+function loop(now) {
+  const dt = Math.min(.05, ((now || lastT) - lastT) / 1000); lastT = now || lastT;
+  const off = PREF.fx === false; document.body.classList.toggle("nofx", off);
+  if (off) { if (!fxCleared) { cx.clearRect(0, 0, W, H); fxCleared = true; } return setTimeout(() => requestAnimationFrame(loop), 400); }
+  fxCleared = false; cx.clearRect(0, 0, W, H);
   const ph = document.body.dataset.ph || "night";
+  if (ph != lastPh) { lastPh = ph; cv.style.transition = "none"; cv.style.opacity = 0; void cv.offsetWidth; cv.style.transition = "opacity .7s"; cv.style.opacity = 1; } /* soft fade between scenes */
   if (ph == "night") {
-    cx.strokeStyle = "rgba(170,190,230,.28)"; cx.beginPath();
-    P.forEach(p => { cx.moveTo(p.x, p.y); cx.lineTo(p.x - 3, p.y + p.l); p.y += p.v; p.x -= 1.2; if (p.y > H) Object.assign(p, mk(), { y: -20 }); });
-    cx.stroke();
-    if (Math.random() < .003) { lit = 1; sfx("thunder"); }
-  } else {
-    cx.fillStyle = ph == "day" ? "#e2b04a" : "#b5443f";
+    rainFrame(dt); LT -= dt; if (LT <= 0) { strike(); LT = 6 + Math.random() * 10; }
+  } else if (ph == "day") dayFrame(dt * 60);
+  else {
+    cx.fillStyle = "#b5443f";
     P.forEach(p => {
       cx.globalAlpha = .2 + p.s * .5; cx.beginPath(); cx.arc(p.x, p.y, 1 + p.s * 2, 0, 7); cx.fill();
-      p.y += ph == "day" ? -.3 - p.s * .4 : .6 + p.s; p.x += Math.sin(p.y / 40 + p.s * 9) * .4;
-      if (p.y < -10 || p.y > H + 10) Object.assign(p, mk(), { y: ph == "day" ? H + 5 : -5 });
+      p.y += .6 + p.s; p.x += Math.sin(p.y / 40 + p.s * 9) * .4;
+      if (p.y < -10 || p.y > H + 10) Object.assign(p, mk(), { y: -5 });
     });
     cx.globalAlpha = 1;
   }
-  if (lit > 0) { cx.fillStyle = `rgba(200,215,255,${lit * .22})`; cx.fillRect(0, 0, W, H); lit -= .05; }
+  if (lit > 0 && ph == "night") { cx.fillStyle = `rgba(210,232,255,${lit * .4})`; cx.fillRect(0, 0, W, H); }
   requestAnimationFrame(loop);
 }
-if (!matchMedia("(prefers-reduced-motion: reduce)").matches) loop();
+if (matchMedia("(prefers-reduced-motion: reduce)").matches) { /* no animation: draw one still picture whenever the phase changes */
+  const still = () => { cx.clearRect(0, 0, W, H); if (document.body.dataset.ph == "day" && PREF.fx !== false) dayFrame(0); };
+  new MutationObserver(still).observe(document.body, { attributes: true, attributeFilter: ["data-ph"] }); addEventListener("resize", still); still();
+} else requestAnimationFrame(loop);
+{ const im = new Image(); im.onload = () => { const m = $("moon"); m.style.setProperty("--m", `url("${im.src}")`); m.classList.add("img"); }; im.src = "moon-cutout.png"; } /* optional: drop a moon-cutout.png into /public and it replaces the drawn moon */
 
 /* ---------- phone/laptop comfort: screen stays on, Enter key continues ---------- */
 let WL; const wake = () => { try { navigator.wakeLock.request("screen").then(l => WL = l).catch(() => {}); } catch (e) {} };
@@ -1174,6 +1255,29 @@ input[type=time]{font:inherit;color:inherit;background:transparent;border:1px so
   #app.still .scene::after{animation:thund 9s infinite!important}#app.still .scene .skyline{animation:twk 4s ease-in-out infinite!important}#app.still .scene .dots i{animation:dotb 1.2s infinite!important}}
 a.btn{display:block;box-sizing:border-box;text-align:center;text-decoration:none;color:inherit}
 #smodal .card{max-height:92vh;overflow:auto}
+/* night scene: moon, haze, drifting storm clouds (the rain, lightning and day scene are drawn on the #bg canvas) */
+#scn{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0;transition:opacity .9s}
+body:not([data-ph=day]):not([data-ph=dead]):not(.nofx) #scn{opacity:1}
+body.nofx #scn{display:none}
+#scn .moon-haze{position:absolute;top:2%;left:50%;width:min(54vw,480px);aspect-ratio:1;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(178,204,242,.22) 0 27%,rgba(135,176,236,.11) 42%,transparent 70%);filter:blur(7px)}
+#scn .moon{position:absolute;top:6%;left:50%;width:min(34vw,290px);aspect-ratio:1;transform:translateX(-50%);border-radius:50%;opacity:.93;animation:scnMoon 8s ease-in-out infinite;
+  background:radial-gradient(circle at 63% 33%,rgba(140,152,178,.38) 0 6%,transparent 7%),radial-gradient(circle at 37% 57%,rgba(140,152,178,.32) 0 10%,transparent 11%),radial-gradient(circle at 70% 70%,rgba(140,152,178,.3) 0 5.5%,transparent 6.5%),radial-gradient(circle at 27% 29%,rgba(140,152,178,.26) 0 5%,transparent 6%),radial-gradient(circle at 48% 82%,rgba(140,152,178,.22) 0 4%,transparent 5%),radial-gradient(circle at 36% 31%,#fffdf2,#e8edf8 55%,#aebbd6 100%);
+  box-shadow:0 0 30px rgba(226,237,255,.66),0 0 100px rgba(153,189,255,.28),inset -24px -18px 32px rgba(10,18,38,.28)}
+#scn .moon.img{width:min(44vw,430px);top:8%;background:var(--m) center/cover no-repeat;filter:grayscale(.12) sepia(.08) contrast(1.1) brightness(1.08);mix-blend-mode:screen;-webkit-mask-image:radial-gradient(circle at center,#000 0 58%,transparent 64%);mask-image:radial-gradient(circle at center,#000 0 58%,transparent 64%);box-shadow:none}
+#scn .cld{position:absolute;width:62vw;height:18vh;min-height:100px;border-radius:50%;background:rgba(10,21,42,.7);filter:blur(17px);opacity:.82}
+#scn .cld::before,#scn .cld::after{content:"";position:absolute;border-radius:50%;background:inherit}
+#scn .cld::before{width:46%;height:150%;left:13%;top:-54%}#scn .cld::after{width:36%;height:126%;right:10%;top:-37%}
+#scn .cld-a{top:29%;left:-20%;animation:scnCloudA 32s linear infinite}
+#scn .cld-b{top:43%;right:-24%;transform:scale(.72);opacity:.6;animation:scnCloudB 42s linear infinite}
+#scn .cld-c{top:67%;left:-28%;transform:scale(.92);opacity:.52;animation:scnCloudA 48s linear infinite}
+#scn .horizon{position:absolute;left:-10%;right:-10%;bottom:-8%;height:28%;background:linear-gradient(180deg,transparent,rgba(1,7,16,.48) 30%,#030812 76%)}
+@keyframes scnMoon{0%,100%{transform:translateX(-50%) scale(1);opacity:.9}50%{transform:translateX(-50%) scale(1.018);opacity:1}}
+@keyframes scnCloudA{from{translate:-12vw 0}to{translate:24vw 3vh}}
+@keyframes scnCloudB{from{translate:15vw 0}to{translate:-22vw -2vh}}
+@media (max-width:600px){#scn .moon{width:44vw;top:7%}#scn .moon.img{width:58vw}#scn .moon-haze{width:68vw}#scn .cld{width:100vw}}
+/* day scene is bright, so it is dimmed a little to keep the text readable */
+body[data-ph=day] #bg{filter:brightness(.6) saturate(.9)}body.nofx #bg{filter:none}
+#vg{transition:background .8s}body[data-ph=day] #vg{background:linear-gradient(rgba(6,12,20,.28),rgba(6,12,20,.5))}body.nofx #vg{background:none}
 </style>
 <script>
 /* PWA auto-update: when online the app re-checks for a new version (on open, on coming back, when the network returns, every 10 min).
